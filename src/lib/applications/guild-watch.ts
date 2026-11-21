@@ -1,5 +1,5 @@
 /**
- * Bewerber muss auf dem Nordverkehr-Discord sein. Verlässt jemand den Server,
+ * Bewerber muss auf dem Treffpunkt-Discord sein. Verlässt jemand den Server,
  * während seine Bewerbung läuft, schreibt der Bot ihm automatisch eine
  * Nachricht ins Portal (per DM geht nicht – kein gemeinsamer Server mehr).
  *
@@ -38,7 +38,7 @@ export function leftGuildMessage(name: string, position: string, invite: string)
  * Stand für eine Bewerbung anwenden. Gibt "notified" zurück, wenn gerade eine
  * Nachricht verschickt wurde, "back" bei Rückkehr, sonst null.
  */
-/** Bann auf dem Nordverkehr-Discord nachsehen. null = nicht gebannt oder nicht prüfbar (fehlende Rechte, kein Bot). */
+/** Bann auf dem Treffpunkt-Discord nachsehen. null = nicht gebannt oder nicht prüfbar (fehlende Rechte, kein Bot). */
 export async function lookupBan(discordId: string): Promise<{ reason: string | null } | null> {
   const guildId = process.env.DISCORD_GUILD_ID;
   if (!guildId) return null;
@@ -59,7 +59,7 @@ async function markBanned(
 ): Promise<"banned" | null> {
   if (app.guildBannedAt) return null;
   const flags = ((app.flags as { code: string; message: string }[]) ?? []).filter((f) => f.code !== "guild_banned");
-  flags.push({ code: "guild_banned", message: `Auf dem Nordverkehr-Discord gebannt${reason ? ` (Grund: ${reason.slice(0, 120)})` : ""}.` });
+  flags.push({ code: "guild_banned", message: `Auf dem Treffpunkt-Discord gebannt${reason ? ` (Grund: ${reason.slice(0, 120)})` : ""}.` });
   const res = await db.application.updateMany({
     where: { id: app.id, OR: [{ guildBannedAt: null }] },
     data: { guildBannedAt: now, guildBanReason: reason, guildLeftNotifiedAt: now, flags: flags as never },

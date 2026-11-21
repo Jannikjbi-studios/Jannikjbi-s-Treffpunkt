@@ -16,7 +16,7 @@ export const metadata: Metadata = { title: "Meine Bewerbungen", robots: { index:
 export default function DashboardPage() {
   return (
     <>
-      <PageHero label="NORDVERKEHR // DEIN BEREICH" title="Meine" emphasis="Bewerbungen." compact>
+      <PageHero label="TREFFPUNKT // DEIN BEREICH" title="Meine" emphasis="Bewerbungen." compact>
         <p>Hier siehst du jederzeit, wo deine Bewerbung steht – und was das Team dir geschrieben hat.</p>
       </PageHero>
       <Container>
@@ -52,12 +52,12 @@ async function ApplicationList() {
         icon={ClipboardText}
         title="Noch keine Bewerbung"
         action={
-          <Link href="/#bewerben" className="nv-btn nv-btn-primary">
+          <Link href="/#positionen" className="nv-btn nv-btn-primary">
             Jetzt bewerben <ArrowRight size={16} aria-hidden />
           </Link>
         }
       >
-        Whitelist, Beta-Test oder Team – such dir aus, wo du mitmachen willst. Dein Entwurf wird automatisch gespeichert.
+        Cutter, Social-Media, Stream-Mod, Moderator oder Supporter – such dir aus, wo du mitmachen willst. Dein Entwurf wird automatisch gespeichert.
         <div className="mt-5 max-w-sm mx-auto">
           <NotifyToggle on={!!user.notifyNewPositions} compact />
         </div>

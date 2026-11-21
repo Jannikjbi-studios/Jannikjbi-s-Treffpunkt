@@ -1,44 +1,45 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
 import { connection } from "next/server";
 import {
   ArrowRight,
+  ArrowUpRight,
   ChatCircleDots,
   ClipboardText,
   DiscordLogo,
   FloppyDisk,
-  Flask,
   Handshake,
-  IdentificationCard,
   Microphone,
   ShieldCheck,
-  UsersThree,
+  TwitchLogo,
 } from "@phosphor-icons/react/ssr";
-import { Container, IconTile, PageHero, SectionTitle, cn, formatDay } from "@/components/ui";
-import { db } from "@/lib/db";
-import { KINDS, kindOf } from "@/lib/kinds";
+import { Container, IconTile, PageHero, PositionIcon, SectionTitle, cn, formatDay } from "@/components/ui";
+import { SocialIcon } from "@/components/layout/SocialIcon";
 import { deadlineLabel } from "@/lib/positions/deadline";
-import { listPublicPositions } from "@/lib/data/positions";
+import { listPublicPositions, listUpcomingPositions } from "@/lib/data/positions";
 import { getSettings } from "@/lib/settings";
+import { publicEnv } from "@/lib/env";
+import { BRAND, SERVER_FEATURES, SOCIALS, STREAM_PLAN, STREAM_TIME, TWITCH_URL } from "@/lib/brand";
 
 const STEPS = [
   { icon: DiscordLogo, title: "Mit Discord einloggen", text: "Kein extra Account. Wir brauchen nur deinen Discord-Namen." },
   { icon: FloppyDisk, title: "In Ruhe ausfüllen", text: "Dein Entwurf wird automatisch gespeichert. Du kannst jederzeit weitermachen." },
-  { icon: ChatCircleDots, title: "Team prüft & meldet sich", text: "Du bekommst eine Bestätigung per DM und siehst den Status im Dashboard." },
-  { icon: Microphone, title: "Gespräch auf Discord", text: "Bei Whitelist und Team lernen wir uns kurz im Sprachkanal kennen. Ehrlich und ohne Druck." },
+  { icon: ChatCircleDots, title: "Team prüft & meldet sich", text: "Du bekommst eine Bestätigung per DM und siehst den Stand im Dashboard." },
+  { icon: Microphone, title: "Kurzes Gespräch", text: "Wir lernen uns im Sprachkanal auf Discord kennen. Ehrlich und ohne Druck." },
 ];
 
 export default function HomePage() {
   return (
     <>
       <PageHero
-        label="NORDVERKEHR // BEWERBUNG"
-        title="Bewirb dich"
-        emphasis="bei Nordverkehr."
+        label="Jannikjbi's Treffpunkt // Team"
+        title="Mach mit im Team"
+        emphasis="vom Treffpunkt."
         aside={
           <div className="flex flex-col gap-3 sm:flex-row lg:flex-col xl:flex-row">
-            <a href="#bewerben" className="nv-btn nv-btn-primary">
-              Jetzt bewerben <ArrowRight size={16} aria-hidden />
+            <a href="#positionen" className="nv-btn nv-btn-primary">
+              Offene Stellen <ArrowRight size={16} aria-hidden />
             </a>
             <Link href="/dashboard" className="nv-btn nv-btn-ghost">
               <ClipboardText size={16} aria-hidden /> Meine Bewerbungen
@@ -47,16 +48,16 @@ export default function HomePage() {
         }
       >
         <p>
-          Ob als Spieler auf der Whitelist, als Beta-Tester vor dem Start oder im Team – hier bewirbst du dich. Ehrliches
-          Hamburg-RP: erst auf GTA 5, danach beim Umzug auf GTA 6.
+          {BRAND.name} ist der Discord-Server von {BRAND.creator}. Damit Clips, Shorts, Chat und Community rund laufen, suchen wir
+          Leute, die mit anpacken – vom Cutter bis zum Supporter.
         </p>
         <div className="mt-6 flex flex-wrap gap-2">
           <Suspense fallback={<span className="nv-pill">Mindestalter …</span>}>
             <MinAgePill />
           </Suspense>
           <span className="nv-pill">Login mit Discord</span>
-          <span className="nv-pill">Gespräch &amp; Support auf Discord</span>
-          <span className="nv-pill">Hamburg RP</span>
+          <span className="nv-pill">Ehrenamtlich</span>
+          <span className="nv-pill">Gespräch auf Discord</span>
         </div>
       </PageHero>
 
@@ -75,22 +76,10 @@ export default function HomePage() {
         </ol>
       </Container>
 
-      <section id="bewerben" className="scroll-mt-28 pt-24">
-        <Container>
-          <SectionTitle label="Bewerben" title="Wo willst du" emphasis="mitmachen?">
-            Drei Wege zu Nordverkehr – jeder mit eigenem Formular. Du kannst dich für mehrere gleichzeitig bewerben.
-          </SectionTitle>
-          <Suspense fallback={<div className="grid grid-cols-[minmax(0,1fr)] gap-4 md:grid-cols-3">{[0, 1, 2].map((i) => <div key={i} className="nv-skeleton h-56" />)}</div>}>
-            <KindCards />
-          </Suspense>
-        </Container>
-      </section>
-
       <section id="positionen" className="scroll-mt-28 pt-24">
         <Container>
           <SectionTitle label="Team // Offene Stellen" title="Wir suchen" emphasis="Verstärkung.">
-            Nordverkehr ist ein Community-Projekt – die Mitarbeit im Team ist ehrenamtlich. Klick auf eine Rolle, um Aufgaben
-            und Anforderungen zu sehen. Unsicher?{" "}
+            Die Mitarbeit im Team ist ehrenamtlich. Klick auf eine Stelle, um Aufgaben und Anforderungen zu sehen. Unsicher?{" "}
             <Link href="/passt-zu-mir" className="nv-link">
               Welche Stelle passt zu mir?
             </Link>
@@ -98,6 +87,94 @@ export default function HomePage() {
           <Suspense fallback={<PositionsSkeleton />}>
             <PositionList />
           </Suspense>
+          <Suspense fallback={null}>
+            <UpcomingList />
+          </Suspense>
+        </Container>
+      </section>
+
+      <section id="jannikjbi" className="scroll-mt-28 pt-24">
+        <Container>
+          <SectionTitle label="Über Jannikjbi" title="Für wen" emphasis="du arbeitest.">
+            {BRAND.creator} – gesprochen „{BRAND.pronunciation}“ – ist Jannik aus {BRAND.home}. Auf Twitch spielt er GTA Roleplay auf NRW
+            Roleplay als Jannik Heinz: Rettungsdienst im UKK, Taxi und abends die Farm-Route für die Familie. Dazu Simulations- und
+            Aufbauspiele.
+          </SectionTitle>
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[1.1fr_1fr]">
+            <div className="nv-card p-6">
+              <div className="flex items-center gap-4">
+                <Image src="/logo.png" alt="" width={128} height={128} className="h-16 w-16 rounded-full ring-2 ring-[var(--nv-red-line)]" />
+                <div className="min-w-0">
+                  <p className="font-display text-3xl leading-none">{BRAND.creator}</p>
+                  <p className="mt-1 text-sm text-muted">{BRAND.tagline}</p>
+                </div>
+              </div>
+              <h3 className="mt-6 nv-mono">Streamplan · {STREAM_TIME}</h3>
+              <ul className="mt-3 grid grid-cols-[minmax(0,1fr)] gap-1.5 sm:grid-cols-2">
+                {STREAM_PLAN.map((d) => (
+                  <li key={d.day} className={cn("flex items-baseline gap-3 rounded-lg px-3 py-2 text-sm", d.live ? "bg-red-soft" : "text-faint")}>
+                    <span className={cn("w-7 shrink-0 font-mono text-xs", d.live ? "text-red-text" : "")}>{d.day}</span>
+                    <span className={d.live ? "text-fg-2" : ""}>{d.what}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-6 flex flex-wrap gap-2">
+                <a href={TWITCH_URL} target="_blank" rel="noopener noreferrer" className="nv-btn nv-btn-primary nv-btn-sm">
+                  <TwitchLogo size={16} weight="fill" aria-hidden /> Auf Twitch folgen
+                </a>
+                <a href={publicEnv.mainSiteUrl} target="_blank" rel="noopener noreferrer" className="nv-btn nv-btn-ghost nv-btn-sm">
+                  jannikjbi.de <ArrowUpRight size={13} aria-hidden />
+                </a>
+              </div>
+            </div>
+            <ul className="grid grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-2 content-start">
+              {SOCIALS.map((s, i) => (
+                <li key={s.key} className="nv-anim" style={{ "--i": i } as React.CSSProperties}>
+                  <a href={s.url} target="_blank" rel="noopener noreferrer" className="nv-card nv-card-hover group flex items-center gap-3 p-4">
+                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-red-line bg-red-soft text-red-text">
+                      <SocialIcon kind={s.key} size={20} />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-sm font-semibold">{s.label}</span>
+                      <span className="block truncate text-xs text-muted">{s.handle}</span>
+                    </span>
+                    <ArrowUpRight size={14} className="ml-auto shrink-0 text-faint transition-colors group-hover:text-red-text" aria-hidden />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </Container>
+      </section>
+
+      <section id="discord" className="scroll-mt-28 pt-24">
+        <Container>
+          <div className="nv-card relative overflow-hidden p-6 sm:p-10">
+            <div className="absolute inset-0 nv-hero-glow pointer-events-none" aria-hidden />
+            <div className="relative grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[1fr_1.3fr] lg:items-center">
+              <div>
+                <p className="nv-label">Discord-Server</p>
+                <h2 className="nv-headline mt-4 text-3xl sm:text-4xl">
+                  Komm in den <em>Treffpunkt.</em>
+                </h2>
+                <p className="mt-3 text-muted">
+                  Bewerben kannst du dich nur, wenn du auf dem Server bist – Gespräch, Rückfragen und die Arbeit im Team laufen über
+                  Discord. Kostenlos, mit kurzer Verifizierung gegen Bots und Spam.
+                </p>
+                <a href={publicEnv.discordInvite} target="_blank" rel="noopener noreferrer" className="nv-btn nv-btn-discord mt-6">
+                  <DiscordLogo weight="fill" size={18} aria-hidden /> Server beitreten
+                </a>
+              </div>
+              <ul className="grid grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-2">
+                {SERVER_FEATURES.map((f) => (
+                  <li key={f.title} className="rounded-xl border border-line bg-bg/60 p-4">
+                    <h3 className="text-sm font-semibold">{f.title}</h3>
+                    <p className="mt-1 text-sm text-muted">{f.text}</p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
         </Container>
       </section>
 
@@ -109,12 +186,12 @@ export default function HomePage() {
               {
                 icon: Handshake,
                 title: "Ehrlichkeit",
-                text: "Schreib in deinen eigenen Worten. Kopierte Texte fallen auf – und bringen dich nicht weiter.",
+                text: "Schreib in deinen eigenen Worten. Kopierte oder KI-Texte fallen auf – und bringen dich nicht weiter.",
               },
               {
                 icon: ClipboardText,
                 title: "Verlässlichkeit",
-                text: "Lieber fünf Stunden die Woche, die wirklich stattfinden, als zwanzig auf dem Papier.",
+                text: "Lieber zwei Streams die Woche, die wirklich stattfinden, als jeden Tag auf dem Papier.",
               },
               {
                 icon: ShieldCheck,
@@ -135,65 +212,6 @@ export default function HomePage() {
   );
 }
 
-/** Whitelist, Beta, Team – mit Status (offen/geschlossen) und Link. */
-async function KindCards() {
-  await connection();
-  await listPublicPositions(); // legt bei frischer Datenbank Basisdaten an
-  const [special, teamOpen] = await Promise.all([
-    db.position.findMany({
-      where: { slug: { in: ["whitelist", "beta"] }, status: { not: "HIDDEN" }, type: { active: true } },
-      select: { slug: true, title: true, status: true, opensAt: true, seats: true, type: { select: { key: true } } },
-    }),
-    db.position.count({ where: { status: "OPEN", type: { key: "team", active: true } } }),
-  ]);
-  const cards = [
-    ...["whitelist", "beta"].flatMap((slug) => {
-      const p = special.find((x) => x.slug === slug);
-      if (!p) return [];
-      const k = kindOf(p.type.key);
-      return [{ key: k.key, title: p.title, teaser: k.teaser, open: p.status === "OPEN", href: k.path, icon: k.key === "beta" ? Flask : IdentificationCard, note: p.status !== "OPEN" && p.opensAt ? `Öffnet am ${formatDay(p.opensAt)}` : p.status === "OPEN" && typeof p.seats === "number" && p.seats > 0 ? `Noch ${p.seats} Plätze` : null }];
-    }),
-    {
-      key: "team",
-      title: "Team",
-      teaser: KINDS.team.teaser,
-      open: teamOpen > 0,
-      href: "/#positionen",
-      icon: UsersThree,
-      note: teamOpen > 0 ? `${teamOpen} ${teamOpen === 1 ? "Stelle" : "Stellen"} offen` : null,
-    },
-  ];
-  return (
-    <ul className={cn("grid gap-4", cards.length === 3 ? "md:grid-cols-3" : "md:grid-cols-2")}>
-      {cards.map((c, i) => (
-        <li key={c.key} className="nv-anim" style={{ "--i": i } as React.CSSProperties}>
-          <Link href={c.href} className={cn("nv-card nv-card-hover group flex h-full flex-col gap-4 p-6", !c.open && "opacity-80")}>
-            <div className="flex items-center justify-between gap-3">
-              <span className="h-12 w-12 shrink-0 rounded-xl grid place-items-center text-red-text border border-red-line bg-red-soft">
-                <c.icon size={24} weight="duotone" aria-hidden />
-              </span>
-              {c.open ? (
-                <span className="nv-pill nv-tone-success !text-[0.7rem] !py-0.5">Offen</span>
-              ) : (
-                <span className="nv-pill !text-[0.7rem] !py-0.5">{c.key === "team" ? "Gerade keine Stellen" : "Noch geschlossen"}</span>
-              )}
-            </div>
-            <div className="flex-1">
-              <h3 className="font-display text-3xl">{c.title}</h3>
-              <p className="mt-2 text-sm text-muted">{c.teaser}</p>
-              {c.note && <p className="mt-2 text-xs text-fg-2">{c.note}</p>}
-            </div>
-            <span className="inline-flex items-center gap-1.5 text-sm font-medium text-red-text">
-              {c.open ? (c.key === "team" ? "Stellen ansehen" : "Jetzt bewerben") : "Mehr erfahren"}
-              <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" aria-hidden />
-            </span>
-          </Link>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
 async function MinAgePill() {
   await connection();
   const s = await getSettings();
@@ -208,41 +226,64 @@ async function PositionList() {
   }
   return (
     <ul className="grid grid-cols-[minmax(0,1fr)] gap-4 md:grid-cols-2">
-      {positions.map((p, i) => {
-        const open = p.status === "OPEN";
-        return (
-          <li key={p.id} className="nv-anim" style={{ "--i": i } as React.CSSProperties}>
-            <Link
-              href={`/positionen/${p.slug}`}
-              className={cn("nv-card nv-card-hover group flex items-start gap-5 p-6 h-full", !open && "opacity-70")}
-            >
-              <IconTile icon={p.icon} />
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="font-display text-2xl">{p.title}</h3>
-                  {open && deadlineLabel(p.closesAt) && (
-                    <span className="nv-pill nv-tone-warn !text-[0.7rem] !py-0.5" data-testid="deadline-label">
-                      {deadlineLabel(p.closesAt)}
-                    </span>
-                  )}
-                  {open ? (
-                    <span className="nv-pill nv-tone-success !text-[0.7rem] !py-0.5">Offen</span>
-                  ) : (
-                    <span className="nv-pill !text-[0.7rem] !py-0.5">Geschlossen</span>
-                  )}
-                </div>
-                <p className="mt-1 text-sm text-muted">{p.tagline}</p>
-                <p className="mt-4 text-sm text-fg-2 line-clamp-2">{p.description}</p>
-                <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-red-text">
-                  Details ansehen
-                  <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" aria-hidden />
+      {positions.map((p, i) => (
+        <li key={p.id} className="nv-anim" style={{ "--i": i } as React.CSSProperties}>
+          <Link href={`/positionen/${p.slug}`} className="nv-card nv-card-hover group flex items-start gap-5 p-6 h-full">
+            <IconTile icon={p.icon} />
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <h3 className="font-display text-2xl">{p.title}</h3>
+                {deadlineLabel(p.closesAt) && (
+                  <span className="nv-pill nv-tone-warn !text-[0.7rem] !py-0.5" data-testid="deadline-label">
+                    {deadlineLabel(p.closesAt)}
+                  </span>
+                )}
+                <span className="nv-pill nv-tone-success !text-[0.7rem] !py-0.5">
+                  {typeof p.seats === "number" && p.seats > 0 ? `${p.seats} ${p.seats === 1 ? "Platz" : "Plätze"} frei` : "Offen"}
                 </span>
               </div>
+              <p className="mt-1 text-sm text-muted">{p.tagline}</p>
+              <p className="mt-4 text-sm text-fg-2 line-clamp-2">{p.description}</p>
+              <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-red-text">
+                Details ansehen
+                <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" aria-hidden />
+              </span>
+            </div>
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** Angelegte, aber noch geschlossene Stellen – kompakt, mit Link zum Benachrichtigen. */
+async function UpcomingList() {
+  await connection();
+  const upcoming = await listUpcomingPositions();
+  if (!upcoming.length) return null;
+  return (
+    <div className="mt-10">
+      <h3 className="nv-mono">Demnächst</h3>
+      <p className="mt-2 text-sm text-muted">
+        Diese Stellen öffnen später. Auf der Seite der Stelle kannst du dich per DM benachrichtigen lassen.
+      </p>
+      <ul className="mt-4 grid grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-3">
+        {upcoming.map((p) => (
+          <li key={p.id}>
+            <Link href={`/positionen/${p.slug}`} className="nv-card nv-card-hover group flex items-center gap-3 p-4 h-full">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-line text-muted">
+                <PositionIcon icon={p.icon} size={20} />
+              </span>
+              <span className="min-w-0">
+                <span className="block font-semibold">{p.title}</span>
+                <span className="block text-xs text-muted">{p.opensAt ? `Öffnet am ${formatDay(p.opensAt)}` : "Noch geschlossen"}</span>
+              </span>
+              <ArrowRight size={14} className="ml-auto shrink-0 text-faint transition-transform group-hover:translate-x-1" aria-hidden />
             </Link>
           </li>
-        );
-      })}
-    </ul>
+        ))}
+      </ul>
+    </div>
   );
 }
 

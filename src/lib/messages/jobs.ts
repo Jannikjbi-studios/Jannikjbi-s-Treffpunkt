@@ -21,7 +21,7 @@ export interface JobPosition {
   minAge: number | null;
   /** Discord-Rolle der Position – wird als Erwähnung angezeigt (ohne Ping) */
   acceptRoleId: string | null;
-  /** Bewerbungsart (Whitelist/Beta haben eigene Texte im Einzelaufruf) */
+  /** Bewerbungsart (für eigene Texte im Einzelaufruf, derzeit nur „team“) */
   type?: { key: string } | null;
 }
 
@@ -32,6 +32,13 @@ interface Opts {
 }
 
 const ICON_EMOJI: Record<string, string> = {
+  scissors: "✂️",
+  phone: "📱",
+  microphone: "🎙️",
+  sword: "⚔️",
+  palette: "🎨",
+  tent: "🎪",
+  handshake: "🤝",
   headset: "🎧",
   shield: "🛡️",
   code: "💻",
@@ -53,14 +60,17 @@ function commonRequirements(open: JobPosition[], defaultMinAge: number) {
   if (!open.length) return [];
   const [first, ...rest] = open;
   const common = first.requirements.filter((r) => rest.every((p) => p.requirements.includes(r)));
-  const ageLine = `Mindestens ${defaultMinAge} Jahre alt`;
+  // Mindestalter kann je Stelle abweichen (z. B. Cutter ab 15) – dann das niedrigste mit Hinweis
+  const ages = open.map((p) => p.minAge ?? defaultMinAge);
+  const min = Math.min(...ages);
+  const ageLine = ages.every((a) => a === min) ? `Mindestens ${min} Jahre alt` : `Mindestens ${min} Jahre alt (je nach Stelle)`;
   return common.some((r) => /mindestalter|jahre/i.test(r)) ? common : [ageLine, ...common];
 }
 
 function footer(opts: Opts): APIComponentInContainer[] {
   const stand = new Intl.DateTimeFormat("de-DE", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Berlin" }).format(opts.updatedAt ?? new Date());
   // Wie beim Embed: Linie, dann kleine Zeile
-  return [separator(true, 1), text(`-# Nordverkehr Roleplay · Stand: ${stand}`)];
+  return [separator(true, 1), text(`-# Jannikjbi's Treffpunkt · Stand: ${stand}`)];
 }
 
 function buttonRows(buttons: APIButtonComponentWithURL[]): APIActionRowComponent<APIButtonComponentWithURL>[] {
@@ -96,7 +106,7 @@ export function buildJobsMessage(positions: JobPosition[], opts: Opts): RESTPost
     ...(open.length ? ["📊 **Statusübersicht – Offene Stellen:**", ...open.map((p) => `${jobEmoji(p.icon)} ${p.title}: 🟢 Offen`), ""] : []),
     "Wenn du dich angesprochen fühlst, bewirb dich direkt im **Bewerbungsportal** – Login mit Discord, dauert ca. 15–25 Minuten. Wir freuen uns auf dich! 🎉",
     "",
-    "Euer Nordverkehr-Team",
+    "Euer Treffpunkt-Team",
   );
 
   const children: APIComponentInContainer[] = [text(truncate(parts.join(NL), 3800))];
@@ -116,12 +126,7 @@ export function buildJobsMessage(positions: JobPosition[], opts: Opts): RESTPost
 export function buildSpotlightMessage(p: JobPosition, opts: Opts): RESTPostAPIChannelMessageJSONBody {
   const open = p.status === "OPEN";
   const kind = p.type?.key ?? "team";
-  const headline =
-    kind === "whitelist"
-      ? `## ${open ? "Die Whitelist ist offen!" : "Whitelist"} ${jobEmoji(p.icon)}`
-      : kind === "beta"
-        ? `## ${open ? "Beta-Tester gesucht!" : "Beta-Test"} ${jobEmoji(p.icon)}`
-        : `## Wir suchen ${roleOrTitle(p)}! ${jobEmoji(p.icon)}`;
+  const headline = `## Wir suchen ${roleOrTitle(p)}! ${jobEmoji(p.icon)}`;
   const parts: string[] = [headline, `${p.tagline} ${p.description}`];
   if (p.tasks.length) parts.push("", kind === "team" ? "📋 **Deine Aufgaben:**" : "📋 **So läuft's:**", ...p.tasks.map((t) => `> ${t}`));
   const reqs = p.requirements.length ? p.requirements : [`Mindestens ${p.minAge ?? opts.defaultMinAge} Jahre alt`];
@@ -136,7 +141,7 @@ export function buildSpotlightMessage(p: JobPosition, opts: Opts): RESTPostAPICh
         : "Gerade geschlossen. Wir melden uns hier, sobald es losgeht.",
     "",
     "Mit freundlichen Grüßen",
-    "Euer Nordverkehr-Team",
+    "Euer Treffpunkt-Team",
   );
 
   const children: APIComponentInContainer[] = [text(truncate(parts.join(NL), 3800))];
@@ -146,7 +151,7 @@ export function buildSpotlightMessage(p: JobPosition, opts: Opts): RESTPostAPICh
         {
           type: 2,
           style: 5,
-          label: kind === "whitelist" ? "Jetzt zur Whitelist bewerben" : kind === "beta" ? "Jetzt für die Beta bewerben" : `Jetzt als ${truncate(p.title, 60)} bewerben`,
+          label: `Jetzt als ${truncate(p.title, 60)} bewerben`,
           url: `${opts.appUrl}/positionen/${p.slug}`,
           emoji: { name: jobEmoji(p.icon) },
         },

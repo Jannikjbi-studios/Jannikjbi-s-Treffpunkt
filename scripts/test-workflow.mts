@@ -23,7 +23,7 @@ try {
   await saveSettings({ "discord.botLogChannelId": "123456789012345678" }, applicant.id);
   const jonas = await mk("Jonas", "100000000000000011");
   const lea = await mk("Lea", "100000000000000012");
-  const app = await db.application.create({ data: { userId: applicant.id, positionId: pos.id, status: "SUBMITTED", publicId: "NV-T-1", submittedAt: new Date() } });
+  const app = await db.application.create({ data: { userId: applicant.id, positionId: pos.id, status: "SUBMITTED", publicId: "JT-T-1", submittedAt: new Date() } });
 
   // Sperr-Filter (null-Felder)
   const ban = await db.userBan.create({ data: { subjectId: applicant.id, reason: "Test" } });
@@ -51,12 +51,12 @@ try {
   const m1 = await db.message.findUniqueOrThrow({ where: { id: personal.messageId } });
   const m2 = await db.message.findUniqueOrThrow({ where: { id: asTeam.messageId } });
   check(!m1.asTeam && m1.body.includes("Gruß Jonas"), "persönlich: {teammitglied} = Jonas");
-  check(m2.asTeam && m2.body.includes("das Nordverkehr-Team"), "als Team: {teammitglied} = das Nordverkehr-Team");
+  check(m2.asTeam && m2.body.includes("das Treffpunkt-Team"), "als Team: {teammitglied} = das Treffpunkt-Team");
   check((await db.message.count({ where: { id: { in: [m1.id, m2.id] }, readAt: null } })) === 2, "neue Nachrichten mit readAt:null auffindbar");
   const p1 = JSON.stringify((await db.outboxJob.findFirstOrThrow({ where: { messageId: m1.id } })).payload);
   const p2 = JSON.stringify((await db.outboxJob.findFirstOrThrow({ where: { messageId: m2.id } })).payload);
-  check(p1.includes('"flags":32768') && p1.includes("Jonas · Nordverkehr-Team") && !p1.includes('"embeds"'), "DM persönlich: V2, Jonas im Kopf");
-  check(p2.includes("NORDVERKEHR // TEAM") && !p2.includes("Jonas"), "DM als Team: kein Name");
+  check(p1.includes('"flags":32768') && p1.includes("Jonas · Treffpunkt-Team") && !p1.includes('"embeds"'), "DM persönlich: V2, Jonas im Kopf");
+  check(p2.includes("TREFFPUNKT // TEAM") && !p2.includes("Jonas"), "DM als Team: kein Name");
 
   await changeStatus({ applicationId: app.id, to: "IN_REVIEW", actorId: jonas.id });
   const logs = await db.outboxJob.findMany({ where: { type: "CHANNEL_MESSAGE" } });

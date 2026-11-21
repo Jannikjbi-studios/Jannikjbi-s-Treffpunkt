@@ -166,18 +166,13 @@ interface ConfirmationDef {
 }
 
 const VOICE_LABEL: Record<KindKey, string> = {
-  team: "Ich habe ein funktionierendes Mikrofon und bin für Gespräch und Support auf Discord erreichbar.",
-  whitelist: "Ich habe ein funktionierendes Mikrofon – für das Whitelist-Gespräch auf Discord und im Spiel (Voice-Pflicht).",
-  beta: "Ich habe ein funktionierendes Mikrofon und spiele mit Voice (Voice-Pflicht).",
+  team: "Ich habe ein funktionierendes Mikrofon und bin für das Gespräch und die Absprachen im Team auf Discord erreichbar.",
 };
 
 const CONFIRMATION_DEFS: Record<Exclude<ConfirmationKey, "voice">, Omit<ConfirmationDef, "key">> = {
-  rules: { label: "Ich habe das Regelwerk gelesen und halte mich daran.", link: { href: RULES_URL, label: "Regelwerk" } },
+  rules: { label: "Ich habe die Regeln des Discord-Servers (#regeln) gelesen und halte mich daran.", link: { href: RULES_URL, label: "Regeln" } },
   unpaid: {
-    label: "Mir ist klar, dass Nordverkehr ein Hobby- und Community-Projekt ist und die Mitarbeit im Team ehrenamtlich ist – derzeit gibt es keine Bezahlung.",
-  },
-  betaTest: {
-    label: "Mir ist klar, dass die Beta ein Test ist: Fehler, Neustarts und zurückgesetzte Spielstände sind möglich – und ich melde Fehler, die mir auffallen.",
+    label: "Mir ist klar, dass Jannikjbi's Treffpunkt ein Hobby- und Community-Projekt ist und die Mitarbeit im Team ehrenamtlich ist – es gibt keine Bezahlung.",
   },
   truth: { label: "Meine Angaben sind ehrlich und von mir selbst geschrieben." },
   privacy: {

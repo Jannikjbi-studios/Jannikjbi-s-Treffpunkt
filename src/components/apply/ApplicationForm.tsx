@@ -298,7 +298,7 @@ export function ApplicationForm({ position, sections, minAge, displayName, initi
               >
                 <span
                   className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border font-mono text-[0.7rem] ${
-                    i < step ? "border-red bg-red text-white" : i === step ? "border-red-line text-red-text" : "border-line"
+                    i < step ? "border-red bg-red text-on-red" : i === step ? "border-red-line text-red-text" : "border-line"
                   }`}
                 >
                   {i < step ? <CheckCircle size={14} weight="bold" aria-hidden /> : i + 1}
@@ -374,7 +374,7 @@ export function ApplicationForm({ position, sections, minAge, displayName, initi
             {step === 0 && (
               <div className="mt-6 space-y-6">
                 <p className="text-muted">
-                  {kind.key === "team" ? "Du bewirbst dich als" : kind.key === "beta" ? "Du bewirbst dich für den" : "Du bewirbst dich für die"}{" "}
+                  {kind.key === "team" ? "Du bewirbst dich als" : "Du bewirbst dich für"}{" "}
                   <strong className="text-fg">{position.title}</strong>. Nimm dir Zeit – dein
                   Entwurf wird automatisch gespeichert, du kannst jederzeit pausieren und später weitermachen.
                 </p>
@@ -551,7 +551,7 @@ export function ApplicationForm({ position, sections, minAge, displayName, initi
                     <p className="flex gap-2 font-medium">
                       <DiscordLogo size={18} className="shrink-0 mt-0.5" aria-hidden /> Du bist nicht auf unserem Discord-Server.
                     </p>
-                    <p>Absenden geht nur, wenn du auf dem Nordverkehr-Discord bist – dort laufen Gespräch, Rückfragen und DMs. Dein Entwurf bleibt gespeichert.</p>
+                    <p>Absenden geht nur, wenn du auf dem Treffpunkt-Discord bist – dort laufen Gespräch, Rückfragen und DMs. Dein Entwurf bleibt gespeichert.</p>
                     <div className="flex flex-wrap gap-2">
                       {discordInvite && (
                         <a href={discordInvite} target="_blank" rel="noopener noreferrer" className="nv-btn nv-btn-primary nv-btn-sm">

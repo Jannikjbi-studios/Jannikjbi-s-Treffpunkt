@@ -12,7 +12,7 @@ describe("Discord-Knöpfe: Status", () => {
     expect(log).toContain("nv:claim:abcdefghij12");
     expect(log).toContain("https://x/y");
     const post = JSON.stringify(
-      buildLogMessage({ positionTitle: "Support", applicantDiscordId: "1", applicantName: "A", publicId: "NV-1", age: 20, teamUrl: "https://x/t", flags: [], claimCustomId: "nv:claim:abcdefghij12" }),
+      buildLogMessage({ positionTitle: "Support", applicantDiscordId: "1", applicantName: "A", publicId: "JT-1", age: 20, teamUrl: "https://x/t", flags: [], claimCustomId: "nv:claim:abcdefghij12" }),
     );
     expect(post).toContain("nv:claim:abcdefghij12");
     expect(post).toContain("nv:status:IN_REVIEW:abcdefghij12");
@@ -100,13 +100,16 @@ describe("Bewerbungsrunden", () => {
 import { MATCH_QUESTIONS, scorePositions } from "@/lib/applications/match";
 
 describe("Welche Stelle passt zu mir?", () => {
-  const slugs = ["support", "moderator", "entwickler", "media", "mapper", "eventteam"];
-  it("Support-Typ landet bei Support", () => {
+  const slugs = ["cutter", "social-media", "stream-mod", "moderator", "supporter", "designer", "event-team", "partner-manager"];
+  it("Support-Typ landet bei Supporter", () => {
     const answers = { ort: 0, staerke: 0, technik: 3, zeit: 2, stress: 0 };
-    expect(scorePositions(answers, slugs)[0].slug).toBe("support");
+    expect(scorePositions(answers, slugs)[0].slug).toBe("supporter");
   });
-  it("Technik-Typ landet bei Entwickler", () => {
-    expect(scorePositions({ ort: 2, staerke: 4, technik: 0, zeit: 1, stress: 2 }, slugs)[0].slug).toBe("entwickler");
+  it("Schnitt-Typ landet bei Cutter", () => {
+    expect(scorePositions({ ort: 2, staerke: 2, technik: 0, zeit: 1, stress: 2 }, slugs)[0].slug).toBe("cutter");
+  });
+  it("Chat-Typ landet bei Stream-Mod", () => {
+    expect(scorePositions({ ort: 1, staerke: 1, technik: 2, zeit: 0, stress: 1 }, slugs)[0].slug).toBe("stream-mod");
   });
   it("nur vorhandene Stellen, jede Frage hat Antworten", () => {
     expect(scorePositions({ ort: 0 }, ["moderator"]).every((r) => r.slug === "moderator")).toBe(true);
@@ -122,8 +125,8 @@ describe("Review-Fixes 13.11.", () => {
     expect(berlinDayBounds("2026-03-29").end.toISOString()).toBe("2026-03-29T21:59:59.000Z");
   });
   it("Selbsttest: neu angelegte Stellen erscheinen (hinten)", () => {
-    const r = scorePositions({ ort: 0, staerke: 0, technik: 3, zeit: 2, stress: 0 }, ["support", "fraktionsverwaltung"]);
-    expect(r[0].slug).toBe("support");
+    const r = scorePositions({ ort: 0, staerke: 0, technik: 3, zeit: 2, stress: 0 }, ["supporter", "fraktionsverwaltung"]);
+    expect(r[0].slug).toBe("supporter");
     expect(r.map((x) => x.slug)).toContain("fraktionsverwaltung");
     expect(scorePositions({ ort: 0 }, ["fraktionsverwaltung"])).toEqual([{ slug: "fraktionsverwaltung", points: 1 }]);
   });

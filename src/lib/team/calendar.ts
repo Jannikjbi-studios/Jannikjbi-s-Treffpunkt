@@ -46,14 +46,14 @@ export function buildIcs(events: CalendarEvent[], now = new Date()) {
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Nordverkehr//Bewerbungsportal//DE",
+    "PRODID:-//Jannikjbi Treffpunkt//Bewerbungsportal//DE",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
-    "X-WR-CALNAME:Nordverkehr Gespräche",
+    "X-WR-CALNAME:Treffpunkt Gespräche",
     "X-WR-TIMEZONE:Europe/Berlin",
     ...events.flatMap((e) => [
       "BEGIN:VEVENT",
-      `UID:${e.uid}@nordverkehr-bewerbung`,
+      `UID:${e.uid}@treffpunkt-bewerbung`,
       `DTSTAMP:${stamp(now)}`,
       `DTSTART:${stamp(e.start)}`,
       `DTEND:${stamp(e.end)}`,

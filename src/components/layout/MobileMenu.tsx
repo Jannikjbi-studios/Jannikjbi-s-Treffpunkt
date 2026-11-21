@@ -24,11 +24,9 @@ export function MobileMenu({ discordInvite }: Props) {
   }, [open]);
 
   const portal = [
-    { href: "/", label: "Bewerben" },
-    { href: "/whitelist", label: "Whitelist" },
-    { href: "/beta", label: "Beta-Test" },
-    { href: "/#positionen", label: "Team-Stellen" },
+    { href: "/#positionen", label: "Offene Stellen" },
     { href: "/passt-zu-mir", label: "Welche Stelle passt?" },
+    { href: "/gespraech", label: "So läuft das Gespräch" },
     { href: "/dashboard", label: "Meine Bewerbungen" },
     { href: "/ideen", label: "Ideen & Fehler" },
     { href: "/konto", label: "Konto & Daten" },
@@ -74,7 +72,7 @@ export function MobileMenu({ discordInvite }: Props) {
               <DiscordLogo weight="fill" size={18} aria-hidden /> Discord beitreten
             </a>
           </nav>
-          <p className="absolute bottom-10 nv-mono">NORDVERKEHR // BEWERBUNG</p>
+          <p className="absolute bottom-10 nv-mono">TREFFPUNKT // TEAM</p>
         </div>,
           document.body,
         )}

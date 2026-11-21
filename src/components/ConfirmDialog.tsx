@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Info, Question, WarningOctagon } from "@phosphor-icons/react/ssr";
 
 /**
- * Eigene Bestätigungs-Box statt window.confirm/alert – im Nordverkehr-Stil.
+ * Eigene Bestätigungs-Box statt window.confirm/alert – im Treffpunkt-Stil.
  * Aufruf überall:  if (!(await confirmDialog({ title: "…" }))) return;
  * Der <ConfirmHost/> hängt einmal im Root-Layout.
  */

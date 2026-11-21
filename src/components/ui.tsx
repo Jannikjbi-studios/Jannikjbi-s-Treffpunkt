@@ -4,8 +4,15 @@ import {
   Code,
   Confetti,
   Cube,
+  DeviceMobile,
+  Handshake,
   Headset,
+  Microphone,
+  Palette,
+  Scissors,
   ShieldCheck,
+  Sword,
+  Tent,
   UsersThree,
   IdentificationCard,
   Flask,
@@ -159,7 +166,14 @@ export function EmptyState({ icon: IconC, title, children, action }: { icon?: Ic
 }
 
 const POSITION_ICONS: Record<string, Icon> = {
+  scissors: Scissors,
+  phone: DeviceMobile,
+  microphone: Microphone,
+  sword: Sword,
   headset: Headset,
+  palette: Palette,
+  tent: Tent,
+  handshake: Handshake,
   shield: ShieldCheck,
   code: Code,
   camera: Camera,
@@ -183,7 +197,7 @@ export function IconTile({ icon, className }: { icon: string; className?: string
         "h-12 w-12 shrink-0 rounded-xl grid place-items-center text-red-text border border-red-line bg-red-soft",
         className,
       )}
-      style={{ boxShadow: "0 0 24px rgba(196,30,30,0.18)" }}
+      style={{ boxShadow: "0 0 24px rgba(var(--nv-accent-rgb), 0.16)" }}
     >
       <PositionIcon icon={icon} />
     </div>

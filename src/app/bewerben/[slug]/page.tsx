@@ -101,6 +101,30 @@ async function Apply({
     access.source === "error" ||
     access.source === "unconfigured";
 
+  // Blacklist / Team-Sperre: gar nicht erst ausfüllen lassen. Zeigt der Zwischenspeicher eine
+  // Sperr-Rolle, frisch bei Discord nachsehen (sie kann inzwischen entfernt sein).
+  const { BLOCKED_ROLE_MESSAGE, hasBlockedRole } = await import("@/lib/applications/blocked-roles");
+  const { blockedByRoles, teamBanRoleId } = await import("@/lib/team/ban-role");
+  const teamBanRole = await teamBanRoleId();
+  const cachedRoles = access?.roleIds ?? user.roleIds;
+  const maybeBlocked = hasBlockedRole(cachedRoles) || (!!teamBanRole && cachedRoles.includes(teamBanRole));
+  const freshRoles = maybeBlocked && access?.source !== "discord" ? ((await getAccess(user, { force: true }).catch(() => null))?.roleIds ?? cachedRoles) : cachedRoles;
+  if (maybeBlocked && (await blockedByRoles(user, freshRoles))) {
+    return (
+      <div className="mx-auto max-w-xl space-y-4 pt-10" data-testid="blocked-role">
+        <h1 className="nv-headline text-4xl">
+          {position.title} <em>– gerade nicht.</em>
+        </h1>
+        <Notice tone="danger" icon={Prohibit} title={BLOCKED_ROLE_MESSAGE}>
+          Fragen dazu? Öffne ein Ticket auf dem Discord.
+        </Notice>
+        <Link href="/" className="nv-btn nv-btn-ghost">
+          Zur Startseite
+        </Link>
+      </div>
+    );
+  }
+
   const [sections, draft, profile, previous] = await Promise.all([
     getPersonalFormDefinition(position, user.id),
     eligibility.draftId

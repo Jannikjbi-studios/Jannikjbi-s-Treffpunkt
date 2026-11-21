@@ -15,15 +15,15 @@ describe("Phase-2-Hürde (Sterne)", () => {
 
 describe("/claim: Bewerbungs-ID", () => {
   it("volle und kurze Schreibweisen", () => {
-    expect(normalizePublicId("NV-2026-0012", 2026)).toBe("NV-2026-0012");
-    expect(normalizePublicId("nv-2026-12", 2026)).toBe("NV-2026-0012");
-    expect(normalizePublicId(" nv 2026 12 ", 2026)).toBe("NV-2026-0012");
-    expect(normalizePublicId("12", 2026)).toBe("NV-2026-0012");
-    expect(normalizePublicId("#7", 2027)).toBe("NV-2027-0007");
+    expect(normalizePublicId("JT-2026-0012", 2026)).toBe("JT-2026-0012");
+    expect(normalizePublicId("jt-2026-12", 2026)).toBe("JT-2026-0012");
+    expect(normalizePublicId(" jt 2026 12 ", 2026)).toBe("JT-2026-0012");
+    expect(normalizePublicId("12", 2026)).toBe("JT-2026-0012");
+    expect(normalizePublicId("#7", 2027)).toBe("JT-2027-0007");
   });
   it("eigenes Präfix und Unsinn", () => {
     expect(normalizePublicId("ab-2026-3", 2026, "AB")).toBe("AB-2026-0003");
-    expect(normalizePublicId("NV-2026-3", 2026, "AB")).toBeNull();
+    expect(normalizePublicId("JT-2026-3", 2026, "AB")).toBeNull();
     expect(normalizePublicId("hallo", 2026)).toBeNull();
   });
 });
@@ -48,7 +48,7 @@ describe("Knöpfe & Befehle", () => {
   });
   it("/offen-Liste", () => {
     expect(openListReply([], 0, "https://x")).toContain("Keine offenen");
-    const t = openListReply([{ id: "a1", publicId: "NV-2026-0001", statusLabel: "Eingereicht", position: "Support", submittedAt: null, claimedBy: null }], 3, "https://x");
+    const t = openListReply([{ id: "a1", publicId: "JT-2026-0001", statusLabel: "Eingereicht", position: "Support", submittedAt: null, claimedBy: null }], 3, "https://x");
     expect(t).toContain("**frei**");
     expect(t).toContain("https://x/team/bewerbungen/a1");
     expect(t).toContain("2 weitere");
@@ -158,7 +158,7 @@ import { HELP } from "@/lib/help";
 describe("Hilfe: Einzeiler", () => {
   it("eigener Kurztext hat Vorrang", () => expect(shortOf({ short: "Kurz.", text: "Lang. Und mehr." })).toBe("Kurz."));
   it("trennt nicht an Abkürzungen", () => {
-    expect(shortOf({ text: "Die Nummer einer Bewerbung, z. B. NV-2026-0012. Steht überall." })).toBe("Die Nummer einer Bewerbung, z. B. NV-2026-0012.");
+    expect(shortOf({ text: "Die Nummer einer Bewerbung, z. B. JT-2026-0012. Steht überall." })).toBe("Die Nummer einer Bewerbung, z. B. JT-2026-0012.");
     expect(shortOf({ text: "Erster Satz hier. Zweiter Satz." })).toBe("Erster Satz hier.");
   });
   it("jeder Begriff hat einen kurzen Einzeiler", () => {
@@ -182,7 +182,7 @@ describe("Gespräch & Support auf Discord, ehrenamtlich", () => {
     expect(DEFAULT_CONFIRMATION_TEMPLATE).toContain("Gespräch auf unserem Discord");
     expect(DEFAULT_CONFIRMATION_TEMPLATE).not.toContain("TeamSpeak");
   });
-  it("Pflicht-Haken: ehrenamtlich", () => expect(CONFIRMATIONS.some((c) => c.key === "unpaid" && c.label.includes("derzeit gibt es keine Bezahlung"))).toBe(true));
+  it("Pflicht-Haken: ehrenamtlich", () => expect(CONFIRMATIONS.some((c) => c.key === "unpaid" && c.label.includes("es gibt keine Bezahlung"))).toBe(true));
 });
 
 import { removeTeamspeakItem } from "@/lib/setup/migrations";

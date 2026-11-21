@@ -40,12 +40,12 @@ describe("Faire Verteilung (#4)", () => {
 describe("Kalender-Abo (#2)", () => {
   it("gültiges iCalendar, Sonderzeichen entschärft, lange Zeilen gefaltet", () => {
     const ics = buildIcs(
-      [{ uid: "a1", start: new Date("2026-11-20T18:00:00Z"), end: new Date("2026-11-20T18:30:00Z"), summary: "Gespräch Support (NV-1), Test; x", description: "Zeile 1\nZeile 2 ".repeat(10), url: "https://x.test/a" }],
+      [{ uid: "a1", start: new Date("2026-11-20T18:00:00Z"), end: new Date("2026-11-20T18:30:00Z"), summary: "Gespräch Support (JT-1), Test; x", description: "Zeile 1\nZeile 2 ".repeat(10), url: "https://x.test/a" }],
       new Date("2026-11-12T00:00:00Z"),
     );
     expect(ics.startsWith("BEGIN:VCALENDAR\r\n")).toBe(true);
     expect(ics).toContain("DTSTART:20261120T180000Z");
-    expect(ics).toContain("SUMMARY:Gespräch Support (NV-1)\\, Test\; x");
+    expect(ics).toContain("SUMMARY:Gespräch Support (JT-1)\\, Test\; x");
     expect(ics.split("\r\n").every((l) => l.length <= 75)).toBe(true);
     expect(ics.trimEnd().endsWith("END:VCALENDAR")).toBe(true);
   });
@@ -116,12 +116,13 @@ import { isPublished } from "@/lib/changelog";
 import { claimNoticeText } from "@/lib/team/claim-notice";
 
 describe("Regel-Quiz pro Stelle", () => {
-  it("jede Stelle hat ein Quiz mit sechs gültigen Fragen", () => {
+  it("jede Stelle hat ein Quiz mit vier bis sechs gültigen Fragen", () => {
     for (const slug of Object.keys(POSITION_SECTIONS)) {
       const q = POSITION_QUIZ[slug];
       expect(q, slug).toBeDefined();
       expect(q.key).toBe(`${slug}.quiz`);
-      expect(q.questions).toHaveLength(6);
+      expect(q.questions.length, slug).toBeGreaterThanOrEqual(4);
+      expect(q.questions.length, slug).toBeLessThanOrEqual(6);
       for (const x of q.questions) {
         expect(x.type).toBe("QUIZ");
         expect(x.options, x.key).toHaveLength(4);
@@ -160,9 +161,9 @@ describe("Changelog veröffentlichen", () => {
 
 describe("Claim-Nachricht an den Bewerber", () => {
   it("nennt Betreuer, Stelle und ID", () => {
-    const t = claimNoticeText("Anna", "Support", "NV-2026-0001", "Jonas", false);
+    const t = claimNoticeText("Anna", "Support", "JT-2026-0001", "Jonas", false);
     expect(t).toContain("**Jonas**");
-    expect(t).toContain("**Support** (NV-2026-0001)");
+    expect(t).toContain("**Support** (JT-2026-0001)");
     expect(claimNoticeText("Anna", "Support", null, "Lea", true)).toContain("ab sofort kümmert sich **Lea**");
   });
 });

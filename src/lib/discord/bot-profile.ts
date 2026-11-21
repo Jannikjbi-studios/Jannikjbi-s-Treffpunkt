@@ -1,7 +1,7 @@
 /**
  * Name und Profilbild des Discord-Bots – fürs Portal (automatische Nachrichten,
  * KI-Antworten, KI-Einschätzung). Einmal pro Stunde frisch von Discord, sonst
- * aus dem Speicher; ohne Bot-Token das Nordverkehr-Logo.
+ * aus dem Speicher; ohne Bot-Token das Treffpunkt-Logo.
  */
 import { avatarUrl } from "@/lib/discord/snowflake";
 import { LOGO_URL } from "@/lib/messages/embed";
@@ -11,7 +11,7 @@ export interface BotProfile {
   avatarUrl: string;
 }
 
-const FALLBACK: BotProfile = { name: "Nordverkehr-Bot", avatarUrl: LOGO_URL };
+const FALLBACK: BotProfile = { name: "Treffpunkt-Bot", avatarUrl: LOGO_URL };
 const TTL = 3_600_000;
 let cache: { at: number; profile: BotProfile } | null = null;
 

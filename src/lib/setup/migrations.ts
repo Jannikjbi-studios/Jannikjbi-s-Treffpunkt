@@ -37,7 +37,7 @@ interface Options {
 }
 
 /** Fragen, deren Inhalt sich durch die Bereinigung ändert (Text, Typ, Optionen). */
-const CONTENT_UPDATES = ["scenario_insult", "support.tickets", "entwickler.platforms", "entwickler.project", "experience_teams"];
+const CONTENT_UPDATES = ["scenario_insult", "experience_teams"];
 
 const seedByKey = new Map<string, SeedQuestion>();
 for (const s of [...GENERAL_SECTIONS, RETIRED_GENERAL_SCENARIOS, ...Object.values(POSITION_SECTIONS).flat()]) for (const q of s.questions) seedByKey.set(q.key, q);
@@ -195,7 +195,8 @@ export async function migrateQuestionsV2(db: PrismaClient, opts: Options = {}): 
   // e) Umformulierte Fragen aktualisieren (Text, Typ, Optionen); unpassende Entwurfswerte verwerfen
   for (const q of keepQuestion.values()) {
     if (!q.resolvedKey || !CONTENT_UPDATES.includes(q.resolvedKey)) continue;
-    const seed = seedByKey.get(q.resolvedKey)!;
+    const seed = seedByKey.get(q.resolvedKey);
+    if (!seed) continue;
     const changed =
       q.label !== seed.label || q.type !== seed.type || (q.helpText ?? null) !== (seed.helpText ?? null) || q.options.join("|") !== (seed.options ?? []).join("|");
     if (!changed) continue;
@@ -475,7 +476,51 @@ const MIGRATIONS: { id: string; run: (db: PrismaClient, opts: Options) => Promis
     id: "2026-11-bausteine-global",
     run: async (db, o) => (o.dryRun ? 0 : (await import("@/lib/setup/base-seed")).ensureGlobalTemplates(db)),
   },
+  // Umbau zu Jannikjbi's Treffpunkt: alte Startinhalte (Nordverkehr-Stellen, Whitelist/Beta,
+  // Bausteine) durch die Treffpunkt-Stellen ersetzen – nur ohne echte Bewerbungen
+  { id: "2026-11-treffpunkt-start", run: (db, o) => (o.dryRun ? Promise.resolve(0) : treffpunktStart(db, o.log)) },
 ];
+
+/** Slugs der früheren Startinhalte (Nordverkehr) */
+export const LEGACY_SEED_SLUGS = ["support", "entwickler", "media", "mapper", "eventteam", "whitelist", "beta"];
+
+/**
+ * Hat eine Datenbank noch die alten Startinhalte (z. B. weil die alte Version schon einmal
+ * aufgerufen wurde), werden sie entfernt und die Treffpunkt-Stellen angelegt. Gibt es schon
+ * echte Bewerbungen auf alte Stellen, passiert nichts (dann bitte von Hand umbauen).
+ */
+async function treffpunktStart(db: PrismaClient, log: (m: string) => void = () => {}) {
+  // „moderator“ gab es früher auch (Ingame-Moderation) – erkennbar an den alten Fragen
+  const oldPositions = await db.position.findMany({
+    where: {
+      OR: [
+        { slug: { in: LEGACY_SEED_SLUGS } },
+        { slug: "moderator", sections: { some: { questions: { some: { key: { in: ["moderator.powergaming", "moderator.hold_back"] } } } } } },
+      ],
+    },
+    select: { id: true },
+  });
+  const oldTypes = await db.applicationType.findMany({ where: { key: { in: ["whitelist", "beta"] } }, select: { id: true } });
+  if (!oldPositions.length && !oldTypes.length) return 0;
+  const ids = oldPositions.map((p) => p.id);
+  const real = await db.application.count({ where: { positionId: { in: ids }, isTest: { not: true }, status: { not: "DRAFT" } } });
+  if (real) {
+    log(`Treffpunkt-Umbau übersprungen: ${real} echte Bewerbung(en) auf alte Stellen`);
+    return 0;
+  }
+  await db.$transaction(async (tx) => {
+    await tx.application.deleteMany({ where: { positionId: { in: ids } } }); // nur Entwürfe/Testbewerbungen
+    await tx.position.deleteMany({ where: { id: { in: ids } } }); // Abschnitte & Fragen per Cascade
+    await tx.formSection.deleteMany({ where: { positionId: null } }); // alte allgemeine Fragen
+    await tx.applicationType.deleteMany({ where: { id: { in: oldTypes.map((t) => t.id) } } });
+    await tx.messageTemplate.deleteMany({}); // alte Bausteine (Nordverkehr-Texte)
+    await tx.applicationType.updateMany({ where: { key: "team" }, data: { description: "Bewerbungen für das Team von Jannikjbi's Treffpunkt" } });
+  });
+  const { seedBase } = await import("@/lib/setup/base-seed");
+  await seedBase(db, log);
+  log("Treffpunkt-Stellen angelegt (alte Startinhalte entfernt)");
+  return 1;
+}
 
 /** „TeamSpeak-Channel …“ in Notizen → Discord-Sprachkanal (rein, für Tests) */
 export const noteOnDiscord = (note: string) => note.replace(/TeamSpeak[- ]?(?:Channel|Kanal)/gi, "Discord-Sprachkanal").replace(/TeamSpeak/gi, "Discord");

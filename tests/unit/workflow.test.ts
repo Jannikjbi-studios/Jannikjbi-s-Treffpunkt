@@ -28,15 +28,15 @@ describe("Rückzug: in Bearbeitung?", () => {
 });
 
 describe("Absender der DM", () => {
-  it("als Team: Nordverkehr-Kopf mit Logo als Profilbild", () => {
-    expect(embedAuthor(null).name).toBe("NORDVERKEHR // TEAM");
+  it("als Team: Treffpunkt-Kopf mit Logo als Profilbild", () => {
+    expect(embedAuthor(null).name).toBe("TREFFPUNKT // TEAM");
     const msg = buildApplicantMessage({ title: "Hi", body: "Text" });
-    expect(v2Text(msg)).toContain("-# NORDVERKEHR // TEAM");
+    expect(v2Text(msg)).toContain("-# TREFFPUNKT // TEAM");
     expect(JSON.stringify(msg.components)).toContain("logo.png");
   });
   it("persönlich: Name + Avatar", () => {
     const msg = buildApplicantMessage({ title: "Hi", body: "Text", author: { name: "Jonas", iconUrl: "https://cdn.discordapp.com/x.png" } });
-    expect(v2Text(msg)).toContain("-# Jonas · Nordverkehr-Team");
+    expect(v2Text(msg)).toContain("-# Jonas · Treffpunkt-Team");
     expect(JSON.stringify(msg.components)).toContain("https://cdn.discordapp.com/x.png");
     expect(JSON.stringify(msg.components)).not.toContain("logo.png");
   });

@@ -1,5 +1,5 @@
 /**
- * Alle Discord-Nachrichten des Portals im Nordverkehr-Design – als
+ * Alle Discord-Nachrichten des Portals im Treffpunkt-Design – als
  * Components V2 (Flag IS_COMPONENTS_V2): ein Container mit Akzentfarbe,
  * Textanzeigen, Trennern, Thumbnail und Link-Buttons. Kein `content`,
  * keine `embeds` (bei V2 nicht erlaubt).
@@ -16,11 +16,11 @@ import type {
 } from "discord-api-types/v10";
 import { groupItems, type ChangeKind } from "@/lib/changelog";
 
-export const BRAND_COLOR = 0xc41e1e;
-export const WARN_COLOR = 0xf3c25b;
+export const BRAND_COLOR = 0xffc123;
+export const WARN_COLOR = 0xf28c28;
 export const NEUTRAL_COLOR = 0x4e5058;
 /** Logo für Discord-Nachrichten – liegt im Portal unter /logo.png */
-export const LOGO_URL = `${process.env.NEXT_PUBLIC_APP_URL ?? "https://bewerbung.nordverkehr.xyz"}/logo.png`;
+export const LOGO_URL = `${process.env.NEXT_PUBLIC_APP_URL || "https://portal.jannikjbi.de"}/logo.png`;
 /** MessageFlags.IsComponentsV2 */
 export const COMPONENTS_V2 = 1 << 15;
 /** Discord erlaubt bei V2 insgesamt 4000 Zeichen Text pro Nachricht */
@@ -87,7 +87,7 @@ export interface ApplicantEmbedInput {
   publicId?: string | null;
   statusUrl?: string | null;
   timestamp?: Date;
-  /** Persönlicher Absender (Teammitglied); ohne Angabe "NORDVERKEHR // TEAM" */
+  /** Persönlicher Absender (Teammitglied); ohne Angabe "TREFFPUNKT // TEAM" */
   author?: { name: string; iconUrl?: string | null } | null;
   /** Beschriftung des Link-Knopfs (Standard: „Status ansehen“) */
   buttonLabel?: string;
@@ -95,11 +95,11 @@ export interface ApplicantEmbedInput {
   action?: { label: string; customId: string; emoji?: string } | null;
 }
 
-/** Kopfzeile: Team oder persönlich ("Jonas · Nordverkehr-Team"). */
+/** Kopfzeile: Team oder persönlich ("Jonas · Treffpunkt-Team"). */
 export function embedAuthor(author?: ApplicantEmbedInput["author"]) {
   return author
-    ? { name: `${author.name} · Nordverkehr-Team`.slice(0, 256), icon_url: author.iconUrl ?? LOGO_URL }
-    : { name: "NORDVERKEHR // TEAM", icon_url: LOGO_URL };
+    ? { name: `${author.name} · Treffpunkt-Team`.slice(0, 256), icon_url: author.iconUrl ?? LOGO_URL }
+    : { name: "TREFFPUNKT // TEAM", icon_url: LOGO_URL };
 }
 
 /** DM an Bewerber (Bestätigung, Team-Nachricht, Status, Auto-Antwort). */
@@ -108,12 +108,12 @@ export function buildApplicantMessage(input: ApplicantEmbedInput): RESTPostAPICh
   const at = input.timestamp ?? new Date();
   const headLines = [`-# ${head.name}`, `## ${truncate(input.title, 200)}`];
   return v2Message(BRAND_COLOR, [
-    // Profilbild: Teammitglied persönlich → sein Avatar, als Team → Nordverkehr-Logo
+    // Profilbild: Teammitglied persönlich → sein Avatar, als Team → Treffpunkt-Logo
     section(headLines, input.author?.iconUrl || LOGO_URL),
     separator(),
     text(truncate(input.body || " ", BODY_LIMIT)),
     separator(false),
-    text(`-# ${input.publicId ? `Bewerbung ${input.publicId}` : "Nordverkehr Roleplay"} · ${discordTime(at)}`),
+    text(`-# ${input.publicId ? `Bewerbung ${input.publicId}` : "Jannikjbi's Treffpunkt"} · ${discordTime(at)}`),
     input.action ? actionRow(input.action, { label: input.buttonLabel ?? "Status ansehen", url: input.statusUrl }) : linkButtons([{ label: input.buttonLabel ?? "Status ansehen", url: input.statusUrl }]),
   ]);
 }
@@ -127,7 +127,7 @@ function actionRow(action: { label: string; customId: string; emoji?: string }, 
 
 /** Willkommensgruß im Teamchat: Text mit Avatar, pingt nur die neue Person. */
 export function buildWelcomeMessage(body: string, discordId: string, avatar: string | null): RESTPostAPIChannelMessageJSONBody {
-  const msg = v2Message(BRAND_COLOR, [section([`-# NORDVERKEHR // TEAM`, truncate(body, 1500)], avatar || LOGO_URL)]);
+  const msg = v2Message(BRAND_COLOR, [section([`-# TREFFPUNKT // TEAM`, truncate(body, 1500)], avatar || LOGO_URL)]);
   return { ...msg, allowed_mentions: { parse: [], users: [discordId] } };
 }
 
@@ -156,7 +156,7 @@ export function buildLogMessage(input: LogEmbedInput): RESTPostAPIChannelMessage
     `**Alter:** ${input.age ?? "–"}`,
   ].join("\n");
   return v2Message(BRAND_COLOR, [
-    section([`-# NORDVERKEHR // BEWERBUNGEN`, `## Neue Bewerbung · ${input.publicId}`, facts], input.applicantAvatarUrl || LOGO_URL),
+    section([`-# TREFFPUNKT // BEWERBUNGEN`, `## Neue Bewerbung · ${input.publicId}`, facts], input.applicantAvatarUrl || LOGO_URL),
     input.flags.length > 0 && separator(),
     input.flags.length > 0 && text(truncate(`**Hinweise** (keine Bewertung)\n${input.flags.map((f) => `• ${f}`).join("\n")}`, 1000)),
     separator(false),
@@ -229,7 +229,7 @@ export function buildChangelogMessage(
   const budget = Math.floor(BODY_LIMIT / Math.max(groups.length, 1));
   const children: (APIComponentInContainer | null | false)[] = [
     text(
-      `-# 📋 CHANGELOG · NORDVERKEHR BEWERBUNGSPORTAL\n## Version ${entry.version}${entry.title ? `\n**${truncate(entry.title, 150)}**` : ""}\n-# ${formatDateDe(entry.date)}`,
+      `-# 📋 CHANGELOG · TREFFPUNKT BEWERBUNGSPORTAL\n## Version ${entry.version}${entry.title ? `\n**${truncate(entry.title, 150)}**` : ""}\n-# ${formatDateDe(entry.date)}`,
     ),
   ];
   for (const g of groups) {
@@ -287,7 +287,7 @@ export function buildChangelogMessages(
 
   return parts.map((sections, n) => {
     const children: (APIComponentInContainer | null | false)[] = [
-      text(n === 0 ? `-# 📋 CHANGELOG · NORDVERKEHR BEWERBUNGSPORTAL\n${head}` : `-# 📋 CHANGELOG · FORTSETZUNG ${n + 1}/${parts.length}`),
+      text(n === 0 ? `-# 📋 CHANGELOG · TREFFPUNKT BEWERBUNGSPORTAL\n${head}` : `-# 📋 CHANGELOG · FORTSETZUNG ${n + 1}/${parts.length}`),
     ];
     for (const sec of sections) {
       children.push(separator(true, 1));

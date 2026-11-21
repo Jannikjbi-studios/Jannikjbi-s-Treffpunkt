@@ -60,10 +60,11 @@ export function findSimilarQuestions(
   return hits.sort((a, b) => b.score - a.score);
 }
 
-/** Key-Vorschlag aus dem Fragetext, z. B. "support.einstieg_neue_spieler". */
+/** Key-Vorschlag aus dem Fragetext, z. B. "supporter.einstieg_neue_mitglieder". */
 export function suggestKey(label: string, prefix?: string | null) {
   const words = [...wordSet(label)].slice(0, 4).join("_").slice(0, 40) || "frage";
   return prefix ? `${prefix}.${words}` : words;
 }
 
-export const KEY_PATTERN = /^[a-z0-9_]+(\.[a-z0-9_]+)?$/;
+/** Key wie „cutter.software“ oder „stream-mod.tools“ (Präfix = Slug der Stelle, darf Bindestriche haben) */
+export const KEY_PATTERN = /^[a-z0-9_-]+(\.[a-z0-9_]+)?$/;

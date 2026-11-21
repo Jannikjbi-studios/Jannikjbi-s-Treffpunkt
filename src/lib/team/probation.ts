@@ -79,6 +79,18 @@ export async function decideProbation(db: PrismaClient, opts: { applicationId: s
       }
       const { returnSeat } = await import("@/lib/positions/schedule");
       await returnSeat(db, app.id, app.positionId).catch(() => {});
+    } else {
+      // Bestanden: Rolle nach der Probezeit (z. B. Test-Mod → Moderator)
+      const s = await getSettings();
+      const guildId = env().DISCORD_GUILD_ID;
+      if (s["discord.autoRoleOnAccept"] && guildId && app.position.passRoleId) {
+        const { enqueueProbationPass } = await import("@/lib/discord/roles");
+        jobIds.push(
+          ...(await db.$transaction((tx) =>
+            enqueueProbationPass(tx, { guildId, discordUserId: app.user.discordId, position: app.position, applicationId: app.id, publicId: app.publicId }),
+          )),
+        );
+      }
     }
     const j = await botLog(
       result === "PASSED"
@@ -95,7 +107,7 @@ export async function decideProbation(db: PrismaClient, opts: { applicationId: s
 /** Morgens: Probezeit endet (heute/vorbei) → DM an den Betreuer; Pate nach 14 Tagen → DM für die Rückmeldung. */
 export async function sendProbationReminders(db: PrismaClient, now = new Date()) {
   const ids: string[] = [];
-  // Probezeit und Pate gibt es nur bei Team-Bewerbungen (nicht Whitelist/Beta)
+  // Probezeit und Pate gibt es nur bei Team-Bewerbungen
   const base = { status: "ACCEPTED" as const, isTest: { not: true }, position: { type: { key: "team" } }, OR: [{ probationResult: null }] };
   const due = await db.application.findMany({
     where: { ...base, probationUntil: { not: null, lte: new Date(now.getTime() + DAY) } },

@@ -3,14 +3,15 @@ import Link from "next/link";
 import { Container, PageHero } from "@/components/ui";
 import { IMPRINT, SOURCE_URL } from "@/lib/legal";
 import { publicEnv } from "@/lib/env";
+import { BRAND } from "@/lib/brand";
 
-export const metadata: Metadata = { title: "Impressum", description: "Wer hinter Nordverkehr steht und wie du uns erreichst." };
+export const metadata: Metadata = { title: "Impressum", description: "Wer hinter Jannikjbi's Treffpunkt steht und wie du uns erreichst." };
 
 export default function ImprintPage() {
   return (
     <>
       <PageHero label="RECHTLICHES // IMPRESSUM" title="Impressum." compact>
-        <p>Wer hinter Nordverkehr steht und wie du uns erreichst.</p>
+        <p>Wer hinter {BRAND.name} steht und wie du uns erreichst.</p>
       </PageHero>
       <Container>
         <article className="max-w-3xl text-fg-2 leading-relaxed [&_p]:mt-3">
@@ -29,12 +30,17 @@ export default function ImprintPage() {
           )}
 
           <H n="02">Kontakt</H>
+          <p>Eine Kontaktaufnahme ist über die auf dieser Website und auf jannikjbi.de verlinkten Social-Media-Kanäle möglich.</p>
           <p>
-            E-Mail:{" "}
-            <a className="nv-link" href={`mailto:${IMPRINT.email}`}>
-              {IMPRINT.email}
-            </a>
-            <br />
+            {IMPRINT.email && (
+              <>
+                E-Mail:{" "}
+                <a className="nv-link" href={`mailto:${IMPRINT.email}`}>
+                  {IMPRINT.email}
+                </a>
+                <br />
+              </>
+            )}
             Discord:{" "}
             <a className="nv-link" href={publicEnv.discordInvite} target="_blank" rel="noopener noreferrer">
               {IMPRINT.discordContact}
@@ -50,7 +56,7 @@ export default function ImprintPage() {
             Diensteanbieter sind wir für eigene Inhalte nach den allgemeinen Gesetzen verantwortlich.
           </p>
           <p>
-            Diese Website enthält Links zu externen Seiten (z. B. Discord oder FiveM), auf deren Inhalte wir keinen Einfluss haben. Für diese Inhalte ist stets der jeweilige
+            Diese Website enthält Links zu externen Seiten (z. B. Discord, Twitch oder YouTube), auf deren Inhalte wir keinen Einfluss haben. Für diese Inhalte ist stets der jeweilige
             Anbieter verantwortlich. Werden uns Rechtsverletzungen bekannt, entfernen wir entsprechende Links umgehend.
           </p>
 
@@ -61,11 +67,11 @@ export default function ImprintPage() {
             <a className="nv-link" href={SOURCE_URL} target="_blank" rel="noopener noreferrer">
               AGPL-3.0
             </a>
-            ; Name und Logo „Nordverkehr“ sind nicht freigegeben.
+            ; Name, Avatar und Logo von {BRAND.creator} sind davon nicht umfasst.
           </p>
           <p>
-            Nordverkehr ist ein unabhängiges Community-Projekt und steht in keiner Verbindung zu Rockstar Games, Take-Two Interactive oder Cfx.re. Grand Theft Auto, GTA und
-            FiveM sind Marken der jeweiligen Rechteinhaber.
+            Spiel- und Plattformnamen (z. B. Discord, Twitch, YouTube, TikTok, Kick, Grand Theft Auto) sind Marken der jeweiligen Rechteinhaber. {BRAND.name} steht in keiner
+            offiziellen Verbindung zu diesen Unternehmen.
           </p>
 
           <p className="mt-10 text-sm">

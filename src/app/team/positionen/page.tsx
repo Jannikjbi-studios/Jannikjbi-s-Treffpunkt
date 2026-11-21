@@ -50,7 +50,7 @@ async function List() {
     getSettings(),
     getSpotlights(db),
   ]);
-  // Stellenaufruf in Discord: nur Team-Stellen (Whitelist/Beta haben eigene Seiten)
+  // Stellenaufruf in Discord: nur Team-Stellen
   const teamPositions = positions.filter((p) => p.type.key === "team");
   const jobsMessage = buildJobsMessage(teamPositions as unknown as JobPosition[], { appUrl: publicEnv.appUrl, defaultMinAge: settings["applications.minAge"] });
   return (
@@ -61,7 +61,7 @@ async function List() {
         </div>
         <div className="flex-1">
           <p className="font-semibold">Allgemeine Fragen</p>
-          <p className="text-sm text-muted">{general} Schritte – gelten für alle Team-Positionen (Über dich, Erfahrung & Motivation). Szenarien hat jede Stelle selbst. Whitelist und Beta haben eigene Fragen.</p>
+          <p className="text-sm text-muted">{general} Schritte – gelten für alle Team-Positionen (Über dich, Erfahrung & Motivation). Szenarien und Quiz hat jede Stelle selbst.</p>
         </div>
         <ArrowRight size={16} className="text-muted" aria-hidden />
       </Link>

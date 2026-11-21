@@ -1,5 +1,5 @@
 {
-  "name": "nordverkehr-bewerbungsportal",
+  "name": "jannikjbi-treffpunkt-portal",
   "version": "0.1.0",
   "private": true,
   "license": "AGPL-3.0-only",
@@ -20,7 +20,6 @@
     "db:push": "tsx scripts/db-migrate.mts",
     "db:migrate:new": "prisma migrate dev --create-only --name",
     "db:migrate-questions": "tsx scripts/migrate-questions.mts",
-    "db:test-migration": "tsx scripts/test-migration.mts",
     "db:test-workflow": "node --conditions=react-server --import tsx scripts/test-workflow.mts",
     "db:test-features": "node --conditions=react-server --import tsx scripts/test-features.mts"
   },

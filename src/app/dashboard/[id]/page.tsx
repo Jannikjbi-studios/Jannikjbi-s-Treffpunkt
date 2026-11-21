@@ -131,7 +131,7 @@ async function Detail({ params, searchParams }: PageProps<"/dashboard/[id]">) {
 
       {notInGuild && (
         <Notice tone="danger" icon={DiscordLogo} title="Du bist nicht mehr auf unserem Discord.">
-          Für deine Bewerbung musst du auf dem Nordverkehr-Discord sein – dort laufen Gespräch, Rückfragen und Nachrichten.{" "}
+          Für deine Bewerbung musst du auf dem Treffpunkt-Discord sein – dort laufen Gespräch, Rückfragen und Nachrichten.{" "}
           <a href={publicEnv.discordInvite} target="_blank" rel="noopener noreferrer" className="nv-link font-medium">
             Jetzt wieder beitreten
           </a>
@@ -239,7 +239,7 @@ async function Detail({ params, searchParams }: PageProps<"/dashboard/[id]">) {
                               ? `${bot.name} (KI)`
                               : mine
                                 ? "Du"
-                                : personName(author, "Nordverkehr-Team")}
+                                : personName(author, "Treffpunkt-Team")}
                         </span>
                         {!mine && <ChatRoleBadge direction={m.direction} person={author} />}
                         <span>· {formatDayTime(m.createdAt)}</span>
@@ -367,7 +367,7 @@ function Timeline({ status, changes, interview }: { status: ApplicationStatus; c
             <span
               className={cn(
                 "absolute left-0 top-0.5 h-6 w-6 rounded-full grid place-items-center border",
-                done && !bad && "bg-red border-red text-white",
+                done && !bad && "bg-red border-red text-on-red",
                 done && bad && "bg-[var(--tone-danger-bg)] border-[var(--tone-danger)] text-[var(--tone-danger)]",
                 current && !done && "border-red text-red-text bg-red-soft",
                 !done && !current && "border-line text-faint",

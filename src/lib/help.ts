@@ -54,13 +54,14 @@ export const HELP: HelpSection[] = [
     terms: [
       {
         id: "bewerbungsarten",
-        term: "Bewerbungsarten: Team, Whitelist, Beta",
-        short: "Drei Arten mit eigenem Formular – Beta ohne Gespräch, Einarbeitung nur im Team.",
-        text: "Es gibt drei Bewerbungsarten, jede mit eigenem Formular unter „Positionen & Fragen“. Whitelist und Beta sind je eine „Stelle“ – dort öffnest/schließt du sie, trägst die Discord-Rolle für die Annahme ein und passt die Fragen an. Öffentlich erreichbar unter /whitelist und /beta.",
+        term: "Stellen & Rollen im Treffpunkt",
+        short: "Team-Bewerbungen mit Gespräch – Mod und Support starten mit Test-Rolle.",
+        text: "Alle Bewerbungen sind Team-Bewerbungen: Formular → Gespräch (ab 3 Sternen) → Annahme, danach Einarbeitung, Probezeit und Pate. Stellen öffnest/schließt du unter „Positionen & Fragen“, dort trägst du auch die Discord-Rollen ein. Head-Mod, Head-Support, Community-Manager, Admin, Co-Owner und Techniker werden nicht ausgeschrieben, sondern intern befördert.",
         list: [
-          { label: "Team", text: "Formular → Gespräch (ab 3 Sternen) → Annahme. Danach Einarbeitung, Probezeit, Pate, Begrüßung im Teamchat, Zusatzrollen und Namens-Präfix." },
-          { label: "Whitelist", text: "Formular mit Charakter, Regel-Quiz und Szenarien → Whitelist-Gespräch → Freigabe. Bei Annahme nur die Rolle der Stelle (z. B. „Whitelist“), keine Team-Funktionen." },
-          { label: "Beta", text: "Kurzes Formular → direkt annehmen oder absagen, kein Gespräch. Plätze über das Kontingent der Stelle begrenzen. Bei Annahme die Beta-Rolle." },
+          { label: "Offen", text: "Cutter, Social-Media (ab 15), Stream-Mod (2 Plätze), Moderator (1 Platz), Supporter (1 Platz)." },
+          { label: "Geschlossen", text: "Designer, Event-Team (ab ca. 100–150 Mitgliedern), Partner-Manager – angelegt, auf der Startseite unter „Demnächst“." },
+          { label: "Probezeit-Rolle", text: "„Rolle bei Annahme“ z. B. 🗡️ Test-Mod, „Rolle nach bestandener Probezeit“ z. B. ⚔️ Moderator. Bei „Probezeit bestanden“ tauscht der Bot die Rollen." },
+          { label: "Gesperrt", text: "Wer auf Discord ⛔ Blacklist oder 🚷 Team-Sperre hat, kann sich nicht bewerben (Rollen-IDs in Vercel: DISCORD_BLOCKED_ROLE_IDS)." },
         ],
       },
       {
@@ -86,7 +87,7 @@ export const HELP: HelpSection[] = [
       {
         id: "bewerbungs-id",
         term: "Bewerbungs-ID",
-        text: "Die Nummer einer Bewerbung, z. B. **NV-2026-0042**. Sie steht in jeder DM – damit lässt sich eine Bewerbung im Support schnell finden.",
+        text: "Die Nummer einer Bewerbung, z. B. **JT-2026-0042**. Sie steht in jeder DM – damit lässt sich eine Bewerbung im Support schnell finden.",
       },
       {
         id: "rueckzug",
@@ -112,12 +113,12 @@ export const HELP: HelpSection[] = [
       {
         id: "absender",
         term: "Senden als ich / als Team",
-        text: "Beim Schreiben wählst du, wer in der DM oben steht: **du** (Name und Profilbild) oder **Nordverkehr-Team**. Wer geclaimt hat, schreibt standardmäßig persönlich. Intern sieht das Team immer, wer geschrieben hat („als Team gesendet“).",
+        text: "Beim Schreiben wählst du, wer in der DM oben steht: **du** (Name und Profilbild) oder **Treffpunkt-Team**. Wer geclaimt hat, schreibt standardmäßig persönlich. Intern sieht das Team immer, wer geschrieben hat („als Team gesendet“).",
       },
       {
         id: "bausteine",
         term: "Bausteine & Betreff",
-        text: "Bausteine sind fertige Textstücke nach Kategorie, die sich kombinieren lassen. Der **erste gewählte Baustein setzt den Betreff** der DM; hast du den Betreff selbst geändert, bleibt er. Pflege unter „Nachrichtenbausteine“. Dort legst du auch fest, **bei welchen Bewerbungsarten** ein Baustein erscheint (Team, Whitelist, Beta – keine Auswahl = bei allen). Ein Baustein aus **Annahme** stellt beim Senden automatisch auf „Angenommen“, einer aus **Ablehnung** auf „Abgelehnt“ – vorher sichtbar unter „Gleichzeitig Status ändern“ und dort abwählbar.",
+        text: "Bausteine sind fertige Textstücke nach Kategorie, die sich kombinieren lassen. Der **erste gewählte Baustein setzt den Betreff** der DM; hast du den Betreff selbst geändert, bleibt er. Pflege unter „Nachrichtenbausteine“. Dort legst du auch fest, **bei welchen Bewerbungsarten** ein Baustein erscheint (keine Auswahl = bei allen). Ein Baustein aus **Annahme** stellt beim Senden automatisch auf „Angenommen“, einer aus **Ablehnung** auf „Abgelehnt“ – vorher sichtbar unter „Gleichzeitig Status ändern“ und dort abwählbar.",
       },
       {
         id: "platzhalter",
@@ -210,7 +211,7 @@ export const HELP: HelpSection[] = [
           { label: "Auf dem Discord gebannt", text: "Die Person hat den Server per Bann verlassen – der Bot schreibt ihr dann keine „tritt wieder bei“-Nachricht." },
           {
             label: "Name möglicherweise unpassend",
-            text: "Anzeige- oder Benutzername enthält eine Beleidigung, einen extremistischen Begriff/Code, gibt sich als Team oder Nordverkehr aus oder versucht die KI zu manipulieren. Wird mit dem aktuellen Namen geprüft.",
+            text: "Anzeige- oder Benutzername enthält eine Beleidigung, einen extremistischen Begriff/Code, gibt sich als Team, Treffpunkt oder Jannikjbi aus oder versucht die KI zu manipulieren. Wird mit dem aktuellen Namen geprüft.",
           },
         ],
       },
@@ -250,7 +251,7 @@ export const HELP: HelpSection[] = [
       {
         id: "discord-pflicht",
         term: "Discord-Pflicht",
-        text: "Absenden geht nur, wenn die Person auf dem Nordverkehr-Discord ist – das Formular zeigt sonst einen Hinweis mit Einladungslink (ausfüllen und speichern geht trotzdem). Verlässt jemand den Server, während die Bewerbung läuft, schreibt der Bot ihm **automatisch** eine Nachricht ins Portal (per DM geht nicht mehr) – einmal pro Austritt. Das Team sieht oben in der Bewerbung einen roten Hinweis, im Bot-Log eine Zeile und morgens in der Team-Übersicht die Liste „Nicht mehr auf dem Discord“. Kommt die Person zurück, verschwindet der Hinweis von selbst. Geprüft wird beim Öffnen einer Bewerbung (im Hintergrund läuft nichts) – Admins können unter Admin-Bereich → Discord → „Bewerber auf dem Discord prüfen“ sofort alle prüfen.",
+        text: "Absenden geht nur, wenn die Person auf dem Treffpunkt-Discord ist – das Formular zeigt sonst einen Hinweis mit Einladungslink (ausfüllen und speichern geht trotzdem). Verlässt jemand den Server, während die Bewerbung läuft, schreibt der Bot ihm **automatisch** eine Nachricht ins Portal (per DM geht nicht mehr) – einmal pro Austritt. Das Team sieht oben in der Bewerbung einen roten Hinweis, im Bot-Log eine Zeile und morgens in der Team-Übersicht die Liste „Nicht mehr auf dem Discord“. Kommt die Person zurück, verschwindet der Hinweis von selbst. Geprüft wird beim Öffnen einer Bewerbung (im Hintergrund läuft nichts) – Admins können unter Admin-Bereich → Discord → „Bewerber auf dem Discord prüfen“ sofort alle prüfen.",
       },
       {
         id: "discord-knoepfe",
@@ -273,7 +274,7 @@ export const HELP: HelpSection[] = [
         id: "befehle",
         term: "Discord-Befehle",
         short: "/bewerbung für Bewerber, /offen und /claim fürs Team.",
-        text: "**/bewerbung** zeigt Bewerbern ihren Stand. **/offen** listet dir die offenen Bewerbungen deiner Stellen, **/claim id:12** (oder NV-2026-0012) übernimmt eine. Antworten sieht nur, wer den Befehl nutzt. Einmalig einrichten: Admin-Bereich → Discord → „Befehle registrieren“.",
+        text: "**/bewerbung** zeigt Bewerbern ihren Stand. **/offen** listet dir die offenen Bewerbungen deiner Stellen, **/claim id:12** (oder JT-2026-0012) übernimmt eine. Antworten sieht nur, wer den Befehl nutzt. Einmalig einrichten: Admin-Bereich → Discord → „Befehle registrieren“.",
       },
       {
         id: "annahme-automatik",

@@ -72,7 +72,7 @@ export function ApplicationFiltersBar({ positions, current }: { positions: { slu
           <MagnifyingGlass size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" aria-hidden />
           <input
             className="nv-input !pl-9"
-            placeholder="Name, @discord oder NV-2026-…"
+            placeholder="Name, @discord oder JT-2026-…"
             value={q}
             onChange={(e) => setQ(e.target.value)}
           />

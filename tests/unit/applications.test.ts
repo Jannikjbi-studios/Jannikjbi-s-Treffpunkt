@@ -134,8 +134,8 @@ describe("computeFlags (Hinweise, kein Score)", () => {
   });
   it("erkennt sehr ähnliche Bewerbungen", () => {
     const text = Array.from({ length: 40 }, (_, i) => `wort${i}`).join(" ");
-    const flags = computeFlags({ ...base, textAnswers: [{ label: "A", value: text, minExpected: 0 }], otherApplications: [{ publicId: "NV-1", text }] });
-    expect(flags.find((f) => f.code === "similar_to_other")?.message).toContain("NV-1");
+    const flags = computeFlags({ ...base, textAnswers: [{ label: "A", value: text, minExpected: 0 }], otherApplications: [{ publicId: "JT-1", text }] });
+    expect(flags.find((f) => f.code === "similar_to_other")?.message).toContain("JT-1");
   });
   it("jaccard ist 0 bei leeren Mengen", () => {
     expect(jaccard(shingles(""), shingles("a b c"))).toBe(0);
@@ -162,7 +162,7 @@ describe("Einstellungen", () => {
       { key: "ai.autoReplyEnabled", value: true },
       { key: "unbekannt", value: 1 },
     ]);
-    expect(s["applications.minAge"]).toBe(18);
+    expect(s["applications.minAge"]).toBe(16);
     expect(s["ai.enabled"]).toBe(false);
     expect(s["ai.autoReplyEnabled"]).toBe(true);
   });

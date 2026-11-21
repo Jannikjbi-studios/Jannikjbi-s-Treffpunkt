@@ -24,8 +24,8 @@ export default function LoginPage({ searchParams }: PageProps<"/login">) {
       <div className="absolute inset-0 nv-hero-glow pointer-events-none" aria-hidden />
       <Container className="relative w-full">
         <div className="mx-auto max-w-md nv-card p-8 sm:p-10 nv-anim bg-surface">
-          <Image src="/logo.png" alt="" width={257} height={318} className="h-14 w-auto mx-auto" />
-          <p className="nv-label justify-center w-full mt-6">Bewerbungsportal</p>
+          <Image src="/logo.png" alt="" width={128} height={128} className="h-16 w-16 mx-auto rounded-full ring-2 ring-[var(--nv-red-line)]" />
+          <p className="nv-label justify-center w-full mt-6">Treffpunkt // Team</p>
           <h1 className="nv-headline text-4xl text-center mt-3">
             Moin. <em>Einloggen.</em>
           </h1>

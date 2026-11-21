@@ -25,9 +25,9 @@ const SAMPLE = {
   name: "Jonas",
   discord_tag: "@jonas.hh",
   position: "Support",
-  bewerbungs_id: "NV-2026-0042",
+  bewerbungs_id: "JT-2026-0042",
   datum: "11. November 2026",
-  dashboard_link: `${process.env.NEXT_PUBLIC_APP_URL ?? "https://bewerbung.nordverkehr.xyz"}/dashboard`,
+  dashboard_link: `${process.env.NEXT_PUBLIC_APP_URL || "https://portal.jannikjbi.de"}/dashboard`,
 };
 
 export function SettingsForm({ section, settings, env, channels, spend, spendMicro }: Props) {
@@ -211,7 +211,7 @@ export function SettingsForm({ section, settings, env, channels, spend, spendMic
           {toggle(
             "discord.threadPerApplication",
             "Thread pro Bewerbung im Bewerbungs-Kanal",
-            "Der Bot startet an jeder neuen Bewerbung einen Thread („NV-2026-0001 · Support“) zum Diskutieren und archiviert ihn beim Abschluss. Braucht im Kanal „Öffentliche Threads erstellen“.",
+            "Der Bot startet an jeder neuen Bewerbung einen Thread („JT-2026-0001 · Support“) zum Diskutieren und archiviert ihn beim Abschluss. Braucht im Kanal „Öffentliche Threads erstellen“.",
           )}
           {s["discord.threadPerApplication"] && toggle("discord.threadMirrorComments", "Interne Kommentare in den Thread spiegeln", "Kommentare aus dem Portal erscheinen zusätzlich im Thread (nur Portal → Discord).")}
           {toggle("discord.autoRoleOnAccept", "Bei Annahme automatisch die Rolle der Position vergeben", "Rolle pro Position unter „Positionen & Fragen“ eintragen. Der Bot braucht „Rollen verwalten“ und muss über der Rolle stehen.")}
@@ -542,7 +542,7 @@ export function SettingsForm({ section, settings, env, channels, spend, spendMic
           </div>
           <div>
             <label htmlFor="sp" className="nv-field-label">
-              System-Prompt (Nordverkehr-Tonalität)
+              System-Prompt (Treffpunkt-Tonalität)
             </label>
             <textarea id="sp" className="nv-input text-sm !min-h-56" maxLength={8000} value={s["ai.systemPrompt"]} onChange={(e) => set("ai.systemPrompt", e.target.value)} />
             <p className="nv-help mt-1">An Anthropic werden nur Position und Antworten übermittelt – keine Namen, Discord-IDs oder Kontodaten.</p>
@@ -571,7 +571,7 @@ export function SettingsForm({ section, settings, env, channels, spend, spendMic
           <div className="rounded-xl border border-line p-4 text-sm text-muted space-y-1.5">
             <p className="font-semibold text-fg">Schutz vor Prompt Injection &amp; Missbrauch</p>
             <p>Nachrichten wie „vergiss alle Anweisungen“, Rollenwechsel, Fragen nach dem Prompt oder Chat-Markup werden erkannt (auch mit Leetspeak oder versteckten Zeichen). Dann antwortet keine KI, sondern ein fester Text – und die Nachricht wird im Team-Bereich markiert.</p>
-            <p>Nutzertexte gehen nur in zufällig benannten Datenblöcken an die KI. Antworten werden gefiltert: keine @-Erwähnungen, nur Links auf nordverkehr.xyz, Längenlimit, Prompt-Leck-Prüfung.</p>
+            <p>Nutzertexte gehen nur in zufällig benannten Datenblöcken an die KI. Antworten werden gefiltert: keine @-Erwähnungen, nur Links auf jannikjbi.de, Längenlimit, Prompt-Leck-Prüfung.</p>
           </div>
         </div>
       </Card>

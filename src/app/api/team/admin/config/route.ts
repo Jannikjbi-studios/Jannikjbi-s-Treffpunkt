@@ -15,6 +15,6 @@ export async function GET() {
   await audit("settings.export", { actorId: ctx.user.id, meta: { positions: backup.positions.length, sections: backup.sections.length, templates: backup.templates.length } });
   const day = new Date().toISOString().slice(0, 10);
   return new Response(JSON.stringify(backup, null, 2), {
-    headers: { "Content-Type": "application/json; charset=utf-8", "Content-Disposition": `attachment; filename="nordverkehr-einstellungen-${day}.json"`, "Cache-Control": "no-store" },
+    headers: { "Content-Type": "application/json; charset=utf-8", "Content-Disposition": `attachment; filename="treffpunkt-einstellungen-${day}.json"`, "Cache-Control": "no-store" },
   });
 }

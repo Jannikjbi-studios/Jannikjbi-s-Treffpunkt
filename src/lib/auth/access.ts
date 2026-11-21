@@ -2,9 +2,10 @@
  * Rollenprüfung gegen den Discord-Server.
  *
  * Regeln:
- *  - Team-Zugriff nur mit TEAM_ROLE_ID auf DISCORD_GUILD_ID.
- *  - Admin-Funktionen nur mit Team-Rolle UND ADMIN_ROLE_ID. Ist ADMIN_ROLE_ID
- *    nicht gesetzt, hat niemand Admin-Rechte.
+ *  - Team-Zugriff nur mit TEAM_ROLE_ID auf DISCORD_GUILD_ID (eine oder mehrere
+ *    Rollen-IDs mit Komma – z. B. Head-Mod, Moderator, Supporter …).
+ *  - Admin-Funktionen nur mit Team-Rolle UND ADMIN_ROLE_ID (ebenfalls eine oder
+ *    mehrere). Ist ADMIN_ROLE_ID nicht gesetzt, hat niemand Admin-Rechte.
  *  - Ergebnis wird kurz gecacht (ROLE_CACHE_TTL_SECONDS, Standard 60 s).
  *  - Fail closed: Ist Discord nicht erreichbar und der Cache abgelaufen,
  *    gibt es keinen Zugriff.
@@ -57,9 +58,15 @@ export interface AccessSubject extends AccessState {
 
 const DENIED = { inGuild: false, isTeam: false, isAdmin: false } as const;
 
+/** Eine oder mehrere Rollen-IDs („123“ oder „123, 456“) – z. B. wenn es keine allgemeine Team-Rolle gibt. */
+export function roleIdList(value: string | null | undefined): string[] {
+  return (value ?? "").split(/[\s,;]+/).filter((x) => /^\d{15,25}$/.test(x));
+}
+
 export function evaluateRoles(roles: readonly string[], config: Pick<RoleConfig, "teamRoleId" | "adminRoleId">) {
-  const isTeam = !!config.teamRoleId && roles.includes(config.teamRoleId);
-  const isAdmin = isTeam && !!config.adminRoleId && roles.includes(config.adminRoleId);
+  const has = (ids: string[]) => ids.some((id) => roles.includes(id));
+  const isTeam = has(roleIdList(config.teamRoleId));
+  const isAdmin = isTeam && has(roleIdList(config.adminRoleId));
   return { isTeam, isAdmin };
 }
 

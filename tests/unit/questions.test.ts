@@ -86,7 +86,7 @@ describe("Seed-Fragen: eindeutige Struktur", () => {
 });
 
 describe("assembleForm", () => {
-  const support = POSITIONS.find((p) => p.slug === "support")!;
+  const support = POSITIONS.find((p) => p.slug === "supporter")!;
 
   it("entfernt doppelt angelegte allgemeine Abschnitte (alter Race-Bug)", () => {
     const doubled = [...general(), ...general(), ...support.sections.map((s, i) => raw(s, "p", 100 + i))];
@@ -110,7 +110,7 @@ describe("assembleForm", () => {
   });
 
   it("benennt einen Abschnitt mit Positionsnamen in „Fachfragen“ um", () => {
-    const s = raw({ ...support.sections[0], title: "Support" }, "p", 100);
+    const s = raw({ ...support.sections[0], title: "Supporter" }, "p", 100);
     const form = assembleForm([...general(), s], support);
     expect(form.at(-1)!.title).toBe("Fachfragen");
     expect(form.at(-1)!.general).toBe(false);
@@ -149,8 +149,8 @@ describe("Ähnlichkeit (Builder-Warnung)", () => {
 });
 
 describe("Bewerberprofil (allgemeine Antworten wiederverwenden)", () => {
-  const support = POSITIONS.find((p) => p.slug === "support")!;
-  const media = POSITIONS.find((p) => p.slug === "media")!;
+  const support = POSITIONS.find((p) => p.slug === "supporter")!;
+  const media = POSITIONS.find((p) => p.slug === "cutter")!;
   const formA = assembleForm([...general(), ...support.sections.map((s, i) => raw(s, "a", 100 + i))], support);
   // zweites Formular mit anderen IDs (andere Position, gleiche Keys)
   const formB = assembleForm([...GENERAL_SECTIONS.map((s, i) => raw(s, null, i, "b")), ...media.sections.map((s, i) => raw(s, "b", 100 + i))], media);

@@ -7,7 +7,7 @@ import { Container } from "@/components/ui";
 import { DiscordMarkdown } from "@/components/DiscordMarkdown";
 import { getSettings } from "@/lib/settings";
 
-export const metadata: Metadata = { title: "So läuft dein Gespräch", description: "Vorbereitung aufs Bewerbungsgespräch bei Nordverkehr – auf Discord." };
+export const metadata: Metadata = { title: "So läuft dein Gespräch", description: "Vorbereitung aufs Bewerbungsgespräch im Treffpunkt – auf Discord." };
 
 /** Öffentliche Seite zur Vorbereitung aufs Bewerbungsgespräch (Text im Admin-Bereich anpassbar). */
 export default function InterviewPrepPage() {

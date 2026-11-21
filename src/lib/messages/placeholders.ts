@@ -15,7 +15,7 @@ export const PLACEHOLDERS = [
   { key: "sperrfrist_tage", label: "Sperrfrist der Stelle (z. B. „45 Tage“)" },
   { key: "bearbeitungszeit", label: "Ungefähre Bearbeitungszeit" },
   { key: "dashboard_link", label: "Link zum Status" },
-  { key: "discord_link", label: "Einladung zum Nordverkehr-Discord" },
+  { key: "discord_link", label: "Einladung zum Treffpunkt-Discord" },
 ] as const;
 
 export type PlaceholderKey = (typeof PLACEHOLDERS)[number]["key"];

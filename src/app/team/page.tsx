@@ -91,7 +91,7 @@ async function Overview({ searchParams }: Pick<PageProps<"/team">, "searchParams
     <div className="space-y-8">
       <LiveRefresh />
       <header>
-        <p className="nv-label">NORDVERKEHR // TEAM</p>
+        <p className="nv-label">TREFFPUNKT // TEAM</p>
         <h1 className="nv-headline text-4xl sm:text-5xl mt-2 break-words">
           Moin, {user.globalName || user.username}. <em>Was liegt an?</em>
         </h1>

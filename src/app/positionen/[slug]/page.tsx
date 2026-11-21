@@ -42,13 +42,13 @@ async function PositionDetail({ params }: Pick<PageProps<"/positionen/[slug]">, 
       <section className="relative overflow-hidden pt-32 pb-10 sm:pt-40">
         <div className="absolute inset-0 nv-hero-glow pointer-events-none" aria-hidden />
         <Container className="relative">
-          <Link href={isTeam ? "/#positionen" : "/#bewerben"} className="nv-btn nv-btn-quiet nv-btn-sm -ml-3 mb-6">
+          <Link href="/#positionen" className="nv-btn nv-btn-quiet nv-btn-sm -ml-3 mb-6">
             <ArrowLeft size={14} aria-hidden /> {isTeam ? "Alle Positionen" : "Alle Bewerbungen"}
           </Link>
           <div className="flex items-start gap-5 nv-anim">
             <IconTile icon={position.icon} className="h-14 w-14" />
             <div>
-              <p className="nv-label">{isTeam ? `Position // ${position.title}` : `${kind.noun} // Nordverkehr`}</p>
+              <p className="nv-label">{isTeam ? `Position // ${position.title}` : `${kind.noun} // Treffpunkt`}</p>
               <h1 className="nv-headline text-5xl sm:text-6xl mt-3">
                 {position.title}
                 <em>.</em>
@@ -113,14 +113,18 @@ async function PositionDetail({ params }: Pick<PageProps<"/positionen/[slug]">, 
                 <dt className="text-muted">{kind.interview ? "Gespräch & Support" : "Support"}</dt>
                 <dd>Discord</dd>
               </div>
-              <div className="flex justify-between gap-3">
-                <dt className="text-muted">Ingame-Voice</dt>
-                <dd>TeamSpeak &amp; SaltyChat</dd>
-              </div>
+              {isTeam && settings["onboarding.probationDays"] > 0 && (
+                <div className="flex justify-between gap-3">
+                  <dt className="text-muted">Probezeit</dt>
+                  <dd className="text-right">
+                    {settings["onboarding.probationDays"]} Tage{position.passRoleId ? " mit Test-Rolle" : ""}
+                  </dd>
+                </div>
+              )}
               {isTeam && (
                 <div className="flex justify-between gap-3">
                   <dt className="text-muted">Vergütung</dt>
-                  <dd className="text-right">Ehrenamtlich – derzeit keine Bezahlung</dd>
+                  <dd className="text-right">Ehrenamtlich – keine Bezahlung</dd>
                 </div>
               )}
               <div className="flex justify-between gap-3">

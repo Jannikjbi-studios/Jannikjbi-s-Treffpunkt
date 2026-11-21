@@ -3,7 +3,7 @@
  * Nur ein HINWEIS fürs Team – kein Ausschluss, kein Score. Erkennt:
  *  - Beleidigungen/Vulgäres (auch mit Leetspeak und Zeichen dazwischen)
  *  - Extremistische Begriffe und Codes
- *  - Namen, die sich als Team/Nordverkehr ausgeben
+ *  - Namen, die sich als Team, Treffpunkt oder Jannikjbi ausgeben
  *  - Manipulationsversuche (Prompt Injection) im Namen
  *
  * Bewusst vorsichtig gegen Fehlalarme: kurze Begriffe zählen nur als ganzes Wort
@@ -25,9 +25,9 @@ const OFFENSIVE_WORD = ["fick", "fickt", "fuck", "hure", "opfer", "lappen", "idi
 const EXTREMIST_PART = ["hitler", "heilhitler", "siegheil", "holocaust", "auschwitz", "judenhass", "whitepower", "reichsburger", "reichsbuerger", "kukluxklan"];
 const EXTREMIST_WORD = ["nazi", "nazis", "nsdap", "kkk", "ss", "hh88"];
 
-/** Team-Begriffe – als ganzes Wort, Nordverkehr auch als Teil */
+/** Team-Begriffe – als ganzes Wort; Jannikjbi/Treffpunkt-Team auch als Teil */
 const STAFF_WORD = ["admin", "administrator", "moderator", "mod", "support", "supporter", "team", "staff", "owner", "leitung", "projektleitung", "teamleitung", "official", "offiziell", "bot", "system"];
-const STAFF_PART = ["nordverkehr", "nvteam", "nvsupport", "nvadmin"];
+const STAFF_PART = ["jannikjbi", "treffpunktteam", "jtteam", "jtsupport", "jtadmin"];
 
 const hasWord = (tokens: string[], list: string[]) => tokens.some((t) => list.includes(t));
 const hasPart = (squashed: string, list: string[]) => list.some((w) => squashed.includes(w));

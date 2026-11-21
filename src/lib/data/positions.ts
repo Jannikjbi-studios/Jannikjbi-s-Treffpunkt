@@ -24,6 +24,18 @@ function queryPublicPositions() {
   });
 }
 
+/**
+ * Stellen, die angelegt, aber noch geschlossen sind (z. B. Designer, Event-Team) –
+ * auf der Startseite als „Demnächst“, damit man sich benachrichtigen lassen kann.
+ */
+export function listUpcomingPositions() {
+  return db.position.findMany({
+    where: { status: "CLOSED", type: { key: "team", active: true } },
+    orderBy: { sortOrder: "asc" },
+    select: { id: true, slug: true, title: true, tagline: true, icon: true, opensAt: true },
+  });
+}
+
 export async function getPublicPosition(slug: string) {
   if (!/^[a-z0-9-]{1,60}$/.test(slug)) return null;
   const p = await db.position.findUnique({ where: { slug }, include: { type: true } });

@@ -95,13 +95,17 @@ export async function submitApplicationAction(
   const rl = await rateLimit(`submit:${user.id}`, 5, 3600);
   if (!rl.ok) return { ok: false, error: "Zu viele Versuche. Probier es in einer Stunde nochmal." };
 
-  // Nur wer auf dem Nordverkehr-Discord ist, darf absenden (frisch geprüft).
+  // Nur wer auf dem Treffpunkt-Discord ist, darf absenden (frisch geprüft).
   // Ist Discord gerade nicht erreichbar, blockieren wir nicht.
   const { getAccess } = await import("@/lib/auth/user-access");
   const access = await getAccess(user, { force: true });
   if (!access.inGuild && access.source !== "error" && access.source !== "unconfigured") {
     return { ok: false, error: NOT_IN_GUILD, fieldErrors: { discord: "not_in_guild" } };
   }
+  // Blacklist / Team-Sperre (Discord-Rollen aus DISCORD_BLOCKED_ROLE_IDS, frisch geprüft)
+  const { BLOCKED_ROLE_MESSAGE } = await import("@/lib/applications/blocked-roles");
+  const { blockedByRoles } = await import("@/lib/team/ban-role");
+  if (await blockedByRoles(user, access.roleIds)) return { ok: false, error: BLOCKED_ROLE_MESSAGE };
 
   try {
     const res = await submitApplication(user, {
@@ -553,7 +557,7 @@ export async function askPositionAction(positionId: string, question: string): P
   if (!idSchema.safeParse(positionId).success || typeof question !== "string") return { ok: false, error: "Ungültig." };
   const position = await db.position.findUnique({
     where: { id: positionId },
-    select: { title: true, tagline: true, description: true, tasks: true, requirements: true, minAge: true, cooldownDays: true, closesAt: true, status: true, type: { select: { key: true, active: true } } },
+    select: { title: true, tagline: true, description: true, tasks: true, requirements: true, minAge: true, cooldownDays: true, closesAt: true, status: true, passRoleId: true, type: { select: { key: true, active: true } } },
   });
   if (!position || position.status === "HIDDEN" || !position.type.active) return { ok: false, error: "Stelle nicht gefunden." };
   const { answerPositionQuestion } = await import("@/lib/ai/position-qa");

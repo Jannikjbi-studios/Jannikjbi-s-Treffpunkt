@@ -1,67 +1,55 @@
-# Nordverkehr Bewerbungsportal
+# Jannikjbi's Treffpunkt – Bewerbungsportal
 
-Ein Bewerbungsportal für Roleplay-Server mit Discord-Anbindung – gebaut für das Team von **Nordverkehr** (Hamburg-Roleplay), als Open Source für alle, die etwas Ähnliches brauchen.
+Das Bewerbungsportal fürs Team von **Jannikjbi's Treffpunkt**, dem Discord-Server von [Jannikjbi](https://www.jannikjbi.de) (GTA Roleplay auf NRW Roleplay). Live unter **https://portal.jannikjbi.de**.
 
-Bewerber loggen sich mit Discord ein, füllen ein Formular in Ruhe aus und verfolgen ihren Stand im Portal und per DM. Das Team liest, bewertet, schreibt und entscheidet – im Portal oder direkt in Discord.
+Bewerber loggen sich mit Discord ein, füllen das Formular in Ruhe aus und verfolgen ihren Stand im Portal und per DM. Das Team liest, bewertet, schreibt und entscheidet – im Portal oder direkt in Discord.
 
-> **Lizenz:** [AGPL-3.0](LICENSE) · **Name und Logo „Nordverkehr“ sind nicht freigegeben** – siehe [Marke & Logo](#marke--logo).
-
----
-
-## Inhalt
-
-- [Funktionen](#funktionen)
-- [Technik](#technik)
-- [Schnellstart (lokal)](#schnellstart-lokal)
-- [Einrichtung](#einrichtung) – Discord, Datenbank, Umgebungsvariablen, Hosting, KI
-- [Für andere Server einrichten](#für-andere-server-einrichten)
-- [Betrieb](#betrieb) – Alles auf Abruf, Worker, Changelog & Releases
-- [Sicherheit & Datenschutz](#sicherheit--datenschutz)
-- [Entwicklung](#entwicklung) – Projektstruktur, Skripte, Tests
-- [Mitmachen](#mitmachen)
-- [Lizenz](#lizenz) · [Marke & Logo](#marke--logo)
+> **Lizenz:** [AGPL-3.0](LICENSE) · Name, Avatar und Logo von Jannikjbi sind nicht Teil der Lizenz – siehe [NOTICE.md](NOTICE.md).
 
 ---
+
+## Stellen
+
+| Stelle | Status | Rolle bei Annahme | Nach der Probezeit | Dazu |
+|---|---|---|---|---|
+| ✂️ Cutter | offen, ab 15 | ✂️ Cutter | – | 🎬 Content-Team |
+| 📱 Social-Media | offen, ab 15 | 📱 Social-Media | – | 🎬 Content-Team |
+| 🎙️ Stream-Mod | offen, 2 Plätze | 🎙️ Stream-Mod | – | 🧩 Team |
+| ⚔️ Moderator | offen, 1 Platz | 🗡️ Test-Mod | ⚔️ Moderator | 🧩 Team |
+| 🎧 Supporter | offen, 1 Platz | 🧪 Test-Supporter | 🎧 Supporter | 🧩 Team |
+| 🎨 Designer | geschlossen (später) | 🎨 Designer | – | 🎬 Content-Team |
+| 🎪 Event-Team | geschlossen (ab ca. 100–150 Mitgliedern) | 🎪 Event-Team | – | 🧩 Team |
+| 🤝 Partner-Manager | geschlossen (später) | 🤝 Partner-Manager | – | 🧩 Team |
+
+- **Nicht ausgeschrieben** (nur interne Beförderung): 🔰 Head-Mod, 🎖️ Head-Support, 📋 Community-Manager, 🛡️ Admin, ⚜️ Co-Owner, 🛠️ Techniker.
+- **Mindestalter:** 16 Jahre (Cutter und Social-Media ab 15) – pro Stelle unter *Positionen & Fragen* änderbar.
+- **Rollen-IDs** stehen in den Startdaten (`src/lib/setup/seed-data.ts`, Feld `discord`) und lassen sich im Portal pro Stelle ändern. Bei „Probezeit bestanden“ tauscht der Bot die Test-Rolle gegen die volle Rolle.
+- **Gesperrt fürs Bewerben:** Wer ⛔ Blacklist oder 🚷 Team-Sperre hat, kann sich nicht bewerben (`DISCORD_BLOCKED_ROLE_IDS`). Eine **Sperre im Portal** (Team → Nutzer → Sperren) gibt automatisch 🚷 Team-Sperre; nach Ablauf oder beim Aufheben nimmt der Bot sie wieder weg. Blacklist vergebt ihr von Hand – solange die Rolle da ist, geht kein Bewerben.
 
 ## Funktionen
 
-### Bewerbungsarten
-- **Whitelist** (`/whitelist`) – Formular mit Charakter, Regel-Quiz und Szenarien, danach Whitelist-Gespräch auf Discord; bei Annahme automatisch die Whitelist-Rolle.
-- **Beta-Test** (`/beta`) – kurzes Formular, begrenzte Plätze, kein Gespräch; bei Annahme die Beta-Rolle.
-- **Team** – Stellen wie Support oder Moderation mit Gespräch, Einarbeitung und Probezeit.
-
-Whitelist und Beta starten **geschlossen**: unter *Positionen & Fragen* Rolle eintragen, Fragen prüfen und öffnen.
-
 ### Für Bewerber
 - **Login mit Discord** – kein eigener Account, nur der Scope `identify`.
-- **Mehrstufiges Formular** mit Autosave, Regel-Quiz und Szenario-Fragen pro Stelle; allgemeine Antworten werden fürs nächste Mal vorausgefüllt.
+- **Mehrstufiges Formular** mit Autosave, Fachfragen, Szenarien und kurzem Quiz pro Stelle; allgemeine Antworten werden fürs nächste Mal vorausgefüllt.
 - **„Welche Stelle passt zu mir?“** – Selbsttest mit fünf Fragen, ohne Speicherung.
-- **Dashboard:** Status mit Verlauf, Nachrichten mit dem Team, Warteschlange und Bearbeitungszeit, Antworten nachreichen, Abwesenheit melden.
+- **Dashboard:** Status mit Verlauf, Nachrichten mit dem Team, Warteschlange, Antworten nachreichen.
 - **Gespräch:** Termin selbst buchen oder absagen, Vorbereitungsseite, Erinnerung per DM.
+- Startseite mit Infos zu Jannik, Streamplan, Kanälen und dem Discord-Server (Texte in `src/lib/brand.ts`).
 
 ### Für das Team
 - **Übersicht** als Tabelle und Kanban, Suche in Antworten, Vergleichsansicht.
-- **Bewerbung bearbeiten:** claimen, Status ändern, Nachrichten mit Bausteinen und Discord-Vorschau, interne Kommentare, Abstimmung, Bewertungsbogen (1–5 Sterne, pro Stelle anpassbar), Gesprächsprotokoll mit Nachfrage-Vorschlägen.
-- **Phase 2 (Gespräch) erst ab 3 Sternen** Team-Schnitt – Grenze einstellbar.
-- **Einarbeitung:** Checkliste, Probezeit mit Abschluss, Pate, Team-Verzeichnis.
-- **Morgen-Übersicht** im Teamchat, persönliche Morgen-DM, Erinnerungen bei liegengebliebenen Claims, Abwesenheit, Junior-Rolle mit eingeschränkten Rechten.
+- **Bewerbung bearbeiten:** claimen, Status ändern, Nachrichten mit Bausteinen und Discord-Vorschau, interne Kommentare, Abstimmung, Bewertungsbogen, Gesprächsprotokoll.
+- **Einarbeitung:** Checkliste, Probezeit mit Abschluss (inkl. Rollenwechsel), Pate, Team-Verzeichnis. 🗡️ Test-Mod und 🧪 Test-Supporter haben im Portal eingeschränkte Junior-Rechte.
+- **Morgen-Übersicht** im Teamchat, persönliche Morgen-DM, Erinnerungen bei liegengebliebenen Claims.
 
 ### Direkt in Discord
 - Post pro neuer Bewerbung mit Knöpfen **Übernehmen**, **In Prüfung**, **Zum Gespräch**.
-- Bot-Log und DMs mit Knopf **Im Portal antworten** (geschrieben wird nur im Portal – spart Server-Aufrufe).
+- Stellenaufruf und Einzelaufrufe „Wir suchen …“ im Kanal, automatisch aktuell.
 - Befehle `/bewerbung` (Bewerber), `/offen` und `/claim` (Team).
-- Server-Events für Gespräche, Sprachkanal-Erkennung („Nicht erschienen?“) und Warteraum-Ping (mit Worker).
-- Annahme-Automatik: Rollen, Namens-Präfix, Willkommensgruß – beim Zurücknehmen wieder entfernt.
-
-### Für Admins
-- **Admin-Bereich** mit allen Einstellungen (Discord, Ablauf, Zustellung & Nachtruhe, KI, Daten & Tests) und Systemstatus.
-- **Positionen & Formular-Builder**, Kontingent („freie Plätze“), automatisches Öffnen/Schließen, Vier-Augen-Prinzip, Zuständigkeit pro Discord-Rolle.
-- Statistiken, Team-Aktivität, Bewerbungsrunden, Audit-Log, Sicherung von Einstellungen und Bewerbungsdaten, Testbewerbungen.
+- Annahme-Automatik: Rollen der Stelle, Namens-Präfix, Willkommensgruß – beim Zurücknehmen wieder entfernt.
 
 ### KI (optional, Claude)
-Zusammenfassungen, Fragen-Vorschläge, beschreibende Kategorien, Punkte als Orientierung (getrennt vom Team) und kurze Auto-Antworten, wenn niemand vom Team online ist. **Die KI entscheidet nichts.** Mit Schutz vor Prompt Injection, Token-Limits und Monatsbudget. Ohne API-Key läuft das Portal vollständig.
-
-> Die KI läuft **derzeit nur über die Claude API von Anthropic** und ist **kostenpflichtig** – Einrichtung und empfohlener Plan unter [5. KI (optional)](#5-ki-optional). Weitere KI-Anbieter und Modelle (APIs) kommen noch.
+Zusammenfassungen, Fragen-Vorschläge, Einordnung und Punkte als Orientierung. **Die KI entscheidet nichts.** Ohne `ANTHROPIC_API_KEY` läuft das Portal vollständig (KI aus). Die Claude API ist kostenpflichtig – Details unter [KI](#ki-optional).
 
 ---
 
@@ -93,14 +81,15 @@ npm run dev                   # http://localhost:3000
 
 1. [Discord Developer Portal](https://discord.com/developers/applications) → **New Application**.
 2. **OAuth2:** *Client ID* → `AUTH_DISCORD_ID`, *Client Secret* → `AUTH_DISCORD_SECRET`. Redirects:
-   - `https://<deine-portal-domain>/api/auth/callback/discord`
+   - `https://portal.jannikjbi.de/api/auth/callback/discord`
    - `http://localhost:3000/api/auth/callback/discord` (Entwicklung)
 3. **Bot:** *Reset Token* → `DISCORD_BOT_TOKEN`. Unter *Privileged Gateway Intents* den **Server Members Intent** aktivieren (für den Worker).
 4. **Bot einladen** (*OAuth2 → URL Generator*, Scopes `bot` und `applications.commands`) mit den Rechten:
    - `View Channels`, `Send Messages`, `Embed Links`, `Create Public Threads`
    - `Manage Roles` und `Manage Nicknames` (nur für die Annahme-Automatik – die Bot-Rolle muss über den zu vergebenden Rollen stehen)
    - `Manage Events` (nur für Gespräche als Server-Event)
-5. **IDs kopieren** (Entwicklermodus an): Server-ID → `DISCORD_GUILD_ID`, Team-Rolle → `TEAM_ROLE_ID`, Admin-Rolle → `ADMIN_ROLE_ID`.
+   - `Send Messages in Threads` (Threads zu Bewerbungen)
+5. **IDs kopieren** (Entwicklermodus an): Server-ID → `DISCORD_GUILD_ID`, Team-Rolle(n) → `TEAM_ROLE_ID`, Admin-Rolle(n) → `ADMIN_ROLE_ID` (jeweils mehrere mit Komma möglich), ⛔ Blacklist + 🚷 Team-Sperre → `DISCORD_BLOCKED_ROLE_IDS`, 🚷 Team-Sperre → `DISCORD_TEAM_BAN_ROLE_ID`.
 6. **Knöpfe & Befehle:** Im Portal unter *Admin-Bereich → Discord* „Knopf ‚Übernehmen‘ einrichten“ (setzt die Interaktions-URL) und „Befehle registrieren“.
 
 > Der Bot kann nur Nutzern schreiben, die mit ihm einen Server teilen und DMs zulassen. Schlägt eine DM fehl, steht die Nachricht trotzdem im Portal.
@@ -119,16 +108,19 @@ Vorlage: [`.env.example`](.env.example). Die wichtigsten:
 | Variable | Wofür |
 |---|---|
 | `NEXT_PUBLIC_APP_URL` | Adresse des Portals (Links in DMs, Logo in Discord-Nachrichten) |
-| `NEXT_PUBLIC_MAIN_SITE_URL` | Hauptseite eures Servers (Footer, erlaubte Links für die KI) |
-| `NEXT_PUBLIC_DISCORD_INVITE` | Dauerhafter Einladungslink |
-| `NEXT_PUBLIC_RULES_URL` | Regelwerk (optional, Standard `<Hauptseite>/regeln`) |
+| `NEXT_PUBLIC_MAIN_SITE_URL` | Hauptseite (Standard `https://www.jannikjbi.de`) – Footer, erlaubte Links für die KI |
+| `NEXT_PUBLIC_DISCORD_INVITE` | Dauerhafter Einladungslink zum Treffpunkt |
+| `NEXT_PUBLIC_RULES_URL` | Link zu #regeln (optional, Standard `<Hauptseite>/discord`) |
 | `DATABASE_URL` | Postgres-Verbindung (bei Neon automatisch, dazu `DATABASE_URL_UNPOOLED` für Migrationen) |
 | `AUTH_SECRET`, `AUTH_DISCORD_ID`, `AUTH_DISCORD_SECRET`, `AUTH_TRUST_HOST` | Login |
-| `DISCORD_BOT_TOKEN`, `DISCORD_GUILD_ID`, `TEAM_ROLE_ID`, `ADMIN_ROLE_ID` | Bot & Rollen |
+| `DISCORD_BOT_TOKEN`, `DISCORD_GUILD_ID`, `TEAM_ROLE_ID`, `ADMIN_ROLE_ID` | Bot & Rollen (Team/Admin: eine oder mehrere IDs mit Komma) |
+| `DISCORD_BLOCKED_ROLE_IDS` | Rollen, die vom Bewerben ausschließen (⛔ Blacklist, 🚷 Team-Sperre) |
+| `DISCORD_TEAM_BAN_ROLE_ID` | 🚷 Team-Sperre – vergibt der Bot bei einer Sperre im Portal (ohne Angabe sucht er sie per Name) |
 | `ANTHROPIC_API_KEY` | KI (optional, kostenpflichtig – siehe [5. KI](#5-ki-optional)) |
-| `PUBLIC_ID_PREFIX` | Präfix der Bewerbungs-IDs (Standard `NV`) |
+| `PUBLIC_ID_PREFIX` | Präfix der Bewerbungs-IDs (Standard `JT` → `JT-2026-0001`) |
+| `DISCORD_*_CHANNEL_ID` | Kanäle (Bewerbungen, Bot-Log, Teamchat, Leitung, Stellenaufruf, Willkommen, Changelog …) – siehe `.env.example` |
 
-Kanäle (Bewerbungen, Bot-Log, Teamchat, Leitung, Changelog …) werden **im Portal** unter *Admin-Bereich → Discord* eingetragen, nicht in der `.env`.
+Leere Werte gelten als „nicht gesetzt“. Nach Änderungen in Vercel: *Deployments → Redeploy*.
 
 ### 4. Hosting
 
@@ -162,17 +154,15 @@ Die KI-Funktionen laufen **derzeit ausschließlich über die Claude API von Anth
 
 ---
 
-## Für andere Server einrichten
+## Anpassen
 
-Das Portal ist auf Nordverkehr zugeschnitten, lässt sich aber für euren Server anpassen:
+- **Texte über Jannik** (Streamplan, Kanäle, Server-Infos): `src/lib/brand.ts`
+- **Stellen, Fragen, Quiz, Bausteine:** im Portal unter *Positionen & Fragen* und *Nachrichtenbausteine*. Die Startdaten stehen in `src/lib/setup/seed-data.ts`, `questions.ts` und `quiz-questions.ts` (gelten nur für eine leere Datenbank).
+- **Farben & Schriften:** `src/app/globals.css` (Navy + Amber wie jannikjbi.de, Barlow Condensed + Inter). Die Akzent-Variablen heißen historisch `--nv-red`/`text-red-text` – gemeint ist der Akzent.
+- **Logo/Icons:** `public/logo.png` (Avatar, 128 px) und `public/icons/*`.
+- **Impressum:** `src/lib/legal.ts` · **Datenschutz:** `src/app/datenschutz/page.tsx`.
 
-1. **Branding ersetzen:** `public/logo.png`, `public/Nord-Verkehr-Wordmark.png`, Farben in `src/app/globals.css`, Texte mit „Nordverkehr“ (Startseite, Footer, Bausteine, Datenschutzseite, KI-Prompts in `src/lib/ai/prompts.ts`). **Impressum:** eigene Angaben in `src/lib/legal.ts` eintragen (Name, Anschrift, Kontakt, Link zum Quellcode). Name und Logo von Nordverkehr dürft ihr nicht weiterverwenden – siehe [Marke & Logo](#marke--logo).
-2. **Umgebungsvariablen** mit euren Adressen, Rollen und Schlüsseln setzen (siehe oben).
-3. **Positionen, Fragen und Bausteine** im Portal anpassen (*Positionen & Fragen*, *Nachrichtenbausteine*) – die Startdaten in `src/lib/setup/seed-data.ts` sind nur ein Beispiel.
-4. **Kanäle und Abläufe** im *Admin-Bereich* einstellen: Kanal-IDs, Nachtruhe, Sperrfristen, Mindestalter, Phase-2-Hürde, KI.
-5. **Datenschutzseite** (`src/app/datenschutz/page.tsx`) mit euren Angaben überarbeiten – das ist eure Verantwortung als Betreiber.
-
-> Die AGPL verlangt: Wenn ihr eine **veränderte Version öffentlich betreibt**, müsst ihr den Quellcode eurer Version den Nutzern zugänglich machen (z. B. ein Link im Footer auf euer Repository).
+> Die AGPL verlangt: Wenn eine **veränderte Version öffentlich betrieben** wird, muss der Quellcode dieser Version den Nutzern zugänglich sein (Link im Footer).
 
 ---
 
@@ -245,14 +235,14 @@ tests/unit/       Vitest
 | `npm run db:push` | Migrationen einspielen (`prisma migrate deploy`) |
 | `npm run db:migrate:new -- <name>` | nach Schema-Änderungen eine neue Migration anlegen |
 | `npm run db:seed` | Basisdaten (+ Demo, außer `SEED_DEMO=false`) |
-| `npm run db:test-features` / `db:test-workflow` / `db:test-migration` | Integrationstests, jeweils mit eigener Wegwerf-Datenbank (`npm run db:dev` vorher starten) |
+| `npm run db:test-features` / `db:test-workflow` | Integrationstests, jeweils mit eigener Wegwerf-Datenbank (`npm run db:dev` vorher starten) |
 | `npm run worker` | optionaler Worker |
 
 ### Fragen-Struktur
 - **Allgemeine Fragen** gibt es einmal für alle Stellen; die Antworten werden fürs nächste Mal gemerkt.
 - **Fachfragen, Szenarien und Regel-Quiz** sind pro Stelle.
 - Jede Frage hat einen eindeutigen **Key**; der Builder warnt bei Dubletten.
-- Bewerbungsarten sind ein eigenes Modell (`ApplicationType`) – Whitelist- oder Fraktionsbewerbungen lassen sich ergänzen.
+- Bewerbungsarten sind ein eigenes Modell (`ApplicationType`) – weitere Arten lassen sich in `src/lib/kinds.ts` ergänzen.
 
 ---
 
@@ -276,6 +266,4 @@ Kurz gesagt: Ihr dürft den Code nutzen, verändern und weitergeben. Wer eine ve
 
 ## Marke & Logo
 
-Der Name **„Nordverkehr“**, das Logo und die Wortmarke (`public/logo.png`, `public/Nord-Verkehr-Wordmark.png`) sind **nicht** Teil der Open-Source-Lizenz. Für eigene Installationen bitte durch euren eigenen Namen und euer eigenes Logo ersetzen. Details: [NOTICE.md](NOTICE.md).
-
-Nordverkehr ist ein Roleplay-Projekt und steht in keiner Verbindung zu Rockstar Games oder Take-Two Interactive.
+Name, Avatar und Logo von **Jannikjbi** bzw. **Jannikjbi's Treffpunkt** (`public/logo.png`, `public/icons/*`) sind **nicht** Teil der Open-Source-Lizenz. Details: [NOTICE.md](NOTICE.md).

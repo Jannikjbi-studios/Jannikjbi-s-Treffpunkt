@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { handleDiscordIss } from "@/lib/auth/callback";
 
-const base = "https://bewerbung.nordverkehr.xyz/api/auth/callback/discord";
+const base = "https://portal.jannikjbi.de/api/auth/callback/discord";
 
 describe("handleDiscordIss", () => {
   it("entfernt den iss-Parameter von Discord und behält code/state", () => {
@@ -25,6 +25,6 @@ describe("handleDiscordIss", () => {
   });
   it("lässt andere Routen und Callbacks ohne iss unverändert", () => {
     expect(handleDiscordIss(new URL(`${base}?code=a`)).action).toBe("keep");
-    expect(handleDiscordIss(new URL("https://bewerbung.nordverkehr.xyz/api/auth/session?iss=x")).action).toBe("keep");
+    expect(handleDiscordIss(new URL("https://portal.jannikjbi.de/api/auth/session?iss=x")).action).toBe("keep");
   });
 });

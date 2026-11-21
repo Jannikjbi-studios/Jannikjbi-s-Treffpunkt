@@ -34,7 +34,7 @@ interface Props<V extends string> {
 }
 
 /**
- * Eigenes Dropdown (Listbox) im Nordverkehr-Stil statt des Browser-Selects –
+ * Eigenes Dropdown (Listbox) im Treffpunkt-Stil statt des Browser-Selects –
  * voll per Tastatur bedienbar (Pfeile, Pos1/Ende, Enter, Esc, Anfangsbuchstabe).
  */
 export function Select<V extends string>({

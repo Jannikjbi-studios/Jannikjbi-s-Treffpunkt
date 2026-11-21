@@ -13,7 +13,7 @@ type Node = {
   accessory?: { media?: { url?: string } };
 };
 
-const hex = (n?: number) => (n === undefined ? "#c41e1e" : `#${n.toString(16).padStart(6, "0")}`);
+const hex = (n?: number) => (n === undefined ? "#ffc123" : `#${n.toString(16).padStart(6, "0")}`);
 
 function render(n: Node, key: string): React.ReactNode {
   switch (n.type) {
@@ -48,7 +48,7 @@ function render(n: Node, key: string): React.ReactNode {
 }
 
 /** Vorschau einer Components-V2-Nachricht im Discord-Look (immer dunkel). */
-export function V2Preview({ message, author = "Nordverkehr" }: { message: RESTPostAPIChannelMessageJSONBody; author?: string }) {
+export function V2Preview({ message, author = "Treffpunkt" }: { message: RESTPostAPIChannelMessageJSONBody; author?: string }) {
   const container = (message.components as unknown as Node[] | undefined)?.[0];
   return (
     <div className="rounded-xl p-4 text-[15px] leading-[1.375rem]" style={{ background: "#313338", color: "#dbdee1" }}>

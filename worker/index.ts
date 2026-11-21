@@ -1,5 +1,5 @@
 /**
- * Nordverkehr-Worker – läuft neben der Next-App (eigener Prozess / Container).
+ * Treffpunkt-Worker – läuft neben der Next-App (eigener Prozess / Container).
  *
  *  1. Discord-Gateway: reagiert auf Rollenänderungen, Beitritte und Austritte
  *     und invalidiert den Rollen-Cache sofort (entzogene Rolle = kein Zugriff).

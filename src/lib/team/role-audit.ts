@@ -48,22 +48,26 @@ export async function loadRoleAudit() {
   const { env } = await import("@/lib/env");
   const guildId = env().DISCORD_GUILD_ID;
   if (!guildId || !process.env.DISCORD_BOT_TOKEN) return { error: "Discord-Bot oder Server-ID ist nicht eingerichtet." as const };
-  const positions = await db.position.findMany({ where: { acceptRoleId: { not: null } }, select: { title: true, acceptRoleId: true } });
+  const positions = await db.position.findMany({ where: { OR: [{ acceptRoleId: { not: null } }, { passRoleId: { not: null } }] }, select: { title: true, acceptRoleId: true, passRoleId: true } });
   const roleNames = new Map<string, string>();
-  for (const p of positions) if (p.acceptRoleId) roleNames.set(p.acceptRoleId, roleNames.has(p.acceptRoleId) ? `${roleNames.get(p.acceptRoleId)}, ${p.title}` : p.title);
+  const addName = (id: string | null, title: string) => {
+    if (id) roleNames.set(id, roleNames.has(id) ? `${roleNames.get(id)}, ${title}` : title);
+  };
+  for (const p of positions) {
+    addName(p.acceptRoleId, p.title);
+    addName(p.passRoleId, p.title);
+  }
   if (!roleNames.size) return { error: "Keine Stelle hat eine Discord-Rolle für die Annahme." as const };
   const accepted = await db.application.findMany({
-    where: { status: "ACCEPTED", isTest: { not: true }, position: { acceptRoleId: { not: null } } },
-    select: { id: true, user: { select: { discordId: true, globalName: true, username: true } }, position: { select: { title: true, acceptRoleId: true } } },
+    where: { status: "ACCEPTED", isTest: { not: true }, position: { OR: [{ acceptRoleId: { not: null } }, { passRoleId: { not: null } }] } },
+    select: { id: true, probationResult: true, user: { select: { discordId: true, globalName: true, username: true } }, position: { select: { title: true, acceptRoleId: true, passRoleId: true } } },
     take: 2000,
   });
-  const expected: Expected[] = accepted.map((a) => ({
-    discordId: a.user.discordId,
-    name: a.user.globalName || a.user.username,
-    applicationId: a.id,
-    position: a.position.title,
-    roleId: a.position.acceptRoleId!,
-  }));
+  // Erwartet: nach bestandener Probezeit die Rolle danach (z. B. Moderator), sonst die Annahme-Rolle (z. B. Test-Mod)
+  const expected: Expected[] = accepted.flatMap((a) => {
+    const roleId = a.probationResult === "PASSED" && a.position.passRoleId ? a.position.passRoleId : a.position.acceptRoleId;
+    return roleId ? [{ discordId: a.user.discordId, name: a.user.globalName || a.user.username, applicationId: a.id, position: a.position.title, roleId }] : [];
+  });
   const { getDiscordApi } = await import("@/lib/discord/client");
   const api = getDiscordApi();
   if (!api.listMembers) return { error: "Mitgliederliste wird nicht unterstützt." as const };

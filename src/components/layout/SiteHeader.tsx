@@ -3,12 +3,13 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { DiscordLogo } from "@phosphor-icons/react/ssr";
 import { publicEnv } from "@/lib/env";
+import { BRAND } from "@/lib/brand";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { MobileMenu } from "@/components/layout/MobileMenu";
 import { UserMenu } from "@/components/layout/UserMenu";
 import { PortalNavLinks } from "@/components/layout/PortalNavLinks";
 
-/** Kopfzeile des Bewerbungsportals – nur Portal-Navigation (Hauptseite steht im Footer). */
+/** Kopfzeile des Bewerbungsportals – nur Portal-Navigation (jannikjbi.de steht im Footer). */
 export function SiteHeader() {
   return (
     <header className="fixed top-0 inset-x-0 z-40">
@@ -20,17 +21,20 @@ export function SiteHeader() {
           style={{ background: "var(--nv-overlay)" }}
         >
           <div className="flex items-center gap-4 sm:gap-6 min-w-0">
-            <Link href="/" className="flex items-center gap-3 shrink-0" aria-label="Nordverkehr Bewerbungsportal – Startseite">
+            <Link href="/" className="flex items-center gap-2.5 shrink-0" aria-label={`${BRAND.name} – Bewerbungsportal, Startseite`}>
               <Image
-                src="/Nord-Verkehr-Wordmark.png"
-                alt="Nordverkehr"
-                width={753}
-                height={148}
+                src="/logo.png"
+                alt=""
+                width={64}
+                height={64}
                 loading="eager"
                 fetchPriority="high"
-                className="h-[22px] sm:h-[24px] w-auto"
+                className="h-8 w-8 rounded-full ring-2 ring-[var(--nv-red-line)]"
               />
-              <span className="hidden sm:inline nv-mono !text-[0.65rem] border-l border-line pl-3">Bewerbung</span>
+              <span className="font-display text-xl leading-none tracking-tight">
+                <span className="hidden min-[400px]:inline">{BRAND.creator}&apos;s </span>Treffpunkt
+              </span>
+              <span className="hidden sm:inline nv-mono !text-[0.65rem] border-l border-line pl-2.5">Team</span>
             </Link>
             <PortalNavLinks />
           </div>

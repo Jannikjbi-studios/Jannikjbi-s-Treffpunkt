@@ -46,7 +46,7 @@ interface Props {
   acceptHint?: string;
 }
 
-/** Eigenes Dropdown (Listbox) im Nordverkehr-Stil – voll per Tastatur bedienbar. */
+/** Eigenes Dropdown (Listbox) im Treffpunkt-Stil – voll per Tastatur bedienbar. */
 export function StatusSelect({
   options,
   value,

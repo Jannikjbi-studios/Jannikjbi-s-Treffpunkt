@@ -5,7 +5,7 @@
  * werden aktualisiert (Positionen per Slug, Schritte/Fragen per Key bzw. Titel/Text,
  * Bausteine per Kategorie + Titel), fehlende angelegt. Bewerbungen sind nie enthalten.
  */
-import { KINDS, type KindKey } from "@/lib/kinds";
+import { KINDS, KIND_KEYS, type KindKey } from "@/lib/kinds";
 import { z } from "zod";
 import type { PrismaClient } from "@prisma/client";
 import { SETTING_KEYS, getSettings, saveSettings, settingsSchema, type Settings } from "@/lib/settings";
@@ -51,6 +51,8 @@ export const backupSchema = z.object({
       minAge: z.number().int().nullable(),
       cooldownDays: z.number().int().nullable(),
       acceptRoleId: z.string().nullable(),
+      passRoleId: z.string().nullable().optional(),
+      extraRoleIds: z.array(z.string()).max(5).optional(),
       maxApplications: z.number().int().nullable(),
       quizMinScore: z.number().int().nullable(),
       interviewQuestions: z.array(str(300)).max(30),
@@ -85,7 +87,7 @@ export const backupSchema = z.object({
         sortOrder: z.number().int(),
         active: z.boolean(),
         // ältere Sicherungen haben das Feld nicht → für alle Arten
-        kinds: z.array(z.enum(["team", "whitelist", "beta"])).max(3).default([]),
+        kinds: z.array(z.enum(KIND_KEYS as [KindKey, ...KindKey[]])).max(3).default([]),
       }),
     )
     .max(300),
@@ -116,6 +118,8 @@ export async function exportConfig(db: PrismaClient): Promise<Backup> {
       minAge: p.minAge,
       cooldownDays: p.cooldownDays,
       acceptRoleId: p.acceptRoleId,
+      passRoleId: p.passRoleId ?? null,
+      extraRoleIds: p.extraRoleIds ?? [],
       maxApplications: p.maxApplications,
       quizMinScore: p.quizMinScore,
       interviewQuestions: p.interviewQuestions ?? [],

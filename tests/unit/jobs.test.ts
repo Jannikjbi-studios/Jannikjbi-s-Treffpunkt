@@ -15,7 +15,7 @@ const positions: JobPosition[] = POSITIONS.map((p) => ({
   minAge: null,
   acceptRoleId: null,
 }));
-const opts = { appUrl: "https://bewerbung.nordverkehr.xyz", defaultMinAge: 18, updatedAt: new Date("2026-11-11T12:00:00Z") };
+const opts = { appUrl: "https://portal.jannikjbi.de", defaultMinAge: 16, updatedAt: new Date("2026-11-11T12:00:00Z") };
 const buttons = (m: ReturnType<typeof buildJobsMessage>) =>
   JSON.parse(JSON.stringify(m.components)).flatMap(function walk(c: { type: number; components?: unknown[] }): unknown[] {
     return c.type === 2 ? [c] : (c.components ?? []).flatMap((x) => walk(x as { type: number; components?: unknown[] }));
@@ -33,33 +33,40 @@ describe("Stellenaufruf", () => {
   });
 
   it("nur offene Stellen – geschlossene tauchen gar nicht auf", () => {
-    expect(t).toContain(POSITIONS.find((p) => p.slug === "support")!.description);
-    expect(t).not.toContain(POSITIONS.find((p) => p.slug === "eventteam")!.description);
-    expect(t).not.toContain("Eventteam");
+    expect(t).toContain(POSITIONS.find((p) => p.slug === "supporter")!.description);
+    expect(t).not.toContain(POSITIONS.find((p) => p.slug === "event-team")!.description);
+    expect(t).not.toContain("Event-Team");
+    expect(t).not.toContain("Designer");
     expect(t).not.toContain("Geschlossen");
-    expect(t).toMatch(/Support: 🟢 Offen/);
-    expect(t).toContain("Mindestalter 18 Jahre");
+    expect(t).toMatch(/Supporter: 🟢 Offen/);
+    expect(t).toContain("Mindestens 16 Jahre alt");
   });
 
   it("versteckte Stellen tauchen nicht auf", () => {
-    const hidden = buildJobsMessage(positions.map((p) => (p.slug === "media" ? { ...p, status: "HIDDEN" as const } : p)), opts);
-    expect(v2Text(hidden)).not.toContain("Media");
+    const hidden = buildJobsMessage(positions.map((p) => (p.slug === "social-media" ? { ...p, status: "HIDDEN" as const } : p)), opts);
+    expect(v2Text(hidden)).not.toContain(POSITIONS.find((p) => p.slug === "social-media")!.description);
+    expect(v2Text(hidden)).not.toMatch(/Social-Media: 🟢 Offen/);
   });
 
   it("Knöpfe: Portal + je offene Stelle, max. 5 pro Reihe, nur https", () => {
     const b = buttons(m);
     const open = positions.filter((p) => p.status === "OPEN").length;
     expect(b).toHaveLength(open + 1);
-    expect(b[0].url).toBe("https://bewerbung.nordverkehr.xyz");
-    expect(b.slice(1).every((x) => x.url.startsWith("https://bewerbung.nordverkehr.xyz/positionen/"))).toBe(true);
+    expect(b[0].url).toBe("https://portal.jannikjbi.de");
+    expect(b.slice(1).every((x) => x.url.startsWith("https://portal.jannikjbi.de/positionen/"))).toBe(true);
     const rows = JSON.parse(JSON.stringify(m.components))[0].components.filter((c: { type: number }) => c.type === 1);
     expect(rows.every((r: { components: unknown[] }) => r.components.length <= 5)).toBe(true);
     expect(buttons(buildJobsMessage(positions, { ...opts, appUrl: "http://localhost:3000" }))).toHaveLength(0);
   });
 
   it("Rolle wird erwähnt, wenn hinterlegt (ohne Ping)", () => {
-    const withRole = buildJobsMessage(positions.map((p) => (p.slug === "support" ? { ...p, acceptRoleId: "123456789012345678" } : p)), opts);
+    const withRole = buildJobsMessage(positions.map((p) => (p.slug === "supporter" ? { ...p, acceptRoleId: "123456789012345678" } : p)), opts);
     expect(v2Text(withRole)).toContain("<@&123456789012345678>");
+  });
+
+  it("abweichendes Mindestalter je Stelle → niedrigstes mit Hinweis", () => {
+    const mixed = buildJobsMessage(positions.map((p) => (p.slug === "cutter" ? { ...p, minAge: 15 } : p)), opts);
+    expect(v2Text(mixed)).toContain("Mindestens 15 Jahre alt (je nach Stelle)");
   });
 
   it("keine offenen Stellen → freundlicher Hinweis", () => {
@@ -69,17 +76,17 @@ describe("Stellenaufruf", () => {
 });
 
 describe("Einzelaufruf pro Stelle", () => {
-  const support = positions.find((p) => p.slug === "support")!;
+  const support = positions.find((p) => p.slug === "supporter")!;
 
   it("ein Block: Titel, Aufgaben + Voraussetzungen als Zitat, Interesse, Fußzeile", () => {
     const m = buildSpotlightMessage(support, opts);
     const t = v2Text(m);
     expect(m.flags).toBe(COMPONENTS_V2);
-    expect(t).toContain("## Wir suchen **Support**!");
+    expect(t).toContain("## Wir suchen **Supporter**!");
     expect(t).toContain("🔧 **Das solltest du mitbringen:**");
     for (const r of support.requirements) expect(t).toContain(`> ${r}`);
     expect(t).toContain("📩 **Interesse?**");
-    expect(t).toContain("Nordverkehr Roleplay");
+    expect(t).toContain("Jannikjbi's Treffpunkt");
     // genau ein großer Textblock vor Knöpfen/Fußzeile
     const kids = JSON.parse(JSON.stringify(m.components))[0].components as { type: number }[];
     expect(kids[0].type).toBe(10);
@@ -89,7 +96,7 @@ describe("Einzelaufruf pro Stelle", () => {
   it("Knopf direkt zur Bewerbung, Rolle als Erwähnung", () => {
     const m = buildSpotlightMessage({ ...support, acceptRoleId: "123456789012345678" }, opts);
     expect(v2Text(m)).toContain("## Wir suchen <@&123456789012345678>!");
-    expect(buttons(m)[0].url).toBe("https://bewerbung.nordverkehr.xyz/positionen/support");
+    expect(buttons(m)[0].url).toBe("https://portal.jannikjbi.de/positionen/supporter");
   });
 
   it("geschlossene Stelle: kein Bewerbungs-Knopf, Hinweis statt Aufruf", () => {

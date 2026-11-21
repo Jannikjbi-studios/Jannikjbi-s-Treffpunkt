@@ -5,7 +5,7 @@ import { Container } from "@/components/ui";
 import { PositionMatch } from "@/components/apply/PositionMatch";
 import { listPublicPositions } from "@/lib/data/positions";
 
-export const metadata: Metadata = { title: "Welche Stelle passt zu mir?", description: "Fünf kurze Fragen – danach siehst du, welche Stelle bei Nordverkehr zu dir passen könnte." };
+export const metadata: Metadata = { title: "Welche Stelle passt zu mir?", description: "Fünf kurze Fragen – danach siehst du, welche Stelle im Treffpunkt zu dir passen könnte." };
 
 export default function MatchPage() {
   return (

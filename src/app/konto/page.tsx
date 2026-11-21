@@ -19,7 +19,7 @@ export const metadata: Metadata = { title: "Konto & Daten", robots: { index: fal
 export default function AccountPage() {
   return (
     <>
-      <PageHero label="NORDVERKEHR // KONTO" title="Deine" emphasis="Daten." compact>
+      <PageHero label="TREFFPUNKT // KONTO" title="Deine" emphasis="Daten." compact>
         <p>Transparent: Was wir über dich speichern, wie du es exportierst und wie du alles löschst.</p>
       </PageHero>
       <Container>

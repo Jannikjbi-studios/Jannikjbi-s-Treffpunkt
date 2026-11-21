@@ -21,7 +21,7 @@ export const STATUS_HINT: Record<ApplicationStatus, string> = {
   WITHDRAWN: "Du hast die Bewerbung zurückgezogen.",
 };
 
-/** Hinweis je nach Bewerbungsart (z. B. nach der Annahme: Team vs. Whitelist vs. Beta). */
+/** Hinweis je nach Bewerbungsart (z. B. nach der Annahme). */
 export function statusHintFor(status: ApplicationStatus, kind: { acceptedHint: string }) {
   return status === "ACCEPTED" ? kind.acceptedHint : STATUS_HINT[status];
 }

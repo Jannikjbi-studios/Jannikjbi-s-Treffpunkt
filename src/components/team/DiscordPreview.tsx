@@ -56,7 +56,7 @@ export function DiscordPreview({
   title: string;
   body: string;
   publicId?: string | null;
-  /** Persönlicher Absender; ohne Angabe "NORDVERKEHR // TEAM" */
+  /** Persönlicher Absender; ohne Angabe "TREFFPUNKT // TEAM" */
   author?: { name: string; iconUrl: string } | null;
   /** Beschriftung des Link-Knopfs */
   linkLabel?: string;
@@ -80,11 +80,11 @@ export function DiscordPreview({
       </button>
       <div className="flex gap-3">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo.png" alt="" className="h-10 w-10 rounded-full object-contain p-1.5" style={{ background: t.avatarBg }} />
+        <img src="/logo.png" alt="" className="h-10 w-10 rounded-full object-cover" />
         <div className="min-w-0 flex-1">
           <p className="flex items-center gap-1.5 pr-16">
             <span className="font-medium" style={{ color: t.name }}>
-              Nordverkehr
+              Treffpunkt
             </span>
             <span className="rounded px-1 text-[10px] font-semibold leading-4 text-white" style={{ background: "#5865f2" }}>
               APP
@@ -93,11 +93,11 @@ export function DiscordPreview({
               Heute
             </span>
           </p>
-          <div className="mt-1 max-w-[520px] rounded-lg border-l-4 p-4" style={{ background: t.card, borderColor: "#c41e1e" }}>
+          <div className="mt-1 max-w-[520px] rounded-lg border-l-4 p-4" style={{ background: t.card, borderColor: "#ffc123" }}>
             <div className="flex items-start gap-3">
               <div className="min-w-0 flex-1">
                 <p className="text-xs" style={{ color: t.muted }}>
-                  {author ? `${author.name} · Nordverkehr-Team` : "NORDVERKEHR // TEAM"}
+                  {author ? `${author.name} · Treffpunkt-Team` : "TREFFPUNKT // TEAM"}
                 </p>
                 {title && (
                   <p className="mt-1 text-xl font-bold leading-tight" style={{ color: t.name }}>
@@ -109,9 +109,9 @@ export function DiscordPreview({
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={author.iconUrl} alt="" className="h-16 w-16 shrink-0 rounded-lg object-cover" />
               ) : (
-                // Als Team: Nordverkehr-Logo als Profilbild
+                // Als Team: Treffpunkt-Logo als Profilbild
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src="/logo.png" alt="" className="h-16 w-16 shrink-0 rounded-lg object-contain p-2" style={{ background: t.avatarBg }} />
+                <img src="/logo.png" alt="" className="h-16 w-16 shrink-0 rounded-lg object-cover" />
               )}
             </div>
             <hr className="my-3 border-0 h-px" style={{ background: t.line }} />
@@ -119,7 +119,7 @@ export function DiscordPreview({
               <DiscordMarkdown text={body || " "} className="text-sm [&_strong]:text-[var(--dc-strong)]" />
             </div>
             <p className="mt-3 text-xs" style={{ color: t.muted }}>
-              {publicId ? `Bewerbung ${publicId}` : "Nordverkehr Roleplay"} · Heute
+              {publicId ? `Bewerbung ${publicId}` : "Jannikjbi's Treffpunkt"} · Heute
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
               <span className="inline-flex items-center gap-1.5 rounded-lg px-4 py-1.5 text-sm font-medium" style={{ background: t.button, color: t.buttonText }}>

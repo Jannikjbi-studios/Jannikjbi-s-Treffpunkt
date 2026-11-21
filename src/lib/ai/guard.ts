@@ -138,6 +138,6 @@ export function stripGreetings(text: string): string {
     // Nur Gruß + höchstens ein Name, danach Satzzeichen – nie den eigentlichen Satz
     .replace(/^\s*(moin( moin)?|hallo|hi|hey|servus|guten (tag|morgen|abend))(\s+[\p{L}\p{N}_.-]{1,24})?\s*[!,.]\s*/iu, "")
     .replace(/\n+\s*(viele|liebe|beste|freundliche) gr(u|ü)(ß|ss)e[\s\S]{0,60}$/i, "")
-    .replace(/\n+\s*(gru(ß|ss)|moin|dein nordverkehr-team|euer nordverkehr-team)[^\n]{0,40}$/i, "")
+    .replace(/\n+\s*(gru(ß|ss)|moin|dein treffpunkt-team|euer treffpunkt-team|dein team von jannikjbi.s treffpunkt)[^\n]{0,40}$/i, "")
     .trim();
 }

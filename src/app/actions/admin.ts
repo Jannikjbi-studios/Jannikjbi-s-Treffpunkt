@@ -57,6 +57,8 @@ const positionSchema = z.object({
   minAge: z.number().int().min(12).max(99).nullable(),
   cooldownDays: z.number().int().min(0).max(365).nullable(),
   acceptRoleId: snowflake,
+  passRoleId: snowflake.optional(),
+  extraRoleIds: z.array(z.string().regex(/^\d{15,25}$/, "Ungültige Rollen-ID")).max(5).optional(),
   opensAt: z.coerce.date().nullable().optional(),
   closesAt: z.coerce.date().nullable().optional(),
   maxApplications: z.number().int().min(1).max(10000).nullable().optional(),
@@ -85,7 +87,7 @@ export async function savePositionAction(input: z.input<typeof positionSchema>):
   const p = positionSchema.safeParse(input);
   if (!p.success) return { ok: false, error: p.error.issues[0].message };
   const { id: pid, ...rest } = p.data;
-  const data = { ...rest, opensAt: rest.opensAt ?? null, closesAt: rest.closesAt ?? null, maxApplications: rest.maxApplications ?? null, quizMinScore: rest.quizMinScore ?? null, quizDrawCount: rest.quizDrawCount ?? null, interviewQuestions: rest.interviewQuestions ?? [], reviewChecklist: rest.reviewChecklist ?? [], minProVotes: rest.minProVotes ?? null, requireAdminApproval: rest.requireAdminApproval ?? false, teamRoleIds: rest.teamRoleIds ?? [], ratingCriteria: rest.ratingCriteria ?? [], seats: rest.seats ?? null, nickPrefix: rest.nickPrefix || null };
+  const data = { ...rest, opensAt: rest.opensAt ?? null, closesAt: rest.closesAt ?? null, maxApplications: rest.maxApplications ?? null, quizMinScore: rest.quizMinScore ?? null, quizDrawCount: rest.quizDrawCount ?? null, interviewQuestions: rest.interviewQuestions ?? [], reviewChecklist: rest.reviewChecklist ?? [], minProVotes: rest.minProVotes ?? null, requireAdminApproval: rest.requireAdminApproval ?? false, teamRoleIds: rest.teamRoleIds ?? [], ratingCriteria: rest.ratingCriteria ?? [], seats: rest.seats ?? null, nickPrefix: rest.nickPrefix || null, passRoleId: rest.passRoleId ?? null, extraRoleIds: rest.extraRoleIds ?? [] };
   if (data.opensAt && data.closesAt && data.opensAt >= data.closesAt) return { ok: false, error: "Das Enddatum muss nach dem Startdatum liegen." };
   if (data.status === "OPEN" && data.closesAt && data.closesAt <= new Date()) {
     return { ok: false, error: "Das Enddatum liegt in der Vergangenheit – die Stelle würde sofort wieder geschlossen. Datum leeren oder anpassen." };
@@ -268,7 +270,7 @@ const questionSchema = z
       .string()
       .trim()
       .max(60)
-      .refine((k) => k === "" || KEY_PATTERN.test(k), "Key: nur a–z, 0–9, _ und höchstens ein Punkt (z. B. support.tickets).")
+      .refine((k) => k === "" || KEY_PATTERN.test(k), "Key: nur a–z, 0–9, _ (vor dem Punkt auch -) und höchstens ein Punkt (z. B. supporter.tickets).")
       .nullish(),
     /** Admin hat die Ähnlichkeitswarnung bestätigt */
     confirmSimilar: z.boolean().optional(),
@@ -459,7 +461,7 @@ export async function setupInteractionsAction(): Promise<ActionResult<{ message:
   };
 }
 
-/** /bewerbung, /offen und /claim als Guild-Befehle registrieren (sofort verfügbar, nur auf dem Nordverkehr-Server). */
+/** /bewerbung, /offen und /claim als Guild-Befehle registrieren (sofort verfügbar, nur auf dem Treffpunkt-Server). */
 async function registerStatusCommand(token: string): Promise<{ ok: true } | { ok: false; error: string }> {
   const guildId = process.env.DISCORD_GUILD_ID;
   if (!guildId) return { ok: false, error: "DISCORD_GUILD_ID fehlt." };
@@ -792,8 +794,8 @@ export async function fixRoleAction(input: z.input<typeof roleFixSchema>): Promi
   if (!p.success) return { ok: false, error: "Ungültig." };
   const guildId = (await import("@/lib/env")).env().DISCORD_GUILD_ID;
   if (!guildId) return { ok: false, error: "Server-ID fehlt." };
-  // Nur Rollen, die einer Stelle als Annahme-Rolle zugeordnet sind
-  if (!(await db.position.count({ where: { acceptRoleId: p.data.roleId } }))) return { ok: false, error: "Diese Rolle gehört zu keiner Stelle." };
+  // Nur Rollen, die einer Stelle als Annahme- oder Probezeit-Rolle zugeordnet sind
+  if (!(await db.position.count({ where: { OR: [{ acceptRoleId: p.data.roleId }, { passRoleId: p.data.roleId }] } }))) return { ok: false, error: "Diese Rolle gehört zu keiner Stelle." };
   const { enqueue, runOutbox } = await import("@/lib/discord/outbox-db");
   const job = await enqueue({
     type: p.data.mode === "add" ? "ADD_ROLE" : "REMOVE_ROLE",

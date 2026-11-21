@@ -32,7 +32,7 @@ export interface BoardItem {
   discordId: string;
   avatar: string | null;
   position: string;
-  /** Bewerbungsart (Team, Whitelist, Beta) – Beta ohne Gespräch */
+  /** Bewerbungsart (derzeit nur Team) – Arten ohne Gespräch überspringen diese Spalte */
   kind?: KindKey;
   submittedAt: string | null;
   votes: { pro: number; contra: number; abstain: number };

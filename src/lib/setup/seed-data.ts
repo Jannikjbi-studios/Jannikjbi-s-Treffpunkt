@@ -1,5 +1,12 @@
 /**
- * Inhalte für den Seed. Positionstexte orientieren sich an nordverkehr.xyz/team.
+ * Inhalte für den Seed: die Stellen von Jannikjbi's Treffpunkt.
+ *  - Offen zum Start: Cutter, Social-Media, Stream-Mod, Moderator, Supporter
+ *  - Angelegt, aber geschlossen: Designer, Event-Team, Partner-Manager
+ *  - Nicht ausgeschrieben (nur interne Beförderung): Head-Mod, Head-Support,
+ *    Community-Manager, Admin, Co-Owner, Techniker – dafür gibt es keine Stelle.
+ * Die Discord-Rollen-IDs (z. B. ✂️ Cutter, 🗡️ Test-Mod → ⚔️ Moderator, dazu 🧩 Team
+ * bzw. 🎬 Content-Team) stehen bei jeder Stelle unter `discord` und lassen sich im
+ * Portal unter „Positionen & Fragen“ ändern.
  */
 import type { PositionStatus, TemplateCategory } from "@prisma/client";
 import { GENERAL_SECTIONS, POSITION_SECTIONS, type SeedQuestion, type SeedSection } from "@/lib/setup/questions";
@@ -17,148 +24,200 @@ export interface SeedPosition {
   tasks: string[];
   requirements: string[];
   sections: SeedSection[];
+  /** Mindestalter nur für diese Stelle (sonst Standard aus dem Admin-Bereich) */
+  minAge?: number;
+  /** Freie Plätze – sind sie mit Annahmen belegt, schließt die Stelle automatisch */
+  seats?: number;
+  /** Rolle bei Annahme / nach der Probezeit (Namen, als Hinweis für Admins) */
+  roles: { accept: string; afterProbation?: string };
+  /** Discord-Rollen-IDs von Jannikjbi's Treffpunkt: Annahme, nach der Probezeit, „Dazu“ */
+  discord: { accept: string; pass?: string; extra: string[] };
 }
 
 /**
- * Sperrfrist nach einer Absage (Tage) je Stelle – je mehr Vertrauen oder
- * Können die Stelle braucht, desto länger, damit sich bis zur nächsten
- * Bewerbung wirklich etwas ändern kann.
+ * Sperrfrist nach einer Absage (Tage) je Stelle – je mehr Vertrauen die Stelle
+ * braucht, desto länger, damit sich bis zur nächsten Bewerbung wirklich etwas ändern kann.
  */
 export const POSITION_COOLDOWNS: Record<string, number> = {
-  support: 30, // Einstieg ins Team, schnell dazulernbar
-  eventteam: 30, // Ideen & Engagement, schnell nachweisbar
-  media: 45, // Portfolio ausbauen braucht etwas Zeit
-  mapper: 45, // neue Builds/Projekte zeigen
-  entwickler: 60, // Fachwissen & Projekte brauchen Zeit
+  cutter: 30,
+  "social-media": 30,
+  "stream-mod": 30,
   moderator: 60, // Vertrauensposition – Verhalten über längere Zeit zählt
+  supporter: 30,
+  designer: 30,
+  "event-team": 30,
+  "partner-manager": 45,
 };
+
+const sectionsFor = (slug: string) => [...(POSITION_SECTIONS[slug] ?? []), ...(POSITION_QUIZ[slug] ? [POSITION_QUIZ[slug]] : [])];
 
 export const POSITIONS: SeedPosition[] = [
   {
-    slug: "support",
-    title: "Support",
-    tagline: "Discord Tickets, Spielerhilfe.",
-    icon: "headset",
+    slug: "cutter",
+    title: "Cutter",
+    tagline: "1–2 Shorts pro Stream – mit Untertiteln und großem Titel.",
+    icon: "scissors",
     status: "OPEN",
+    minAge: 15,
+    roles: { accept: "✂️ Cutter" },
+    discord: { accept: "1573541468466057418", extra: ["1573541476103888926"] },
     description:
-      "Du bist die erste Anlaufstelle, wenn es hakt. Ob neue Spieler, technische Probleme oder Fragen zum Regelwerk – du bleibst ruhig, freundlich und findest eine Lösung.",
+      "Du schaust dir Janniks Streams an, findest die besten Momente aus dem GTA-RP auf NRW Roleplay und machst daraus Shorts, die man nicht wegwischt – im Hochformat, mit Untertiteln und großem Titel.",
     tasks: [
-      "Discord-Tickets beantworten und sauber dokumentieren",
-      "Neuen Spielern beim Einstieg helfen",
-      "Fragen zu Whitelist, TeamSpeak & SaltyChat klären",
-      "Wiederkehrende Probleme ans Team weitergeben",
+      "Pro Stream 1–2 Shorts aus dem VOD schneiden",
+      "Untertitel und einen großen, gut lesbaren Titel einbauen",
+      "Fertige Shorts an Social-Media übergeben",
+      "Ideen für neue Formate einbringen",
     ],
     requirements: [
-      "Mindestalter 18 Jahre",
-      "Geduld und ein freundlicher, klarer Ton",
-      "Funktionierendes Mikrofon – Discord (Gespräch & Support), TeamSpeak & SaltyChat (Ingame)",
-      "Regelmäßige Verfügbarkeit (mind. 5 Std./Woche)",
+      "Mindestalter 15 Jahre",
+      "Erfahrung mit einem Schnittprogramm (z. B. CapCut, DaVinci Resolve, Premiere)",
+      "Gespür für Timing und Humor",
+      "Zeit, Shorts meist bis zum nächsten Tag fertig zu haben",
     ],
-    sections: [...(POSITION_SECTIONS["support"] ?? []), ...(POSITION_QUIZ["support"] ? [POSITION_QUIZ["support"]] : [])],
+    sections: sectionsFor("cutter"),
+  },
+  {
+    slug: "social-media",
+    title: "Social-Media",
+    tagline: "Shorts auf YouTube und TikTok – Titel, Beschreibung, Hashtags.",
+    icon: "phone",
+    status: "OPEN",
+    minAge: 15,
+    roles: { accept: "📱 Social-Media" },
+    discord: { accept: "1573541467748569168", extra: ["1573541476103888926"] },
+    description:
+      "Du sorgst dafür, dass die Shorts der Cutter auch gesehen werden: hochladen auf YouTube und TikTok, mit Titeln, Beschreibungen und Hashtags, die passen – und einem Auge auf die Kommentare.",
+    tasks: [
+      "Shorts auf YouTube und TikTok hochladen",
+      "Titel, Beschreibung und Hashtags schreiben",
+      "Upload-Zeiten planen und im Blick behalten, was gut läuft",
+      "Kommentare im Auge behalten und Probleme ans Team geben",
+    ],
+    requirements: [
+      "Mindestalter 15 Jahre",
+      "Du kennst dich mit TikTok und YouTube Shorts aus",
+      "Sicheres Deutsch in Titeln und Beschreibungen",
+      "Zuverlässigkeit – Zugänge bleiben bei dir",
+    ],
+    sections: sectionsFor("social-media"),
+  },
+  {
+    slug: "stream-mod",
+    title: "Stream-Mod",
+    tagline: "Chat auf Twitch, YouTube und Kick während der Streams.",
+    icon: "microphone",
+    status: "OPEN",
+    seats: 2,
+    roles: { accept: "🎙️ Stream-Mod" },
+    discord: { accept: "1573541460895076482", extra: ["1573541472781996124"] },
+    description:
+      "Wenn Jannik live ist, hältst du den Chat sauber – auf Twitch, YouTube und Kick. Du begrüßt Leute, beantwortest Fragen, greifst bei Spam, Hate und Metagaming ein und lässt Jannik in Ruhe spielen.",
+    tasks: [
+      "Den Chat während der Streams moderieren (Twitch, YouTube, Kick)",
+      "Spam, Hate und Metagaming/Stream-Sniping unterbinden",
+      "Fragen im Chat beantworten und neue Leute willkommen heißen",
+      "Auffälligkeiten an Moderation und Leitung melden",
+    ],
+    requirements: [
+      "Mindestalter 16 Jahre",
+      "Regelmäßig bei den Streams dabei (meist ab 17:30 Uhr)",
+      "Ruhige, faire Art – auch wenn es im Chat hoch hergeht",
+      "Grundwissen zu GTA RP (z. B. Metagaming) ist ein Plus",
+    ],
+    sections: sectionsFor("stream-mod"),
   },
   {
     slug: "moderator",
     title: "Moderator",
-    tagline: "Ingame Verwaltung, Regelkontrolle.",
-    icon: "shield",
+    tagline: "Discord moderieren, Reports bearbeiten, Warns vergeben.",
+    icon: "sword",
     status: "OPEN",
+    seats: 1,
+    roles: { accept: "🗡️ Test-Mod", afterProbation: "⚔️ Moderator" },
+    discord: { accept: "1573541459527999669", pass: "1573541457774649354", extra: ["1573541472781996124"] },
     description:
-      "Du sorgst ingame dafür, dass Roleplay fair bleibt. Du greifst ein, wenn es nötig ist – und hältst dich zurück, wenn RP einfach gut läuft.",
+      "Du sorgst dafür, dass sich im Treffpunkt alle wohlfühlen. Du bearbeitest Reports, vergibst Warns und Timeouts nachvollziehbar – und hältst dich zurück, wenn einfach gute Stimmung ist. Du startest als Test-Mod, nach der Probezeit wirst du Moderator.",
     tasks: [
-      "Situationen ingame bewerten und fair moderieren",
-      "Regelverstöße aufnehmen und nachvollziehbar dokumentieren",
-      "Mit Support und Leitung eng abstimmen",
-      "Spielern Entscheidungen ruhig erklären",
+      "Den Discord-Server moderieren und auf die Regeln achten",
+      "Reports bearbeiten und Beweise sichern",
+      "Warns und Timeouts fair vergeben und dokumentieren",
+      "Eng mit Supportern und der Leitung abstimmen",
     ],
     requirements: [
-      "Mindestalter 18 Jahre",
-      "Sehr gute Kenntnis des Regelwerks",
+      "Mindestalter 16 Jahre",
+      "Sehr gute Kenntnis der Regeln im Treffpunkt",
       "Neutralität – auch bei Freunden",
-      "Funktionierendes Mikrofon – Discord (Gespräch & Support), TeamSpeak & SaltyChat (Ingame)",
+      "Funktionierendes Mikrofon für Absprachen auf Discord",
     ],
-    sections: [...(POSITION_SECTIONS["moderator"] ?? []), ...(POSITION_QUIZ["moderator"] ? [POSITION_QUIZ["moderator"]] : [])],
+    sections: sectionsFor("moderator"),
   },
   {
-    slug: "entwickler",
-    title: "Entwickler",
-    tagline: "Scripts, Systeme, Backend.",
-    icon: "code",
+    slug: "supporter",
+    title: "Supporter",
+    tagline: "Tickets und Voice-Support – die erste Anlaufstelle.",
+    icon: "headset",
     status: "OPEN",
+    seats: 1,
+    roles: { accept: "🧪 Test-Supporter", afterProbation: "🎧 Supporter" },
+    discord: { accept: "1573541464242262107", pass: "1573541463281635398", extra: ["1573541472781996124"] },
     description:
-      "Du baust mit an den Systemen, die Nordverkehr ausmachen – erst auf GTA 5, danach beim Umzug auf GTA 6. Sauberer Code ist dir wichtiger als schnelle Hacks.",
+      "Du bist da, wenn jemand Hilfe braucht: Tickets beantworten, im Voice-Support erklären, Fragen zu Verifizierung, Rollen und Giveaways klären. Du startest als Test-Supporter, nach der Probezeit wirst du Supporter.",
     tasks: [
-      "Scripts und Systeme entwickeln und pflegen",
-      "Bugs analysieren und nachhaltig beheben",
-      "Code-Reviews und Absprachen im Dev-Team",
-      "Den Umzug auf GTA 6 mit vorbereiten",
+      "Tickets beantworten und sauber abschließen",
+      "Voice-Support im Sprachkanal geben",
+      "Neuen Mitgliedern beim Einstieg helfen (Verifizierung, Rollen, Kanäle)",
+      "Wiederkehrende Probleme ans Team weitergeben",
     ],
     requirements: [
-      "Mindestalter 18 Jahre",
-      "Erfahrung mit Lua und/oder JavaScript/TypeScript",
-      "Git-Grundlagen",
-      "Portfolio oder GitHub-Profil",
+      "Mindestalter 16 Jahre",
+      "Geduld und ein freundlicher, klarer Ton",
+      "Funktionierendes Mikrofon für den Voice-Support",
+      "Regelmäßig erreichbar",
     ],
-    sections: [...(POSITION_SECTIONS["entwickler"] ?? []), ...(POSITION_QUIZ["entwickler"] ? [POSITION_QUIZ["entwickler"]] : [])],
+    sections: sectionsFor("supporter"),
   },
   {
-    slug: "media",
-    title: "Media",
-    tagline: "Content, Clips, Social Media.",
-    icon: "camera",
-    status: "OPEN",
-    description:
-      "Du zeigst, wie sich Nordverkehr anfühlt: Clips, Bilder, Posts. Ehrlich und ohne Showbusiness – so wie der Server selbst.",
-    tasks: [
-      "Clips und Screenshots aufnehmen und schneiden",
-      "Social-Media-Kanäle mit Content versorgen",
-      "Updates und Events ankündigen",
-      "Ideen für Formate entwickeln",
-    ],
-    requirements: [
-      "Mindestalter 18 Jahre",
-      "Erfahrung mit Schnitt oder Bildbearbeitung",
-      "Gespür für Stil und Timing",
-      "Beispiele deiner Arbeit",
-    ],
-    sections: [...(POSITION_SECTIONS["media"] ?? []), ...(POSITION_QUIZ["media"] ? [POSITION_QUIZ["media"]] : [])],
-  },
-  {
-    slug: "mapper",
-    title: "Mapper / Builder",
-    tagline: "Interiors, MLOs, Hamburg-Atmosphäre.",
-    icon: "cube",
-    status: "OPEN",
-    description:
-      "Hamburg-Atmosphäre entsteht nicht von allein. Du baust Orte, an denen gutes RP passiert – stimmig, performant und mit Liebe zum Detail.",
-    tasks: [
-      "Interiors und MLOs bauen und optimieren",
-      "Bestehende Maps anpassen und pflegen",
-      "Auf Performance und Streaming achten",
-      "Mit Entwicklern Abläufe abstimmen",
-    ],
-    requirements: [
-      "Mindestalter 18 Jahre",
-      "Erfahrung mit CodeWalker, Blender o. Ä.",
-      "Screenshots bisheriger Arbeiten",
-      "Geduld für Details",
-    ],
-    sections: [...(POSITION_SECTIONS["mapper"] ?? []), ...(POSITION_QUIZ["mapper"] ? [POSITION_QUIZ["mapper"]] : [])],
-  },
-  {
-    slug: "eventteam",
-    title: "Eventteam",
-    tagline: "Events planen, Community bewegen.",
-    icon: "confetti",
+    slug: "designer",
+    title: "Designer",
+    tagline: "Thumbnails, Emotes und Overlays.",
+    icon: "palette",
     status: "CLOSED",
+    roles: { accept: "🎨 Designer" },
+    discord: { accept: "1573541470059634748", extra: ["1573541476103888926"] },
     description:
-      "Du denkst dir Events aus, die Leute zusammenbringen – vom kleinen Treffen am Hafen bis zum großen Server-Event. Und du sorgst dafür, dass sie auch funktionieren.",
-    tasks: [
-      "Events planen, ankündigen und durchführen",
-      "Mit Moderation und Support abstimmen",
-      "Feedback einsammeln und auswerten",
-    ],
-    requirements: ["Mindestalter 18 Jahre", "Organisationstalent", "Kreativität und Zuverlässigkeit"],
-    sections: [...(POSITION_SECTIONS["eventteam"] ?? []), ...(POSITION_QUIZ["eventteam"] ? [POSITION_QUIZ["eventteam"]] : [])],
+      "Du gibst Jannik und dem Treffpunkt ein Gesicht: Thumbnails, die man anklickt, Emotes, die der Chat liebt, und Overlays, die im Stream gut aussehen. Diese Stelle öffnet später.",
+    tasks: ["Thumbnails für YouTube gestalten", "Emotes für Twitch und Discord zeichnen", "Overlays und Stream-Grafiken bauen"],
+    requirements: ["Mindestalter 16 Jahre", "Erfahrung mit einem Grafikprogramm", "Beispiele deiner Arbeiten"],
+    sections: sectionsFor("designer"),
+  },
+  {
+    slug: "event-team",
+    title: "Event-Team",
+    tagline: "Community-Abende, Turniere und Giveaways.",
+    icon: "tent",
+    status: "CLOSED",
+    roles: { accept: "🎪 Event-Team" },
+    discord: { accept: "1573541465349689455", extra: ["1573541472781996124"] },
+    description:
+      "Du bringst die Community zusammen – mit Community-Abenden, Turnieren und Giveaways. Diese Stelle öffnet, sobald der Treffpunkt etwa 100–150 Mitglieder hat.",
+    tasks: ["Events planen, ankündigen und durchführen", "Giveaways fair organisieren", "Feedback einsammeln und auswerten"],
+    requirements: ["Mindestalter 16 Jahre", "Organisationstalent", "Kreativität und Zuverlässigkeit"],
+    sections: sectionsFor("event-team"),
+  },
+  {
+    slug: "partner-manager",
+    title: "Partner-Manager",
+    tagline: "Partner-Anfragen aus den Tickets.",
+    icon: "handshake",
+    status: "CLOSED",
+    roles: { accept: "🤝 Partner-Manager" },
+    discord: { accept: "1573541466221969561", extra: ["1573541472781996124"] },
+    description:
+      "Du kümmerst dich um Partner-Anfragen, die über die Tickets reinkommen: prüfen, ob es passt, freundlich antworten und Partnerschaften betreuen. Diese Stelle öffnet später.",
+    tasks: ["Partner-Anfragen aus den Tickets prüfen und beantworten", "Bestehende Partnerschaften betreuen", "Mit der Leitung abstimmen, was zum Treffpunkt passt"],
+    requirements: ["Mindestalter 16 Jahre", "Sicherer, freundlicher Schreibstil", "Gespür dafür, was zu Jannik passt"],
+    sections: sectionsFor("partner-manager"),
   },
 ];
 
@@ -173,7 +232,7 @@ export const KI_CONSENT_TEMPLATE_BODY =
 
 /**
  * Mitgelieferte Team-Bausteine (Wortwahl „Bewerbung als {position}“, Gespräch,
- * Probezeit). Whitelist und Beta haben für jede Kategorie eigene (kinds-seed.ts).
+ * Probezeit). Weitere Bewerbungsarten hätten eigene (kinds-seed.ts).
  * Für alle Arten gelten die KI-Zustimmung und GLOBAL_TEMPLATES.
  */
 export const TEAM_ONLY_TEMPLATE_TITLES = [
@@ -226,7 +285,7 @@ export const TEAM_EXTRA_TEMPLATES: { category: TemplateCategory; title: string; 
   {
     category: "ANNAHME",
     title: "Probezeit bestanden",
-    body: "Moin {name},\n\ngute Nachrichten: Deine Probezeit als **{position}** ist vorbei – und du bleibst fest im Team. Danke für deinen Einsatz in den letzten Wochen, schön, dass du dabei bist!",
+    body: "Moin {name},\n\ngute Nachrichten: Deine Probezeit als **{position}** ist vorbei – und du bleibst fest im Team. Falls es zu deiner Stelle eine Rolle nach der Probezeit gibt (z. B. Test-Mod → Moderator), bekommst du sie gleich auf Discord. Danke für deinen Einsatz, schön, dass du dabei bist!",
   },
   {
     category: "ABLEHNUNG",
@@ -273,7 +332,7 @@ export const GLOBAL_TEMPLATES: { category: TemplateCategory; title: string; body
   {
     category: "RUECKFRAGE",
     title: "Discord-DMs öffnen",
-    body: "Moin {name},\n\nunser Bot konnte dir keine Direktnachricht schicken. Damit du nichts verpasst: In Discord auf den Nordverkehr-Server rechtsklicken → „Privatsphäre-Einstellungen“ → „Direktnachrichten“ einschalten. Bis dahin findest du alles unter {dashboard_link}.",
+    body: "Moin {name},\n\nunser Bot konnte dir keine Direktnachricht schicken. Damit du nichts verpasst: In Discord auf den Treffpunkt rechtsklicken → „Privatsphäre-Einstellungen“ → „Direktnachrichten“ einschalten. Bis dahin findest du alles unter {dashboard_link}.",
   },
   {
     category: "ERINNERUNG",
@@ -336,7 +395,7 @@ export const TEMPLATES: { category: TemplateCategory; title: string; body: strin
   {
     category: "EINLADUNG",
     title: "Einladung zum Gespräch",
-    body: "Moin {name},\n\ndeine Bewerbung als **{position}** hat uns gefallen – wir wollen dich kennenlernen.\n\n**Termin:** {termin}\n**Wo:** Discord, Sprachkanal „Bewerbungsgespräche“\n**Mit:** {teammitglied}\n\nPlan etwa 20–30 Minuten ein. Passt der Termin nicht, sag einfach kurz Bescheid.",
+    body: "Moin {name},\n\ndeine Bewerbung als **{position}** hat uns gefallen – wir wollen dich kennenlernen.\n\n**Termin:** {termin}\n**Wo:** Discord, Sprachkanal für Bewerbungsgespräche\n**Mit:** {teammitglied}\n\nPlan etwa 20–30 Minuten ein. Passt der Termin nicht, sag einfach kurz Bescheid.",
   },
   {
     category: "EINLADUNG",
@@ -346,17 +405,17 @@ export const TEMPLATES: { category: TemplateCategory; title: string; body: strin
   {
     category: "ANNAHME",
     title: "Willkommen im Team",
-    body: "Moin {name},\n\nwillkommen im Team! Du bist ab sofort Teil von Nordverkehr als **{position}**.\n\nDu bekommst gleich deine Rolle auf dem Discord. {teammitglied} meldet sich bei dir für die Einarbeitung. Bis dahin: lies dir das Team-Regelwerk im Team-Channel durch.\n\nSchön, dass du dabei bist.",
+    body: "Moin {name},\n\nwillkommen im Team! Du bist ab sofort als **{position}** im Treffpunkt dabei.\n\nDu bekommst gleich deine Rolle auf dem Discord. {teammitglied} meldet sich bei dir für die Einarbeitung. Bis dahin: schau dich in den Team-Kanälen um und lies dir die Team-Infos durch.\n\nSchön, dass du dabei bist.",
   },
   {
     category: "ANNAHME",
     title: "Probezeit-Infos",
-    body: "Die ersten vier Wochen sind deine Probezeit. Das ist kein Test, sondern Zeit zum Ankommen: Frag viel, schau dir Abläufe an, und sag Bescheid, wenn dir etwas komisch vorkommt.",
+    body: "Die ersten Wochen sind deine Probezeit (bei Moderator und Supporter mit der Test-Rolle). Das ist kein Test, sondern Zeit zum Ankommen: Frag viel, schau dir Abläufe an, und sag Bescheid, wenn dir etwas komisch vorkommt.",
   },
   {
     category: "ABLEHNUNG",
     title: "Absage (freundlich)",
-    body: "Moin {name},\n\ndanke für deine Bewerbung als {position} und die Zeit, die du reingesteckt hast. Diesmal hat es leider nicht gepasst.\n\n{grund}\n\nFür {position} gilt nach einer Absage eine Sperrfrist von **{sperrfrist_tage}** – du kannst dich also ab dem **{sperrfrist}** wieder bewerben. Wir freuen uns, wenn du weiter auf Nordverkehr spielst.",
+    body: "Moin {name},\n\ndanke für deine Bewerbung als {position} und die Zeit, die du reingesteckt hast. Diesmal hat es leider nicht gepasst.\n\n{grund}\n\nFür {position} gilt nach einer Absage eine Sperrfrist von **{sperrfrist_tage}** – du kannst dich also ab dem **{sperrfrist}** wieder bewerben. Wir freuen uns, wenn du weiter im Treffpunkt und in Janniks Streams dabei bist.",
   },
   {
     category: "ABLEHNUNG",
@@ -366,12 +425,12 @@ export const TEMPLATES: { category: TemplateCategory; title: string; body: strin
   {
     category: "ABLEHNUNG",
     title: "Absage – Mindestalter",
-    body: "Moin {name},\n\nfür Team-Positionen gilt bei uns ein Mindestalter von 18 Jahren. Deshalb können wir deine Bewerbung leider nicht annehmen. Danke trotzdem für dein Interesse – und viel Spaß weiterhin auf dem Server.",
+    body: "Moin {name},\n\nfür {position} gilt bei uns ein Mindestalter (siehe Stellenbeschreibung im Portal). Deshalb können wir deine Bewerbung leider noch nicht annehmen. Danke trotzdem für dein Interesse – und viel Spaß weiterhin im Treffpunkt.",
   },
   {
     category: "SONSTIGES",
     title: "Tipps für die nächste Bewerbung",
-    body: "**Ein paar Tipps fürs nächste Mal:**\n- Schreib in deinen eigenen Worten – kopierte Texte fallen auf.\n- Bei Szenario-Fragen zählt dein Weg, nicht die perfekte Antwort.\n- Lieber konkret als allgemein: Beispiele helfen uns sehr.",
+    body: "**Ein paar Tipps fürs nächste Mal:**\n- Schreib in deinen eigenen Worten – kopierte Texte fallen auf.\n- Bei Szenario-Fragen zählt dein Weg, nicht die perfekte Antwort.\n- Lieber konkret als allgemein: Beispiele helfen uns sehr.\n- Bei Cutter, Social-Media und Designer: Zeig uns gern Arbeitsproben.",
   },
   {
     category: "ERINNERUNG",

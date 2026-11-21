@@ -6,13 +6,15 @@ import { Container, PageHero } from "@/components/ui";
 import { getSettings } from "@/lib/settings";
 import { publicEnv } from "@/lib/env";
 import { isAiConfigured } from "@/lib/ai/config";
+import { BRAND } from "@/lib/brand";
+import { IMPRINT } from "@/lib/legal";
 
 export const metadata: Metadata = { title: "Datenschutz" };
 
 export default function PrivacyPage() {
   return (
     <>
-      <PageHero label="NORDVERKEHR // DATENSCHUTZ" title="Datenschutz" emphasis="im Bewerbungsportal." compact>
+      <PageHero label="TREFFPUNKT // DATENSCHUTZ" title="Datenschutz" emphasis="im Bewerbungsportal." compact>
         <p>Kurz und ehrlich: welche Daten wir für Team-Bewerbungen verarbeiten, warum, wie lange – und was du tun kannst.</p>
       </PageHero>
       <Container>
@@ -35,9 +37,9 @@ async function Content() {
       <p>
         Diese Hinweise ergänzen die{" "}
         <a className="nv-link" href={`${main}/datenschutz`}>
-          Datenschutzerklärung der Hauptseite
+          Datenschutzerklärung von jannikjbi.de
         </a>
-        . Verantwortlich ist der Betreiber von Nordverkehr; Kontaktdaten findest du im{" "}
+        . Verantwortlich ist {IMPRINT.name} ({BRAND.creator}), Betreiber von {BRAND.name}; Kontaktdaten findest du im{" "}
         <Link className="nv-link" href="/impressum">
           Impressum
         </Link>
@@ -87,13 +89,15 @@ async function Content() {
 
       <H>Mindestalter &amp; Jugendschutz</H>
       <p>
-        Team-Bewerbungen sind erst ab {s["applications.minAge"]} Jahren möglich. Wir fragen dein Alter ab und nehmen jüngere
-        Bewerbungen nicht an.
+        Team-Bewerbungen sind ab {s["applications.minAge"]} Jahren möglich; bei einzelnen Stellen kann das Mindestalter
+        abweichen (steht dann bei der Stelle). Wir fragen dein Alter ab und nehmen jüngere Bewerbungen nicht an. Bist du
+        jünger als 16, brauchen wir für die Einwilligung zusätzlich das Okay deiner Eltern (Art. 8 DSGVO) – das klären wir
+        spätestens im Gespräch.
       </p>
 
       <H>Wer bekommt die Daten?</H>
       <ul>
-        <li>Das Nordverkehr-Team mit der entsprechenden Discord-Rolle.</li>
+        <li>Das Team von {BRAND.name} mit der entsprechenden Discord-Rolle.</li>
         <li>
           <strong>Discord</strong> (Discord Inc., USA): Bestätigungen und Antworten schicken wir dir per Direktnachricht über
           unseren Bot.

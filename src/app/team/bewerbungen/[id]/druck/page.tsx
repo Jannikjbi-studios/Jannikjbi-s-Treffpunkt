@@ -87,7 +87,7 @@ async function PrintView({ params, searchParams }: PageProps<"/team/bewerbungen/
 
       <article className="nv-print nv-card p-6 sm:p-8 space-y-6 text-sm">
         <header className="border-b border-line pb-4">
-          <p className="nv-mono">NORDVERKEHR // BEWERBUNG {app.publicId}</p>
+          <p className="nv-mono">TREFFPUNKT // BEWERBUNG {app.publicId}</p>
           <h1 className="text-2xl font-semibold mt-1">
             {name} – {app.position.title}
           </h1>
@@ -251,7 +251,7 @@ async function PrintView({ params, searchParams }: PageProps<"/team/bewerbungen/
         </section>
 
         <footer className="border-t border-line pt-3 text-xs text-muted">
-          Erstellt am {formatDayTime(new Date())} von {user.globalName || user.username} · Vertraulich – nur für das Nordverkehr-Team.
+          Erstellt am {formatDayTime(new Date())} von {user.globalName || user.username} · Vertraulich – nur für das Treffpunkt-Team.
         </footer>
       </article>
     </div>

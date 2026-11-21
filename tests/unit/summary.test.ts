@@ -3,10 +3,10 @@ import { buildDailySummaryMessage, buildEscalationMessage, isQuiet, summaryStats
 import { COMPONENTS_V2, V2_TEXT_LIMIT, v2Text } from "@/lib/messages/embed";
 import { endOfBerlinDay, lastTeamActivity } from "@/lib/team/daily-summary";
 
-const URL = "https://bewerbung.nordverkehr.xyz";
+const URL = "https://portal.jannikjbi.de";
 const item = (n: number, extra: Partial<SummaryItem> = {}): SummaryItem => ({
   id: `app${n}xxxxxxxx`,
-  publicId: `NV-2026-00${n}`,
+  publicId: `JT-2026-00${n}`,
   name: `Person ${n}`,
   position: "Leitstelle",
   claimer: null,
@@ -65,7 +65,7 @@ describe("Team-Übersicht", () => {
     expect(t).toContain("Rückzug noch nicht bestätigt");
     expect(t).toContain("Probezeit endet bald");
     expect(t).toContain("Nicht mehr auf dem Discord");
-    expect(t).toContain(`[**NV-2026-002**](${URL}/team/bewerbungen/app2xxxxxxxx)`);
+    expect(t).toContain(`[**JT-2026-002**](${URL}/team/bewerbungen/app2xxxxxxxx)`);
     expect(t).toContain("📌 Jannik");
     expect(t).toContain("🙋 ohne Betreuer");
     expect(t).toContain("Max\\_\\*"); // Markdown im Namen entschärft

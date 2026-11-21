@@ -25,10 +25,10 @@ export function ChatAvatar({ direction, person, size = 36, botAvatarUrl }: { dir
     );
   }
   if (person) return <Avatar discordId={person.discordId} avatar={person.avatar} size={size} />;
-  // Als Team gesendet: Nordverkehr-Logo als Profilbild
+  // Als Team gesendet: Treffpunkt-Logo als Profilbild
   return (
     // eslint-disable-next-line @next/next/no-img-element
-    <img src="/logo.png" alt="" width={size} height={size} loading="lazy" className="shrink-0 rounded-full object-contain bg-surface-2 border border-line" style={{ width: size, height: size, padding: size / 6 }} />
+    <img src="/logo.png" alt="" width={size} height={size} loading="lazy" className="shrink-0 rounded-full object-cover border border-line" style={{ width: size, height: size }} />
   );
 }
 

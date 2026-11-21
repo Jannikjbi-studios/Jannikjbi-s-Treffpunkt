@@ -104,7 +104,7 @@ export const ephemeral = (content: string) => ({ type: 4, data: { content, flags
 export const STATUS_COMMAND = {
   name: "bewerbung",
   type: 1,
-  description: "Zeigt dir den Stand deiner Bewerbung bei Nordverkehr (nur für dich sichtbar)",
+  description: "Zeigt dir den Stand deiner Bewerbung im Treffpunkt (nur für dich sichtbar)",
   dm_permission: false,
 } as const;
 
@@ -121,16 +121,16 @@ export const CLAIM_COMMAND = {
   type: 1,
   description: "Team: Bewerbung übernehmen",
   dm_permission: false,
-  options: [{ type: 3, name: "id", description: "Bewerbungs-ID, z. B. NV-2026-0012 oder 12", required: true, max_length: 40 }],
+  options: [{ type: 3, name: "id", description: "Bewerbungs-ID, z. B. JT-2026-0012 oder 12", required: true, max_length: 40 }],
 } as const;
 
 export const ALL_COMMANDS = [STATUS_COMMAND, OPEN_COMMAND, CLAIM_COMMAND] as const;
 
 /**
- * Eingabe von /claim in eine Bewerbungs-ID übersetzen: „NV-2026-0012“, „nv-2026-12“,
+ * Eingabe von /claim in eine Bewerbungs-ID übersetzen: „JT-2026-0012“, „jt-2026-12“,
  * „0012“ oder „12“ (dann aktuelles Jahr). Gibt die normalisierte publicId zurück.
  */
-export function normalizePublicId(input: string, year: number, prefix = "NV"): string | null {
+export function normalizePublicId(input: string, year: number, prefix = "JT"): string | null {
   const s = input.trim().toUpperCase().replace(/\s+/g, "");
   const p = prefix.toUpperCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   let m = s.match(new RegExp(`^${p}-?(\\d{4})-?(\\d{1,5})$`));

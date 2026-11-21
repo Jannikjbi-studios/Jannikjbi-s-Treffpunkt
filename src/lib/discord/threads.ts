@@ -1,6 +1,6 @@
 /**
  * Discord-Thread pro Bewerbung (Einstellung „discord.threadPerApplication“):
- *  - Beim Post im Bewerbungs-Kanal startet der Bot einen Thread („NV-2026-0001 · Support“),
+ *  - Beim Post im Bewerbungs-Kanal startet der Bot einen Thread („JT-2026-0001 · Support“),
  *    die ID landet nach der Zustellung in `Application.discordThreadId`.
  *  - Interne Kommentare aus dem Portal werden dorthin gespiegelt (nur Portal → Discord).
  *  - Bei Abschluss (angenommen, abgelehnt, zurückgezogen) kommt ein letzter Hinweis, dann wird archiviert.

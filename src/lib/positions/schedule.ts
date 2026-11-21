@@ -109,7 +109,7 @@ export async function notifyPositionOpened(db: PrismaClient, position: { id: str
   const url = `${publicEnv.appUrl}/positionen/${position.slug}`;
   const message = buildApplicantMessage({
     title: `${position.title} – jetzt bewerben!`,
-    body: `Moin! Die Stelle **${position.title}** bei Nordverkehr ist ab sofort offen. Du wolltest Bescheid bekommen – hier geht's direkt zur Bewerbung.\n\n-# Keine Benachrichtigungen mehr? Im Portal unter „Konto“ abschalten.`,
+    body: `Moin! Die Stelle **${position.title}** im Treffpunkt ist ab sofort offen. Du wolltest Bescheid bekommen – hier geht's direkt zur Bewerbung.\n\n-# Keine Benachrichtigungen mehr? Im Portal unter „Konto“ abschalten.`,
     statusUrl: url,
     buttonLabel: "Jetzt bewerben",
   });

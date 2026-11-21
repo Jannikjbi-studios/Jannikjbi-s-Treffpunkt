@@ -17,10 +17,10 @@ describe("renderTemplate", () => {
   it("ersetzt alle bekannten Platzhalter", () => {
     const r = renderTemplate("Moin {name}, deine Bewerbung {bewerbungs_id} als {position}.", {
       name: "Lea",
-      bewerbungs_id: "NV-2026-0002",
+      bewerbungs_id: "JT-2026-0002",
       position: "Moderator",
     });
-    expect(r.text).toBe("Moin Lea, deine Bewerbung NV-2026-0002 als Moderator.");
+    expect(r.text).toBe("Moin Lea, deine Bewerbung JT-2026-0002 als Moderator.");
     expect(r.missing).toEqual([]);
   });
   it("lässt fehlende Werte sichtbar stehen und meldet sie", () => {
@@ -53,7 +53,7 @@ describe("buildTemplateVars", () => {
     const v = buildTemplateVars({
       applicant: { username: "lea_nord", globalName: null },
       positionTitle: "Support",
-      publicId: "NV-2026-0001",
+      publicId: "JT-2026-0001",
       submittedAt: new Date("2026-11-11T10:00:00Z"),
       cooldownUntil: new Date("2026-12-11T10:00:00Z"),
     });
@@ -72,17 +72,17 @@ const buttons = (m: { components?: unknown[] }) =>
 
 describe("Discord-Nachrichten (Components V2)", () => {
   it("Bewerber-Nachricht: V2-Flag, Container in Markenfarbe, ohne content/embeds, ohne Pings", () => {
-    const m = buildApplicantMessage({ title: "Hallo", body: "Text", publicId: "NV-1", statusUrl: "https://bewerbung.nordverkehr.xyz/x" });
+    const m = buildApplicantMessage({ title: "Hallo", body: "Text", publicId: "JT-1", statusUrl: "https://portal.jannikjbi.de/x" });
     expect(m.flags).toBe(COMPONENTS_V2);
     expect(m.content).toBeUndefined();
     expect(m.embeds).toBeUndefined();
     expect(container(m)).toMatchObject({ type: 17, accent_color: BRAND_COLOR });
-    expect(v2Text(m)).toContain("NV-1");
+    expect(v2Text(m)).toContain("JT-1");
     expect(m.allowed_mentions).toEqual({ parse: [] });
     expect(buttons(m)).toHaveLength(1);
   });
   it("bleibt unter dem 4000-Zeichen-Limit für Text", () => {
-    const m = buildApplicantMessage({ title: "x".repeat(300), body: "a".repeat(9000), publicId: "NV-1" });
+    const m = buildApplicantMessage({ title: "x".repeat(300), body: "a".repeat(9000), publicId: "JT-1" });
     expect(v2Text(m).length).toBeLessThanOrEqual(V2_TEXT_LIMIT);
   });
   it("Link-Button nur bei https", () => {
@@ -93,9 +93,9 @@ describe("Discord-Nachrichten (Components V2)", () => {
       positionTitle: "Support",
       applicantDiscordId: "111",
       applicantName: "Jonas",
-      publicId: "NV-2026-0008",
+      publicId: "JT-2026-0008",
       age: 24,
-      teamUrl: "https://bewerbung.nordverkehr.xyz/team/bewerbungen/x",
+      teamUrl: "https://portal.jannikjbi.de/team/bewerbungen/x",
       flags: ["Sehr kurze Antworten"],
     });
     expect(m.flags).toBe(COMPONENTS_V2);
@@ -105,12 +105,12 @@ describe("Discord-Nachrichten (Components V2)", () => {
     expect(m.allowed_mentions).toEqual({ parse: [] });
   });
   it("Bot-Log und Changelog ebenfalls als V2", () => {
-    const log = buildBotLogMessage("📥 Neue Bewerbung", { tone: "warn", url: "https://bewerbung.nordverkehr.xyz/team" });
+    const log = buildBotLogMessage("📥 Neue Bewerbung", { tone: "warn", url: "https://portal.jannikjbi.de/team" });
     expect(log.flags).toBe(COMPONENTS_V2);
     expect(container(log).accent_color).toBe(WARN_COLOR);
     const cl = buildChangelogMessage(
       { version: "1.3", title: "Update", date: "2026-11-11", items: [{ kind: "neu", text: "A" }, { kind: "fix", text: "B" }, { kind: "neu", text: "C" }] },
-      "https://bewerbung.nordverkehr.xyz/team/changelog",
+      "https://portal.jannikjbi.de/team/changelog",
     );
     expect(cl.flags).toBe(COMPONENTS_V2);
     const t = v2Text(cl);

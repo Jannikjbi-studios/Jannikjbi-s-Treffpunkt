@@ -5,13 +5,13 @@ services:
   db:
     image: postgres:17
     environment:
-      POSTGRES_USER: nordverkehr
-      POSTGRES_PASSWORD: nordverkehr
-      POSTGRES_DB: nordverkehr
+      POSTGRES_USER: treffpunkt
+      POSTGRES_PASSWORD: treffpunkt
+      POSTGRES_DB: treffpunkt
     volumes:
       - pg-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U nordverkehr -d nordverkehr"]
+      test: ["CMD-SHELL", "pg_isready -U treffpunkt -d treffpunkt"]
       interval: 5s
       timeout: 5s
       retries: 20
@@ -21,7 +21,7 @@ services:
     build: { context: ., target: web }
     env_file: .env
     environment:
-      DATABASE_URL: postgresql://nordverkehr:nordverkehr@db:5432/nordverkehr
+      DATABASE_URL: postgresql://treffpunkt:treffpunkt@db:5432/treffpunkt
     ports: ["3000:3000"]
     depends_on:
       db: { condition: service_healthy }
@@ -31,7 +31,7 @@ services:
     build: { context: ., target: worker }
     env_file: .env
     environment:
-      DATABASE_URL: postgresql://nordverkehr:nordverkehr@db:5432/nordverkehr
+      DATABASE_URL: postgresql://treffpunkt:treffpunkt@db:5432/treffpunkt
     depends_on:
       db: { condition: service_healthy }
     restart: unless-stopped
@@ -40,7 +40,7 @@ services:
     build: { context: ., target: worker }
     env_file: .env
     environment:
-      DATABASE_URL: postgresql://nordverkehr:nordverkehr@db:5432/nordverkehr
+      DATABASE_URL: postgresql://treffpunkt:treffpunkt@db:5432/treffpunkt
       SEED_DEMO: "false"
     command: ["sh", "-c", "npx tsx scripts/db-migrate.mts && npx prisma db seed"]
     depends_on:

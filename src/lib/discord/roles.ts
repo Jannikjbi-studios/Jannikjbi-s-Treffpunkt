@@ -10,9 +10,35 @@ export function parseRoleIds(text: string): string[] {
   return [...new Set(text.split(/[\s,]+/).filter((x) => /^\d{15,25}$/.test(x)))].slice(0, 10);
 }
 
-/** Alle Rollen, die bei Annahme vergeben werden (Rolle der Stelle + zusätzliche). */
-export function acceptRoles(position: { acceptRoleId: string | null }, extra: string): string[] {
-  return [...new Set([position.acceptRoleId, ...parseRoleIds(extra)].filter((x): x is string => !!x && /^\d{15,25}$/.test(x)))];
+/** Alle Rollen, die bei Annahme vergeben werden (Rolle der Stelle + „Dazu“-Rollen der Stelle + allgemeine zusätzliche). */
+export function acceptRoles(position: { acceptRoleId: string | null; extraRoleIds?: string[] | null }, extra: string): string[] {
+  return [...new Set([position.acceptRoleId, ...(position.extraRoleIds ?? []), ...parseRoleIds(extra)].filter((x): x is string => !!x && /^\d{15,25}$/.test(x)))];
+}
+
+/** Beim Zurücknehmen: alle Rollen der Stelle entfernen – auch die nach der Probezeit (z. B. Moderator). */
+export function revertRoles(position: { acceptRoleId: string | null; passRoleId?: string | null; extraRoleIds?: string[] | null }, extra: string): string[] {
+  const roles = acceptRoles(position, extra);
+  const pass = position.passRoleId;
+  return pass && /^\d{15,25}$/.test(pass) && !roles.includes(pass) ? [...roles, pass] : roles;
+}
+
+/**
+ * Probezeit bestanden: Rolle nach der Probezeit geben (z. B. Moderator) und die
+ * Annahme-Rolle (z. B. Test-Mod) entfernen. Ohne passRoleId passiert nichts.
+ */
+export async function enqueueProbationPass(
+  tx: Prisma.TransactionClient,
+  opts: { guildId: string; discordUserId: string; position: { acceptRoleId: string | null; passRoleId: string | null }; applicationId: string; publicId: string | null },
+): Promise<string[]> {
+  const pass = opts.position.passRoleId;
+  if (!pass || !/^\d{15,25}$/.test(pass)) return [];
+  const reason = `Bewerbung ${opts.publicId ?? ""} – Probezeit bestanden`.trim();
+  const ids = [(await enqueue({ type: "ADD_ROLE", guildId: opts.guildId, discordUserId: opts.discordUserId, roleId: pass, reason }, { tx, applicationId: opts.applicationId })).id];
+  const test = opts.position.acceptRoleId;
+  if (test && test !== pass && /^\d{15,25}$/.test(test)) {
+    ids.push((await enqueue({ type: "REMOVE_ROLE", guildId: opts.guildId, discordUserId: opts.discordUserId, roleId: test, reason }, { tx, applicationId: opts.applicationId })).id);
+  }
+  return ids;
 }
 
 /** Platzhalter der Willkommensnachricht. */

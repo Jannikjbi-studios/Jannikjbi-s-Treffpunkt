@@ -22,6 +22,8 @@ interface PositionData {
   minAge: number | null;
   cooldownDays: number | null;
   acceptRoleId: string | null;
+  passRoleId: string | null;
+  extraRoleIds: string[];
   /** ISO-Zeitpunkte oder null */
   opensAt: string | null;
   closesAt: string | null;
@@ -59,6 +61,8 @@ const EMPTY: PositionData = {
   minAge: null,
   cooldownDays: null,
   acceptRoleId: null,
+  passRoleId: null,
+  extraRoleIds: [],
   opensAt: null,
   closesAt: null,
   maxApplications: null,
@@ -85,10 +89,11 @@ const slugify = (s: string) =>
     .replace(/^-|-$/g, "")
     .slice(0, 60);
 
-export function PositionForm({ position, applicationCount = 0 }: { position: PositionData | null; applicationCount?: number }) {
+export function PositionForm({ position, applicationCount = 0, roleHint }: { position: PositionData | null; applicationCount?: number; roleHint?: string }) {
   const router = useRouter();
   const [p, setP] = useState<PositionData>(position ?? EMPTY);
   const [tasks, setTasks] = useState((position?.tasks ?? []).join("\n"));
+  const [extraRoles, setExtraRoles] = useState((position?.extraRoleIds ?? []).join(", "));
   const [ivq, setIvq] = useState((position?.interviewQuestions ?? []).join("\n"));
   const [chk, setChk] = useState((position?.reviewChecklist ?? []).join("\n"));
   const [crit, setCrit] = useState((position?.ratingCriteria ?? []).join("\n"));
@@ -106,7 +111,7 @@ export function PositionForm({ position, applicationCount = 0 }: { position: Pos
   function save() {
     setError(null);
     start(async () => {
-      const res = await savePositionAction({ ...p, tasks: lines(tasks), requirements: lines(reqs), interviewQuestions: lines(ivq), reviewChecklist: lines(chk), ratingCriteria: lines(crit), acceptRoleId: p.acceptRoleId || null, nickPrefix: p.nickPrefix?.trim() || null });
+      const res = await savePositionAction({ ...p, tasks: lines(tasks), requirements: lines(reqs), interviewQuestions: lines(ivq), reviewChecklist: lines(chk), ratingCriteria: lines(crit), acceptRoleId: p.acceptRoleId || null, passRoleId: p.passRoleId || null, extraRoleIds: (extraRoles.match(/\d{15,25}/g) ?? []).slice(0, 5), nickPrefix: p.nickPrefix?.trim() || null });
       if (!res.ok) return setError(res.error);
       setSaved(true);
       if (!p.id) router.push(`/team/positionen/${res.data.id}`);
@@ -141,7 +146,7 @@ export function PositionForm({ position, applicationCount = 0 }: { position: Pos
           <label htmlFor="p-tag" className="nv-field-label">
             Kurzbeschreibung
           </label>
-          <input id="p-tag" className="nv-input" maxLength={120} value={p.tagline} onChange={(e) => set("tagline", e.target.value)} placeholder="z. B. Discord Tickets, Spielerhilfe." />
+          <input id="p-tag" className="nv-input" maxLength={120} value={p.tagline} onChange={(e) => set("tagline", e.target.value)} placeholder="z. B. Tickets und Voice-Support." />
         </div>
         <div className="sm:col-span-2">
           <label htmlFor="p-desc" className="nv-field-label">
@@ -236,6 +241,21 @@ export function PositionForm({ position, applicationCount = 0 }: { position: Pos
             Discord-Rolle bei Annahme
           </label>
           <input id="p-role" className="nv-input font-mono text-sm" inputMode="numeric" placeholder="Rollen-ID (optional)" value={p.acceptRoleId ?? ""} onChange={(e) => set("acceptRoleId", e.target.value.trim() || null)} />
+          <p className="nv-help mt-1">{roleHint ? <>Geplant: <strong>{roleHint}</strong></> : "Mit Probezeit z. B. „Test-Mod“ bzw. „Test-Supporter“."}</p>
+        </div>
+        <div>
+          <label htmlFor="p-pass-role" className="nv-field-label">
+            Rolle nach bestandener Probezeit
+          </label>
+          <input id="p-pass-role" className="nv-input font-mono text-sm" inputMode="numeric" placeholder="Rollen-ID (optional)" value={p.passRoleId ?? ""} onChange={(e) => set("passRoleId", e.target.value.trim() || null)} />
+          <p className="nv-help mt-1">Z. B. „Moderator“: Bei „Probezeit bestanden“ gibt es diese Rolle, die Rolle bei Annahme wird entfernt. Leer = Rolle bleibt.</p>
+        </div>
+        <div>
+          <label htmlFor="p-extra-roles" className="nv-field-label">
+            Dazu bei Annahme
+          </label>
+          <input id="p-extra-roles" className="nv-input font-mono text-sm" placeholder="Rollen-IDs mit Komma (optional)" value={extraRoles} onChange={(e) => setExtraRoles(e.target.value)} />
+          <p className="nv-help mt-1">Z. B. 🧩 Team oder 🎬 Content-Team – kommt zur Rolle der Stelle dazu und geht beim Zurücknehmen wieder weg.</p>
         </div>
         <div>
           <label htmlFor="p-nick" className="nv-field-label">

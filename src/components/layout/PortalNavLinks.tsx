@@ -4,16 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Suspense } from "react";
 
-const isKind = (p: string, slug: string) => p === `/${slug}` || p === `/positionen/${slug}` || p === `/bewerben/${slug}`;
-
 export const PORTAL_LINKS = [
   {
     href: "/",
-    label: "Team",
-    match: (p: string) => (p === "/" || p.startsWith("/positionen") || p.startsWith("/bewerben")) && !isKind(p, "whitelist") && !isKind(p, "beta"),
+    label: "Stellen",
+    match: (p: string) => p === "/" || p.startsWith("/positionen") || p.startsWith("/bewerben"),
   },
-  { href: "/whitelist", label: "Whitelist", match: (p: string) => isKind(p, "whitelist") },
-  { href: "/beta", label: "Beta", match: (p: string) => isKind(p, "beta") },
+  { href: "/passt-zu-mir", label: "Welche passt?", match: (p: string) => p.startsWith("/passt-zu-mir") },
   { href: "/dashboard", label: "Meine Bewerbungen", match: (p: string) => p.startsWith("/dashboard") },
 ];
 

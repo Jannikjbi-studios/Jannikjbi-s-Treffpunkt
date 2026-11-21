@@ -11,7 +11,7 @@ import { KIND_EMOJI, KIND_LABEL, STATUS_LABEL, STATUS_TONE } from "@/lib/suggest
 
 export const metadata: Metadata = {
   title: "Ideen & Fehler melden",
-  description: "Ideen, Feedback und Fehler fürs Nordverkehr-Bewerbungsportal einreichen – die Leitung schaut sich alles an.",
+  description: "Ideen, Feedback und Fehler fürs Treffpunkt-Bewerbungsportal einreichen – die Leitung schaut sich alles an.",
 };
 
 const KIND_PARAM: Record<string, SuggestionKind> = { idee: "IDEA", feedback: "FEEDBACK", fehler: "BUG" };
@@ -19,7 +19,7 @@ const KIND_PARAM: Record<string, SuggestionKind> = { idee: "IDEA", feedback: "FE
 export default function IdeasPage({ searchParams }: PageProps<"/ideen">) {
   return (
     <>
-      <PageHero label="NORDVERKEHR // MITMACHEN" title="Ideen &" emphasis="Fehler." compact>
+      <PageHero label="TREFFPUNKT // MITMACHEN" title="Ideen &" emphasis="Fehler." compact>
         <p>Dir fehlt etwas, dich nervt etwas oder etwas funktioniert nicht? Schreib es uns. Die Leitung liest alles und schaut, was sich einbauen lässt.</p>
       </PageHero>
       <Container>

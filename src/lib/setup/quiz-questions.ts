@@ -1,7 +1,8 @@
 /**
- * Regel-Quiz pro Stelle: sechs Fragen mit genau einer richtigen Antwort – passend
- * zu den Aufgaben der Stelle plus Grundbegriffe aus dem RP. Lösungen bleiben auf dem
- * Server (Question.correctOption). Im Formularbaukasten frei änderbar.
+ * Quiz pro Stelle: vier bis sechs Fragen mit genau einer richtigen Antwort – passend
+ * zu den Aufgaben der Stelle (Grundsätze, keine Detailregeln des Servers). Lösungen
+ * bleiben auf dem Server (Question.correctOption). Im Formularbaukasten frei änderbar –
+ * gern um Fragen zu den eigenen Regeln aus #regeln ergänzen.
  */
 import type { SeedQuestion, SeedSection } from "@/lib/setup/questions";
 
@@ -18,204 +19,209 @@ export function quiz(key: string, label: string, correct: string, wrong: string[
   return { key, label, type: "QUIZ", options, correctOption: correct };
 }
 
-const section = (slug: string, questions: SeedQuestion[]): SeedSection => ({
+const section = (slug: string, questions: SeedQuestion[], title = "Regel-Quiz"): SeedSection => ({
   key: `${slug}.quiz`,
-  title: "Regel-Quiz",
+  title,
   description: "Pro Frage ist genau eine Antwort richtig. Das Team sieht nur, wie viele du richtig hast.",
   questions,
 });
 
+/** Fragen, die für alle Stellen mit Kontakt zur Community passen. */
+const fairness = (slug: string) =>
+  quiz(`${slug}.quiz_friends`, "Ein Freund bittet dich, eine Regel für ihn „mal kurz zu ignorieren“.", "Ablehnen – Regeln gelten für alle gleich", [
+    "Für Freunde ist das in Ordnung",
+    "Machen, solange es niemand merkt",
+    "Erst die Leitung fragen und es dann trotzdem tun",
+  ]);
+const internal = (slug: string) =>
+  quiz(`${slug}.quiz_internal`, "Wo besprichst du interne Team-Themen?", "Nur in den internen Team-Kanälen", [
+    "Im öffentlichen Chat, damit alle Bescheid wissen",
+    "In privaten Gruppen mit Zuschauern",
+    "Im Stream-Chat",
+  ]);
+
 export const POSITION_QUIZ: Record<string, SeedSection> = {
-  support: section("support", [
-    quiz("support.quiz_metagaming", "Was bedeutet „Metagaming“?", "Wissen von außerhalb des Spiels (z. B. aus Discord oder einem Stream) im RP nutzen", [
-      "Mehrere Charaktere gleichzeitig spielen",
-      "Ingame-Geld gegen Echtgeld tauschen",
-      "Eine Situation besonders lange ausspielen",
+  cutter: section(
+    "cutter",
+    [
+      quiz("cutter.quiz_length", "Wie lang darf ein YouTube Short höchstens sein?", "3 Minuten", ["30 Sekunden", "10 Minuten", "Es gibt keine Grenze"]),
+      quiz("cutter.quiz_format", "Welches Format brauchen Shorts und TikToks?", "Hochformat 9:16 (z. B. 1080 × 1920)", ["Querformat 16:9", "Quadratisch 1:1", "Egal, wird automatisch angepasst"]),
+      quiz("cutter.quiz_hook", "Was ist in den ersten Sekunden eines Shorts am wichtigsten?", "Ein Hook – sofort zeigen, worum es geht", [
+        "Ein langes Intro mit Logo",
+        "Erst mal die Vorgeschichte erklären",
+        "Ruhig anfangen, der Höhepunkt kommt am Ende",
+      ]),
+      quiz("cutter.quiz_music", "Darfst du beliebige Musik aus dem Radio unter ein Short legen?", "Nein – nur Musik, die man nutzen darf (z. B. aus der Bibliothek der Plattform)", [
+        "Ja, bei kurzen Videos ist das immer erlaubt",
+        "Ja, wenn man den Künstler nennt",
+        "Ja, solange es unter 30 Sekunden bleibt",
+      ]),
+      quiz("cutter.quiz_privacy", "Im Clip ist eine private Nachricht mit Klarnamen zu sehen. Was tust du?", "Unkenntlich machen oder die Stelle rausschneiden", [
+        "Nichts – war ja live im Stream",
+        "Drinlassen, das bringt Klicks",
+        "Nur den Nachnamen verpixeln",
+      ]),
+    ],
+    "Kurz-Quiz",
+  ),
+  "social-media": section(
+    "social-media",
+    [
+      quiz("social-media.quiz_hashtags", "Welche Hashtags sind am sinnvollsten?", "Wenige passende, z. B. zum Spiel und zum Thema", [
+        "Möglichst viele, egal ob sie passen",
+        "Nur #fyp und #viral",
+        "Gar keine – das bringt nichts",
+      ]),
+      quiz("social-media.quiz_title", "Was macht einen guten Short-Titel aus?", "Kurz, neugierig machend und ehrlich zum Inhalt", [
+        "Möglichst lang mit allen Details",
+        "Reißerisch, auch wenn es im Video nicht passiert",
+        "Nur Emojis",
+      ]),
+      quiz("social-media.quiz_hate", "Wie gehst du mit beleidigenden Kommentaren um?", "Ausblenden oder löschen und bei Bedarf melden – nicht mitstreiten", [
+        "Öffentlich zurückbeleidigen",
+        "Ignorieren, auch wenn es eskaliert",
+        "Den Kommentar anpinnen",
+      ]),
+      quiz("social-media.quiz_login", "Jemand fragt dich nach den Zugangsdaten zu einem Kanal von Jannik.", "Nie weitergeben – auch nicht an Teammitglieder", [
+        "Weitergeben, wenn die Person im Team ist",
+        "Weitergeben, wenn sie nett fragt",
+        "In den Team-Chat posten, dann haben es alle",
+      ]),
+    ],
+    "Kurz-Quiz",
+  ),
+  "stream-mod": section("stream-mod", [
+    quiz("stream-mod.quiz_metagaming", "Was ist im Stream-Chat bei GTA RP „Metagaming“?", "Infos aus dem Stream ins Spiel tragen, z. B. anderen verraten, wo jemand ist", [
+      "Über das Spiel diskutieren",
+      "Den Streamer etwas zum Spiel fragen",
+      "Emotes spammen",
     ]),
-    quiz("support.quiz_powergaming", "Was ist „Powergaming“?", "Aktionen erzwingen, auf die das Gegenüber keine faire Chance hat zu reagieren", [
-      "Sehr viele Stunden am Stück spielen",
-      "Im Team schnell aufsteigen",
-      "Das eigene Fahrzeug voll tunen",
+    quiz("stream-mod.quiz_timeout", "Jemand spammt zum ersten Mal Großbuchstaben. Was passt am besten?", "Kurz hinweisen oder ein kurzer Timeout", [
+      "Sofort dauerhaft bannen",
+      "Gar nichts tun",
+      "Den Streamer bitten, den Stream zu beenden",
     ]),
-    quiz("support.quiz_unknown_ticket", "Ein Ticket, das du nicht selbst lösen kannst – was tust du?", "Ehrlich sagen und an die zuständige Stelle weitergeben", [
-      "Das Ticket schließen, damit die Liste leer ist",
-      "Irgendeine Antwort geben, damit Ruhe ist",
-      "Den Spieler vertrösten, ohne es weiterzugeben",
+    quiz("stream-mod.quiz_hate", "Jemand schreibt rassistische Beleidigungen in den Chat.", "Sofort entfernen und bannen – kein Hinweis nötig", [
+      "Erst einmal verwarnen",
+      "Ignorieren, sonst wird es schlimmer",
+      "Öffentlich darüber diskutieren",
     ]),
-    quiz("support.quiz_insult", "Ein Spieler beleidigt dich im Ticket. Wie reagierst du zuerst?", "Ruhig bleiben, auf den Ton hinweisen und sachlich weiterhelfen", [
-      "Im gleichen Ton zurückschreiben",
-      "Ihn sofort dauerhaft bannen",
-      "Das Ticket unbeantwortet liegen lassen",
+    quiz("stream-mod.quiz_streamer", "Wie sprichst du Jannik während des Streams auf ein Problem an?", "Kurz und ruhig, ohne den Stream zu stören – oder erst danach im Team", [
+      "Mit vielen Nachrichten hintereinander im Chat",
+      "Gar nicht, Mods regeln alles allein",
+      "Per lautem Voice-Call mitten im Stream",
     ]),
-    quiz("support.quiz_friends", "Ein Freund bittet dich, eine Regel für ihn „mal kurz zu ignorieren“.", "Ablehnen – Regeln gelten für alle gleich", [
-      "Für Freunde ist das in Ordnung",
-      "Machen, solange es niemand merkt",
-      "Erst die Leitung fragen und es dann trotzdem tun",
+    quiz("stream-mod.quiz_personal", "Jemand postet die Wohnadresse einer anderen Person im Chat.", "Nachricht sofort löschen, Person bannen und dem Team melden", [
+      "Nachfragen, ob die Adresse stimmt",
+      "Stehen lassen, es ist ja nur Text",
+      "Nur den Streamer informieren",
     ]),
-    quiz("support.quiz_internal", "Wo besprichst du interne Team-Themen?", "Nur in den internen Team-Kanälen", [
-      "Im öffentlichen Chat, damit alle Bescheid wissen",
-      "In privaten Gruppen mit Spielern",
-      "Über den Ingame-Funk",
-    ]),
+    fairness("stream-mod"),
   ]),
   moderator: section("moderator", [
-    quiz("moderator.quiz_rdm", "Was ist „RDM“ (Random Deathmatch)?", "Jemanden ohne RP-Grund angreifen oder töten", [
-      "Ein angekündigtes Kampf-Event",
-      "Ein Rennen ohne Regeln",
-      "Das Löschen eines Charakters",
+    quiz("moderator.quiz_report", "Ein Mitglied meldet eine Beleidigung. Was machst du zuerst?", "Beweise sichern (Screenshot/Nachrichtenlink) und beide Seiten anhören", [
+      "Sofort den Gemeldeten bannen",
+      "Den Report ignorieren, wenn du die Person kennst",
+      "Öffentlich im Chat nachfragen, was los war",
     ]),
-    quiz("moderator.quiz_vdm", "Was ist „VDM“?", "Jemanden absichtlich und ohne RP-Grund mit einem Fahrzeug anfahren oder rammen", [
-      "Ein Fahrzeug ohne Führerschein fahren",
-      "Ein Rennen auf der Autobahn",
-      "Ein Fahrzeug stehlen",
+    quiz("moderator.quiz_warn", "Wozu dient ein Warn?", "Eine dokumentierte Verwarnung, damit sich Verhalten ändert und es nachvollziehbar bleibt", [
+      "Als Strafe ohne Begründung",
+      "Damit man Leute schneller bannen kann",
+      "Nur als Spaß unter Teammitgliedern",
     ]),
-    quiz("moderator.quiz_nlr", "Was besagt die „New Life Rule“ (NLR) in der Regel?", "Nach einem RP-Tod erinnert sich der Charakter nicht an die Umstände seines Todes", [
-      "Nach einem Tod wird der Charakter gelöscht",
-      "Man darf sich sofort am Täter rächen",
-      "Nach einem Tod gibt es neues Startgeld",
+    quiz("moderator.quiz_doxxing", "Jemand teilt private Daten (z. B. Adresse, Telefonnummer) einer anderen Person.", "Sofort löschen, Person sanktionieren und an die Leitung melden", [
+      "Erst einmal stehen lassen und beobachten",
+      "Nur verwarnen, wenn die Daten falsch sind",
+      "Die Person bitten, es selbst zu löschen",
     ]),
-    quiz("moderator.quiz_evidence", "Bevor du eine Strafe verhängst …", "… prüfst du Belege (Clips, Logs) und hörst beide Seiten an", [
-      "… entscheidest du nach Bauchgefühl",
-      "… fragst du nur die Person, die gemeldet hat",
-      "… wartest du ab, bis es noch einmal passiert",
+    quiz("moderator.quiz_power", "Ein Mitglied kritisiert deine Entscheidung im öffentlichen Chat.", "Ruhig bleiben und das Gespräch in ein Ticket oder eine DM verlagern", [
+      "Die Person dafür timeouten",
+      "Öffentlich zurückschießen",
+      "Die Entscheidung sofort zurücknehmen",
     ]),
-    quiz("moderator.quiz_bias", "Ein guter Freund verstößt gegen eine Regel, du bist allein online.", "Neutral nach Regelwerk handeln, dokumentieren und bei Befangenheit abgeben, sobald jemand da ist", [
-      "Es dieses eine Mal durchgehen lassen",
-      "Besonders hart bestrafen, damit niemand etwas sagt",
-      "Die Meldung löschen",
-    ]),
-    quiz("moderator.quiz_docs", "Was gehört in die Dokumentation einer Strafe?", "Was passiert ist, welche Regel, die Belege, die Strafe und wer entschieden hat", [
-      "Nur der Name des Spielers",
-      "Nichts – mündlich reicht",
-      "Nur die Höhe der Strafe",
-    ]),
+    fairness("moderator"),
+    internal("moderator"),
   ]),
-  entwickler: section("entwickler", [
-    quiz("entwickler.quiz_testserver", "Wo testest du neue Skripte zuerst?", "Auf einem Test- bzw. Entwicklungsserver, nicht auf dem Live-Server", [
-      "Direkt auf dem Live-Server",
-      "Gar nicht – wenn es kompiliert, passt es",
-      "Die Spieler testen das schon",
+  supporter: section("supporter", [
+    quiz("supporter.quiz_unknown_ticket", "Ein Ticket, das du nicht selbst lösen kannst – was tust du?", "Ehrlich sagen und an die zuständige Stelle weitergeben", [
+      "Das Ticket schließen, damit die Liste leer ist",
+      "Irgendeine Antwort geben, damit Ruhe ist",
+      "Die Person vertrösten, ohne es weiterzugeben",
     ]),
-    quiz("entwickler.quiz_client_trust", "Ein Skript übernimmt Geldbeträge, die der Client schickt. Wo ist das Problem?", "Client-Daten sind manipulierbar – Werte müssen serverseitig geprüft werden", [
-      "Es gibt keins, der Client ist vertrauenswürdig",
-      "Es ist nur etwas langsamer",
-      "Es fehlen nur Kommentare im Code",
+    quiz("supporter.quiz_insult", "Jemand beleidigt dich im Ticket. Wie reagierst du zuerst?", "Ruhig bleiben, auf den Ton hinweisen und sachlich weiterhelfen", [
+      "Im gleichen Ton zurückschreiben",
+      "Die Person sofort dauerhaft bannen",
+      "Das Ticket unbeantwortet liegen lassen",
     ]),
-    quiz("entwickler.quiz_secrets", "Wohin gehören API-Schlüssel und Passwörter?", "In Konfiguration bzw. Umgebungsvariablen – nie ins Repository", [
-      "Direkt in den Code, dann geht nichts verloren",
-      "In einen öffentlichen Discord-Kanal",
-      "In die README",
+    quiz("supporter.quiz_close", "Wann schließt du ein Ticket?", "Wenn das Anliegen geklärt ist oder die Person sich trotz Nachfrage nicht mehr meldet", [
+      "Sobald du einmal geantwortet hast",
+      "Nach fünf Minuten ohne Antwort",
+      "Nie – Tickets bleiben offen",
     ]),
-    quiz("entwickler.quiz_review", "Ein Teamkollege kritisiert deinen Code im Review.", "Sachlich prüfen, nachfragen und bei Bedarf anpassen", [
-      "Das Review ignorieren und trotzdem einspielen",
-      "Die Kritik persönlich nehmen",
-      "Den Code löschen und neu anfangen",
+    quiz("supporter.quiz_password", "Jemand schickt dir im Ticket sein Passwort, damit du „schneller helfen“ kannst.", "Darauf hinweisen, dass er es nie teilen soll, und es ändern lassen", [
+      "Nutzen, um das Problem selbst zu lösen",
+      "Im Team-Chat weitergeben",
+      "Ignorieren und weitermachen",
     ]),
-    quiz("entwickler.quiz_update", "Was tust du vor einem größeren Update auf dem Live-Server?", "Backup machen, Update ankündigen und einen Weg zurück planen", [
-      "Einfach einspielen, wird schon klappen",
-      "Zur Hauptspielzeit einspielen, dann testen viele mit",
-      "Vorher die Datenbank leeren",
-    ]),
-    quiz("entwickler.quiz_git", "Wozu dient Versionsverwaltung wie Git?", "Änderungen nachvollziehen, gemeinsam arbeiten und zurückrollen können", [
-      "Damit der Server schneller läuft",
-      "Das braucht man nur in großen Firmen",
-      "Um Spieler zu bannen",
-    ]),
+    fairness("supporter"),
+    internal("supporter"),
   ]),
-  media: section("media", [
-    quiz("media.quiz_consent", "Darfst du Spieler ungefragt groß in einem Trailer zeigen?", "Nur mit ihrem Einverständnis bzw. nach den Regeln des Servers", [
-      "Ja, auf dem Server ist alles frei verwendbar",
-      "Ja, wenn man die Namen weglässt",
-      "Ja, solange das Video kurz ist",
-    ]),
-    quiz("media.quiz_music", "Welche Musik darf in unsere Videos?", "Nur Musik, für die wir die Rechte haben (z. B. lizenzfrei)", [
-      "Jeder Song aus den Charts",
-      "Egal, Hauptsache sie passt",
-      "Jeder Song, wenn er unter 30 Sekunden läuft",
-    ]),
-    quiz("media.quiz_violation", "Dein Clip zeigt zufällig einen Regelverstoß. Was machst du?", "Nicht veröffentlichen, sondern dem Team bzw. der Moderation geben", [
-      "Als Lacher posten",
-      "Den Spieler öffentlich bloßstellen",
-      "Löschen und vergessen",
-    ]),
-    quiz("media.quiz_release", "Bevor ein Video öffentlich online geht …", "… gibt die zuständige Person bzw. Leitung es frei", [
-      "… reicht es, wenn es dir gefällt",
-      "… fragst du die Spieler im öffentlichen Chat",
-      "… braucht es keine Freigabe",
-    ]),
-    quiz("media.quiz_internal", "Was gehört nicht in öffentliche Posts?", "Interne Team-Infos und noch nicht angekündigte Features", [
-      "Screenshots aus dem Spiel",
-      "Event-Ankündigungen",
-      "Das Server-Logo",
-    ]),
-    quiz("media.quiz_remove", "Ein Spieler bittet dich, einen Clip mit ihm zu entfernen.", "Ernst nehmen und den Clip entfernen bzw. mit dem Team klären", [
-      "Ignorieren – öffentlich ist öffentlich",
-      "Den Clip jetzt erst recht teilen",
-      "Den Spieler blockieren",
-    ]),
-  ]),
-  mapper: section("mapper", [
-    quiz("mapper.quiz_performance", "Deine neue Map ruckelt bei Spielern. Was prüfst du zuerst?", "Performance: Polygone, Texturgrößen und die Anzahl der Props", [
-      "Die Grafikkarten der Spieler",
-      "Die Farben der Wände",
-      "Gar nichts – sieht doch gut aus",
-    ]),
-    quiz("mapper.quiz_assets", "Woher dürfen Assets für unsere Maps kommen?", "Nur eigene oder mit passender Lizenz bzw. Erlaubnis", [
-      "Von jedem anderen Server kopiert",
-      "Aus geleakten Packs",
-      "Egal, Hauptsache es sieht gut aus",
-    ]),
-    quiz("mapper.quiz_testing", "Bevor ein Mapping live geht …", "… prüfst du es auf dem Testserver (Kollisionen, Löcher, Performance) und lässt es freigeben", [
-      "… spielst du es direkt live ein",
-      "… reicht ein Screenshot",
-      "… testen das die Spieler nach dem Release",
-    ]),
-    quiz("mapper.quiz_collision", "Spieler fallen in deinem Interior durch eine Wand.", "Kollisionen prüfen und die fehlende Collision ergänzen", [
-      "Ein Schild „Nicht berühren“ aufstellen",
-      "Die Wand entfernen",
-      "Den Spielern sagen, sie sollen aufpassen",
-    ]),
-    quiz("mapper.quiz_location", "Du willst einen Ort umbauen, den andere viel nutzen.", "Vorher mit dem Team und betroffenen Gruppen abstimmen", [
-      "Einfach machen, die gewöhnen sich",
-      "Heimlich nachts umbauen",
-      "Den Ort komplett sperren",
-    ]),
-    quiz("mapper.quiz_docs", "Warum Dateien sauber benennen und Änderungen dokumentieren?", "Damit andere im Team sie finden und nachvollziehen können", [
-      "Damit die Map schneller lädt",
-      "Das ist nur Zeitverschwendung",
-      "Damit niemand anderes daran arbeiten kann",
-    ]),
-  ]),
-  eventteam: section("eventteam", [
-    quiz("eventteam.quiz_planning", "Was gehört in eine Event-Planung?", "Ablauf, Zeiten, Verantwortliche, ein Plan B und Absprache mit dem Team", [
-      "Nur die Uhrzeit",
-      "Ein schönes Banner reicht",
-      "Planung ist unnötig – spontan wird es besser",
-    ]),
-    quiz("eventteam.quiz_conflict", "Während deines Events eskaliert ein Streit zwischen Teilnehmern.", "Ruhig eingreifen, trennen und bei Regelverstößen die Moderation holen", [
-      "Weitermachen und hoffen, dass es aufhört",
-      "Das Event sofort ersatzlos beenden",
-      "Mitstreiten",
-    ]),
-    quiz("eventteam.quiz_overlap", "Dein Event überschneidet sich mit einem großen RP-Szenario.", "Vorher abstimmen und Termin oder Ort anpassen", [
-      "Trotzdem machen, wer zuerst kommt",
-      "Das andere Szenario absagen lassen",
-      "Nichts sagen und abwarten",
-    ]),
-    quiz("eventteam.quiz_prizes", "Wie vergibst du Preise?", "Fair und nach vorher bekannten Regeln", [
-      "An Freunde",
-      "Nach Lust und Laune",
-      "An die, die am lautesten fragen",
-    ]),
-    quiz("eventteam.quiz_invite", "Wie lädst du zu einem Event ein?", "Rechtzeitig, mit Zeit, Ort und Regeln", [
-      "Fünf Minuten vorher im Chat",
-      "Gar nicht – wer da ist, ist da",
-      "Nur per Privatnachricht an einzelne",
-    ]),
-    quiz("eventteam.quiz_after", "Was machst du nach einem Event?", "Feedback sammeln und für das nächste Event auswerten", [
-      "Nichts mehr – vorbei ist vorbei",
-      "Nur die Teilnehmerzahl posten",
-      "Sofort das nächste Event starten",
-    ]),
-  ]),
+  designer: section(
+    "designer",
+    [
+      quiz("designer.quiz_thumbnail", "Was macht ein gutes YouTube-Thumbnail aus?", "Wenig Text, klares Motiv und starke Kontraste – auch klein lesbar", [
+        "Möglichst viel Text, damit alles erklärt ist",
+        "Viele kleine Details",
+        "Ein Screenshot ohne Bearbeitung",
+      ]),
+      quiz("designer.quiz_emote", "Worauf musst du bei Twitch-Emotes achten?", "Sie müssen auch ganz klein (28 px) noch erkennbar sein", [
+        "Sie sollten möglichst viele Details haben",
+        "Text funktioniert in Emotes am besten",
+        "Die Größe ist egal",
+      ]),
+      quiz("designer.quiz_assets", "Darfst du beliebige Bilder aus der Google-Suche verwenden?", "Nein – nur eigene oder freie bzw. lizenzierte Bilder", [
+        "Ja, wenn man sie leicht verändert",
+        "Ja, für Thumbnails immer",
+        "Ja, wenn das Bild klein ist",
+      ]),
+      quiz("designer.quiz_files", "In welchem Format gibst du ein Overlay mit Transparenz ab?", "PNG oder WebM mit Alphakanal", ["JPG", "GIF ohne Transparenz", "PDF"]),
+    ],
+    "Kurz-Quiz",
+  ),
+  "event-team": section(
+    "event-team",
+    [
+      quiz("event-team.quiz_giveaway", "Wie bleibt ein Giveaway fair?", "Klare Teilnahmebedingungen vorher und zufällige, nachvollziehbare Auslosung", [
+        "Freunde bevorzugen",
+        "Bedingungen erst nach der Auslosung festlegen",
+        "Wer am lautesten fragt, gewinnt",
+      ]),
+      quiz("event-team.quiz_announce", "Wann kündigst du ein Event an?", "Rechtzeitig vorher, mit Datum, Uhrzeit und Ablauf", [
+        "Fünf Minuten vorher",
+        "Gar nicht, das spricht sich rum",
+        "Erst wenn genug Leute fragen",
+      ]),
+      fairness("event-team"),
+      internal("event-team"),
+    ],
+    "Kurz-Quiz",
+  ),
+  "partner-manager": section(
+    "partner-manager",
+    [
+      quiz("partner-manager.quiz_check", "Was prüfst du vor einer Partnerschaft zuerst?", "Ob der Partner zu Werten und Zielgruppe des Treffpunkts passt", [
+        "Nur die Mitgliederzahl",
+        "Ob er schnell antwortet",
+        "Gar nichts – jeder Partner ist gut",
+      ]),
+      quiz("partner-manager.quiz_promise", "Darfst du einem Partner eigenmächtig Werbung im Stream zusagen?", "Nein – das entscheidet Jannik bzw. die Leitung", [
+        "Ja, wenn der Partner groß ist",
+        "Ja, wenn er dafür bezahlt",
+        "Ja, das gehört zur Stelle",
+      ]),
+      quiz("partner-manager.quiz_label", "Wie wird bezahlte Werbung oder ein Affiliate-Link gekennzeichnet?", "Deutlich als Werbung/Anzeige", ["Gar nicht", "Nur im Kleingedruckten", "Erst auf Nachfrage"]),
+      internal("partner-manager"),
+    ],
+    "Kurz-Quiz",
+  ),
 };

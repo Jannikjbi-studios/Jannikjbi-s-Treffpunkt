@@ -16,6 +16,8 @@ const nextConfig: NextConfig = {
   partialPrefetching: true,
   poweredByHeader: false,
   images: {
+    // Bilder liegen schon klein vor (Logo 128 px) – keine Vercel-Bildoptimierung, spart Kontingent
+    unoptimized: true,
     remotePatterns: [{ protocol: "https", hostname: "cdn.discordapp.com" }],
   },
   serverExternalPackages: ["sharp", "discord.js", "@discordjs/rest", "pg"],

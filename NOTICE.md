@@ -4,10 +4,9 @@ Der **Quellcode** dieses Projekts steht unter der GNU Affero General Public Lice
 
 **Nicht** unter dieser Lizenz stehen:
 
-- der Name **„Nordverkehr“** und die Bezeichnung „Nordverkehr Roleplay“,
-- das Logo `public/logo.png`,
-- die Wortmarke `public/Nord-Verkehr-Wordmark.png`.
+- die Namen **„Jannikjbi“** und **„Jannikjbi's Treffpunkt“**,
+- der Avatar bzw. das Logo `public/logo.png` und die App-Icons unter `public/icons/`.
 
-Diese gehören dem Nordverkehr-Projekt. Ihr dürft sie in eigenen Installationen nicht verwenden und nicht so auftreten, als wärt ihr Nordverkehr. Bitte ersetzt sie durch euren eigenen Namen und euer eigenes Logo – wo die Stellen liegen, steht in der README unter „Für andere Server einrichten“.
+Diese gehören Jannikjbi. Wer den Code für ein eigenes Projekt nutzt, ersetzt Name und Logo durch eigene und tritt nicht als Jannikjbi oder Jannikjbi's Treffpunkt auf.
 
-Nordverkehr ist ein Roleplay-Projekt und steht in keiner Verbindung zu Rockstar Games oder Take-Two Interactive.
+Discord, Twitch, YouTube, TikTok, Kick und Grand Theft Auto sind Marken der jeweiligen Rechteinhaber; das Projekt steht in keiner offiziellen Verbindung zu ihnen.

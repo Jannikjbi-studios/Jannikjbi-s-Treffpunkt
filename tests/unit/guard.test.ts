@@ -66,15 +66,15 @@ describe("wrapUntrusted", () => {
 });
 
 describe("sanitizeOutput", () => {
-  const policy = { maxChars: 120, allowedHosts: ["nordverkehr.xyz"] };
+  const policy = { maxChars: 120, allowedHosts: ["jannikjbi.de"] };
   it("entschärft Pings und Erwähnungen", () => {
     const out = sanitizeOutput("@everyone hallo <@123456> <@&999> <#42> @here", policy);
     expect(out).not.toMatch(/@everyone|@here/);
     expect(out).not.toMatch(/<@|<#/);
   });
   it("erlaubt nur Links auf erlaubte Hosts", () => {
-    const out = sanitizeOutput("siehe https://nordverkehr.xyz/regeln und https://evil.example/x", policy);
-    expect(out).toContain("https://nordverkehr.xyz/regeln");
+    const out = sanitizeOutput("siehe https://jannikjbi.de/regeln und https://evil.example/x", policy);
+    expect(out).toContain("https://jannikjbi.de/regeln");
     expect(out).toContain("[Link entfernt]");
     expect(out).not.toContain("evil.example");
   });

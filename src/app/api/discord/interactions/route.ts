@@ -70,7 +70,7 @@ export async function POST(req: Request) {
     if (team.isJunior) return Response.json(ephemeral(JUNIOR_DENIED));
     const raw = String(i.data.options?.find((o) => o.name === "id")?.value ?? "");
     const publicId = normalizePublicId(raw, new Date().getFullYear(), env().PUBLIC_ID_PREFIX);
-    if (!publicId) return Response.json(ephemeral("Unbekannte Bewerbungs-ID. Beispiel: `/claim id:NV-2026-0012` oder `/claim id:12`."));
+    if (!publicId) return Response.json(ephemeral("Unbekannte Bewerbungs-ID. Beispiel: `/claim id:JT-2026-0012` oder `/claim id:12`."));
     return Response.json(ephemeral(await claimFromDiscord({ publicId }, team)));
   }
 

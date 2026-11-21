@@ -58,7 +58,7 @@ export async function seedBase(db: PrismaClient, log: (m: string) => void = () =
   if (!type) {
     try {
       type = await db.applicationType.create({
-        data: { key: "team", name: "Team-Bewerbung", description: "Bewerbungen für das Nordverkehr-Team" },
+        data: { key: "team", name: "Team-Bewerbung", description: "Bewerbungen für das Treffpunkt-Team" },
       });
     } catch (e) {
       if (!isUniqueViolation(e)) throw e;
@@ -86,6 +86,11 @@ export async function seedBase(db: PrismaClient, log: (m: string) => void = () =
             status: p.status,
             tasks: p.tasks,
             requirements: p.requirements,
+            minAge: p.minAge ?? null,
+            seats: p.seats ?? null,
+            acceptRoleId: p.discord.accept,
+            passRoleId: p.discord.pass ?? null,
+            extraRoleIds: p.discord.extra,
             sortOrder: i,
           },
         });
@@ -111,9 +116,8 @@ export async function seedBase(db: PrismaClient, log: (m: string) => void = () =
 }
 
 /**
- * Bewerbungsarten Whitelist und Beta: Art, Stelle (geschlossen), Abschnitte und
- * Bausteine anlegen, falls noch nicht vorhanden. Idempotent – auch für
- * bestehende Installationen (Daten-Migration „2026-11-whitelist-beta“).
+ * Weitere Bewerbungsarten (KIND_SEEDS, derzeit keine): Art, Stelle (geschlossen),
+ * Abschnitte und Bausteine anlegen, falls noch nicht vorhanden. Idempotent.
  */
 export async function seedKinds(db: PrismaClient, log: (m: string) => void = () => {}) {
   let created = 0;
@@ -175,7 +179,7 @@ export async function ensureGlobalTemplates(db: PrismaClient) {
   return n;
 }
 
-/** Bausteine für Whitelist und Beta anlegen, die es (nach Titel) noch nicht gibt. Gibt die Anzahl zurück. */
+/** Bausteine weiterer Bewerbungsarten anlegen, die es (nach Titel) noch nicht gibt. Gibt die Anzahl zurück. */
 export async function ensureKindTemplates(db: PrismaClient) {
   let n = 0;
   for (const k of KIND_SEEDS) {

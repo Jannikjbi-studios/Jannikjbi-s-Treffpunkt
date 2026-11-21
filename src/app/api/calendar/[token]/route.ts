@@ -29,6 +29,6 @@ export async function GET(_req: Request, ctx: RouteContext<"/api/calendar/[token
     })),
   );
   return new Response(ics, {
-    headers: { "Content-Type": "text/calendar; charset=utf-8", "Cache-Control": "private, max-age=300", "Content-Disposition": 'inline; filename="nordverkehr-gespraeche.ics"' },
+    headers: { "Content-Type": "text/calendar; charset=utf-8", "Cache-Control": "private, max-age=300", "Content-Disposition": 'inline; filename="treffpunkt-gespraeche.ics"' },
   });
 }

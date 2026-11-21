@@ -81,7 +81,7 @@ describe("Discord-Knöpfe", () => {
     expect(ephemeral("x").data.flags).toBe(64);
   });
   it("neue Bewerbung bekommt den Knopf nur, wenn eingeschaltet", () => {
-    const base = { positionTitle: "Support", applicantDiscordId: "1", applicantName: "Jonas", applicantAvatarUrl: null, publicId: "NV-1", age: 20, teamUrl: "https://bewerbung.nordverkehr.xyz/team/bewerbungen/x", flags: [] };
+    const base = { positionTitle: "Support", applicantDiscordId: "1", applicantName: "Jonas", applicantAvatarUrl: null, publicId: "JT-1", age: 20, teamUrl: "https://portal.jannikjbi.de/team/bewerbungen/x", flags: [] };
     const withBtn = JSON.stringify(buildLogMessage({ ...base, claimCustomId: claimCustomId("abcdefghijkl") }));
     expect(withBtn).toContain('"custom_id":"nv:claim:abcdefghijkl"');
     expect(withBtn).toContain("bewerbungen/x");
@@ -144,7 +144,7 @@ import { buildTemplateVars, renderTemplate } from "@/lib/messages/placeholders";
 
 describe("Sperrfrist in Absagen", () => {
   it("Platzhalter für Tage und Datum", () => {
-    const vars = buildTemplateVars({ applicant: { username: "a", globalName: "Anna" }, positionTitle: "Moderator", publicId: "NV-1", submittedAt: null, cooldownUntil: new Date("2027-01-11T12:00:00Z"), cooldownDays: 60 });
+    const vars = buildTemplateVars({ applicant: { username: "a", globalName: "Anna" }, positionTitle: "Moderator", publicId: "JT-1", submittedAt: null, cooldownUntil: new Date("2027-01-11T12:00:00Z"), cooldownDays: 60 });
     const r = renderTemplate("{sperrfrist_tage} / ab {sperrfrist}", vars);
     expect(r.text).toBe("60 Tage / ab 11. Januar 2027");
     expect(r.missing).toEqual([]);

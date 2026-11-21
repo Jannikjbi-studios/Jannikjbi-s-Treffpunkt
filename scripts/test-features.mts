@@ -26,8 +26,8 @@ try {
   const a1 = await mk("Anna", "100000000000000021");
   const a2 = await mk("Ben", "100000000000000022", { notifyNewPositions: true });
   const team = await mk("Jonas", "100000000000000023", { isTeam: true });
-  const app1 = await db.application.create({ data: { userId: a1.id, positionId: pos.id, status: "INTERVIEW", publicId: "NV-F-1", submittedAt: new Date() } });
-  const app2 = await db.application.create({ data: { userId: a2.id, positionId: pos.id, status: "INTERVIEW", publicId: "NV-F-2", submittedAt: new Date() } });
+  const app1 = await db.application.create({ data: { userId: a1.id, positionId: pos.id, status: "INTERVIEW", publicId: "JT-F-1", submittedAt: new Date() } });
+  const app2 = await db.application.create({ data: { userId: a2.id, positionId: pos.id, status: "INTERVIEW", publicId: "JT-F-2", submittedAt: new Date() } });
 
   // ── Termine
   const s1 = await db.interviewSlot.create({ data: { startsAt: new Date(Date.now() + 24 * H) } });
@@ -48,7 +48,7 @@ try {
   check(!(await db.application.findUnique({ where: { id: app1.id } }))!.interviewAt, "Ablehnung leert den selbst gebuchten Termin");
 
   // ── Zweites Gespräch: Gespräch → In Prüfung → Gespräch, dann neu buchen
-  const appR = await db.application.create({ data: { userId: a1.id, positionId: pos.id, status: "INTERVIEW", publicId: "NV-F-R", submittedAt: new Date() } });
+  const appR = await db.application.create({ data: { userId: a1.id, positionId: pos.id, status: "INTERVIEW", publicId: "JT-F-R", submittedAt: new Date() } });
   await bookSlot(db, { userId: a1.id, applicationId: appR.id, slotId: s1.id });
   await changeStatus({ applicationId: appR.id, to: "IN_REVIEW", actorId: team.id });
   // Phase-2-Hürde: ohne Bewertung bzw. unter 3 Sternen nicht ins Gespräch
@@ -132,21 +132,21 @@ try {
   check((await applyPositionSchedule(db)).length === 0, "Zweiter Lauf ändert nichts");
 
   // ── Annahme → Probezeit, Übersicht
-  const app3 = await db.application.create({ data: { userId: a1.id, positionId: pos.id, status: "INTERVIEW", publicId: "NV-F-3", submittedAt: new Date() } });
+  const app3 = await db.application.create({ data: { userId: a1.id, positionId: pos.id, status: "INTERVIEW", publicId: "JT-F-3", submittedAt: new Date() } });
   await changeStatus({ applicationId: app3.id, to: "ACCEPTED", actorId: team.id });
   const acc = await db.application.findUnique({ where: { id: app3.id } });
   check(!!acc!.probationUntil && acc!.probationUntil.getTime() > Date.now() + 13 * 24 * H, "Annahme startet 14 Tage Probezeit");
   await db.application.update({ where: { id: app3.id }, data: { probationUntil: new Date(Date.now() + 24 * H) } });
   const sum = await collectDailySummary(db, { staleDays: 3, escalateDays: 7 });
-  check(sum.probation.some((p) => p.publicId === "NV-F-3"), "Probezeit-Ende steht in der Übersicht");
+  check(sum.probation.some((p) => p.publicId === "JT-F-3"), "Probezeit-Ende steht in der Übersicht");
 
   // ── Discord verlassen → automatische Bot-Nachricht, einmal pro Austritt
   const a4 = await mk("Cleo", "100000000000000024");
-  const app4 = await db.application.create({ data: { userId: a4.id, positionId: pos.id, status: "IN_REVIEW", publicId: "NV-F-4", submittedAt: new Date() } });
+  const app4 = await db.application.create({ data: { userId: a4.id, positionId: pos.id, status: "IN_REVIEW", publicId: "JT-F-4", submittedAt: new Date() } });
   const sys = () => db.message.count({ where: { applicationId: app4.id, direction: "SYSTEM" } });
   check((await applyGuildState(app4.id, false)) === "notified" && (await sys()) === 1, "Austritt → Bot-Nachricht im Portal");
   check((await applyGuildState(app4.id, false)) === null && (await sys()) === 1, "Kein zweites Mal beim selben Austritt");
-  check((await collectDailySummary(db, { staleDays: 3, escalateDays: 7 })).leftGuild.some((x) => x.publicId === "NV-F-4"), "Steht in der Team-Übersicht");
+  check((await collectDailySummary(db, { staleDays: 3, escalateDays: 7 })).leftGuild.some((x) => x.publicId === "JT-F-4"), "Steht in der Team-Übersicht");
   {
     const logs = () => db.outboxJob.count({ where: { applicationId: app4.id, type: "CHANNEL_MESSAGE" } });
     const l0 = await logs();
@@ -187,10 +187,10 @@ try {
     const t2 = await mk("Kira", "100000000000000041", { isTeam: true });
     const t3 = await mk("Lars", "100000000000000042", { isTeam: true, digestOptOut: true });
     const p1 = await mk("Pia", "100000000000000043");
-    const ca = await db.application.create({ data: { userId: p1.id, positionId: pos.id, status: "IN_REVIEW", publicId: "NV-F-D1", submittedAt: new Date(), claimedById: t2.id } });
+    const ca = await db.application.create({ data: { userId: p1.id, positionId: pos.id, status: "IN_REVIEW", publicId: "JT-F-D1", submittedAt: new Date(), claimedById: t2.id } });
     await db.message.create({ data: { applicationId: ca.id, direction: "APPLICANT_TO_TEAM", body: "Hallo?" } });
     const p2u = await mk("Ole", "100000000000000044");
-    const cb = await db.application.create({ data: { userId: p2u.id, positionId: pos.id, status: "IN_REVIEW", publicId: "NV-F-D2", submittedAt: new Date(), claimedById: t3.id } });
+    const cb = await db.application.create({ data: { userId: p2u.id, positionId: pos.id, status: "IN_REVIEW", publicId: "JT-F-D2", submittedAt: new Date(), claimedById: t3.id } });
     await db.message.create({ data: { applicationId: cb.id, direction: "APPLICANT_TO_TEAM", body: "Hallo?" } });
     const dmTo = async (discordId: string) => (await db.outboxJob.findMany({ where: { type: "DM" } })).filter((j) => (j.payload as { discordUserId?: string }).discordUserId === discordId).length;
     const n1 = await sendPersonalDigests(db);
@@ -320,7 +320,7 @@ try {
     check(st(conf.id).status === "DONE", "Nachts: Bestätigung nach dem Absenden geht sofort raus");
     // Bewerber schreibt nachts → Nacht-Antwort (KI aus → feste Antwort) sofort
     const nUser = await mk("Nora", "100000000000000061");
-    const appN = await db.application.create({ data: { userId: nUser.id, positionId: pos.id, status: "SUBMITTED", publicId: "NV-F-N", submittedAt: new Date() } });
+    const appN = await db.application.create({ data: { userId: nUser.id, positionId: pos.id, status: "SUBMITTED", publicId: "JT-F-N", submittedAt: new Date() } });
     await db.user.update({ where: { id: team.id }, data: { lastTeamActiveAt: new Date() } }); // Team wirkt „online“
     const q = await db.message.create({ data: { applicationId: appN.id, direction: "APPLICANT_TO_TEAM", body: "Wann meldet ihr euch?" } });
     const r = await maybeAutoReply(q.id);
@@ -341,7 +341,7 @@ try {
     const D = 86_400_000;
     const mkApp = async (n: string, id: string, data: Record<string, unknown> = {}) => {
       const u = await mk(n, id);
-      return db.application.create({ data: { userId: u.id, positionId: pos.id, status: "IN_REVIEW", publicId: `NV-I-${id.slice(-3)}`, submittedAt: new Date(), ...data } });
+      return db.application.create({ data: { userId: u.id, positionId: pos.id, status: "IN_REVIEW", publicId: `JT-I-${id.slice(-3)}`, submittedAt: new Date(), ...data } });
     };
 
     // #1 Rückfrage mit Frist
@@ -357,7 +357,7 @@ try {
     // #3 Vier-Augen-Prinzip
     const p4 = await db.position.create({ data: { typeId: type.id, slug: "vieraugen", title: "Vier", tagline: "x", description: "x", minProVotes: 2, requireAdminApproval: true } });
     const admin = await mk("Ada", "100000000000000072", { isTeam: true, isAdmin: true });
-    const va = await db.application.create({ data: { userId: (await mk("Vera", "100000000000000073")).id, positionId: p4.id, status: "INTERVIEW", publicId: "NV-I-VA", submittedAt: new Date() } });
+    const va = await db.application.create({ data: { userId: (await mk("Vera", "100000000000000073")).id, positionId: p4.id, status: "INTERVIEW", publicId: "JT-I-VA", submittedAt: new Date() } });
     let e1 = "";
     try { await changeStatus({ applicationId: va.id, to: "ACCEPTED", actorId: team.id }); } catch (e) { e1 = String(e); }
     check(e1.includes("nur ein Admin"), "Vier-Augen: Nicht-Admin darf nicht annehmen");
@@ -371,7 +371,7 @@ try {
     // #5 Zuständigkeit pro Stelle
     const { canAccessApplication, hiddenPositionIds } = await import("../src/lib/team/visibility");
     const p5 = await db.position.create({ data: { typeId: type.id, slug: "nur-mod", title: "Nur Mod", tagline: "x", description: "x", teamRoleIds: ["900000000000000001"] } });
-    const a5 = await db.application.create({ data: { userId: (await mk("Malte", "100000000000000074")).id, positionId: p5.id, status: "SUBMITTED", publicId: "NV-I-M", submittedAt: new Date() } });
+    const a5 = await db.application.create({ data: { userId: (await mk("Malte", "100000000000000074")).id, positionId: p5.id, status: "SUBMITTED", publicId: "JT-I-M", submittedAt: new Date() } });
     check((await hiddenPositionIds({ isAdmin: false, roleIds: [] })).includes(p5.id) && !(await canAccessApplication({ isAdmin: false, roleIds: [] }, a5.id)), "Zuständigkeit: ohne Rolle kein Zugriff");
     check(await canAccessApplication({ isAdmin: false, roleIds: ["900000000000000001"] }, a5.id), "Zuständigkeit: mit Rolle Zugriff");
     check(await canAccessApplication({ isAdmin: true, roleIds: [] }, a5.id), "Zuständigkeit: Admin sieht alles");
@@ -387,7 +387,7 @@ try {
     const na = await mkApp("Neu", "100000000000000078", { status: "SUBMITTED" });
     const res = await autoAssign(db, na.id);
     check(res?.userId === free.id, `Verteilung: geht an den mit den wenigsten offenen (${res?.userId === free.id ? "Free" : res?.userId})`);
-    const p5app = await db.application.create({ data: { userId: (await mk("Rolf", "100000000000000079")).id, positionId: p5.id, status: "SUBMITTED", publicId: "NV-I-R", submittedAt: new Date() } });
+    const p5app = await db.application.create({ data: { userId: (await mk("Rolf", "100000000000000079")).id, positionId: p5.id, status: "SUBMITTED", publicId: "JT-I-R", submittedAt: new Date() } });
     check((await autoAssign(db, p5app.id)) === null, "Verteilung: niemand zuständig → keine Zuteilung");
     await saveSettings({ "team.autoAssign": false }, team.id);
 
@@ -457,9 +457,8 @@ try {
     await db.setting.deleteMany({ where: { key: "migration:2026-11-quiz-pro-stelle" } });
     await runMigrations(db);
     const qs = await db.formSection.findFirst({ where: { key: "moderator.quiz" }, include: { questions: true } });
-    check(!!qs && qs.positionId === mod.id && qs.questions.length === 6 && qs.questions.every((q) => q.type === "QUIZ" && !!q.correctOption && q.options.includes(q.correctOption)), "Quiz-Migration: Moderator bekommt 6 Quizfragen mit Lösung");
-    check(!!(await db.formSection.findFirst({ where: { key: "support.quiz" } })), "Quiz-Migration: Support bekommt sein Quiz");
-    check(!(await db.formSection.findFirst({ where: { key: "media.quiz" } })), "Quiz-Migration: nicht vorhandene Stelle wird übersprungen");
+    check(!!qs && qs.positionId === mod.id && qs.questions.length === POSITION_QUIZ.moderator.questions.length && qs.questions.every((q) => q.type === "QUIZ" && !!q.correctOption && q.options.includes(q.correctOption)), "Quiz-Migration: Moderator bekommt Quizfragen mit Lösung");
+    check(!(await db.formSection.findFirst({ where: { key: "cutter.quiz" } })), "Quiz-Migration: nicht vorhandene Stelle wird übersprungen");
     await db.setting.deleteMany({ where: { key: "migration:2026-11-quiz-pro-stelle" } });
     await runMigrations(db);
     check((await db.formSection.count({ where: { key: "moderator.quiz" } })) === 1 && (await db.question.count({ where: { key: { startsWith: "moderator.quiz_" } } })) === POSITION_QUIZ.moderator.questions.length, "Quiz-Migration: zweiter Lauf legt nichts doppelt an");
@@ -469,7 +468,7 @@ try {
     // Claim → Bewerber erfährt, wer betreut
     const { setClaim } = await import("../src/lib/team/service");
     const cu = await mk("Clara", "100000000000000091");
-    const ca = await db.application.create({ data: { userId: cu.id, positionId: pos.id, status: "SUBMITTED", publicId: "NV-C-1", submittedAt: new Date() } });
+    const ca = await db.application.create({ data: { userId: cu.id, positionId: pos.id, status: "SUBMITTED", publicId: "JT-C-1", submittedAt: new Date() } });
     await setClaim({ applicationId: ca.id, actor: { ...team, isAdmin: false }, action: "claim" });
     const notes = await db.message.findMany({ where: { applicationId: ca.id, direction: "SYSTEM" } });
     check(notes.length === 1 && notes[0].body.includes("Jonas") && (await db.outboxJob.count({ where: { messageId: notes[0].id, type: "DM" } })) === 1, "Claim: Bewerber bekommt Nachricht + DM mit Betreuer");
@@ -495,7 +494,7 @@ try {
     );
     const sp = await db.position.create({ data: { typeId: type.id, slug: "seats", title: "Plätze", tagline: "x", description: "x", status: "OPEN", seats: 1, acceptRoleId: "123456789012345678", nickPrefix: "[S]" } });
     const su = await mk("Sina", "100000000000000095");
-    const sa = await db.application.create({ data: { userId: su.id, positionId: sp.id, status: "IN_REVIEW", publicId: "NV-S-1", submittedAt: new Date() } });
+    const sa = await db.application.create({ data: { userId: su.id, positionId: sp.id, status: "IN_REVIEW", publicId: "JT-S-1", submittedAt: new Date() } });
     await changeStatus({ applicationId: sa.id, to: "ACCEPTED", actorId: team.id });
     const spAfter = await db.position.findUniqueOrThrow({ where: { id: sp.id } });
     check(spAfter.seats === 0 && spAfter.status === "CLOSED", "Letzter Platz vergeben → Stelle automatisch geschlossen");
@@ -512,7 +511,7 @@ try {
     const { nudgeIdleClaims } = await import("../src/lib/team/claim-nudge");
     const nu = await mk("Nora", "100000000000000096");
     const old = new Date(Date.now() - 4 * 86_400_000);
-    const na = await db.application.create({ data: { userId: nu.id, positionId: pos.id, status: "SUBMITTED", publicId: "NV-N-1", submittedAt: old, claimedById: team.id, claimedAt: old } });
+    const na = await db.application.create({ data: { userId: nu.id, positionId: pos.id, status: "SUBMITTED", publicId: "JT-N-1", submittedAt: old, claimedById: team.id, claimedAt: old } });
     const n1 = await nudgeIdleClaims(db);
     const n2 = await nudgeIdleClaims(db);
     check(n1 >= 1 && n2 === 0 && (await db.outboxJob.count({ where: { applicationId: na.id, type: "DM" } })) === 1, "Claim-Erinnerung: einmal DM an den Betreuer");
@@ -529,7 +528,7 @@ try {
     await saveSettings({ "interview.voiceChannelId": "611111111111111111", "interview.waitingRoomChannelId": "622222222222222222" }, team.id);
     const vu = await mk("Vito", "100000000000000097");
     const at = new Date(Date.now() + 15 * 60_000);
-    const va = await db.application.create({ data: { userId: vu.id, positionId: pos.id, status: "INTERVIEW", publicId: "NV-V-1", submittedAt: new Date(), interviewAt: at, claimedById: team.id, claimedAt: new Date() } });
+    const va = await db.application.create({ data: { userId: vu.id, positionId: pos.id, status: "INTERVIEW", publicId: "JT-V-1", submittedAt: new Date(), interviewAt: at, claimedById: team.id, claimedAt: new Date() } });
     const w1 = await handleVoiceState(db, { discordId: vu.discordId, from: null, to: "622222222222222222" });
     const w2 = await handleVoiceState(db, { discordId: vu.discordId, from: "611111111111111111", to: "622222222222222222" });
     check(w1 === "waiting" && w2 === null && (await db.outboxJob.count({ where: { applicationId: va.id, type: "DM" } })) === 1, "Warteraum: Betreuer bekommt genau eine DM");
@@ -553,7 +552,7 @@ try {
     const mentor = await mk("Mats", "100000000000000100", { isTeam: true });
     const decided = new Date(Date.now() - 15 * 86_400_000);
     const pa = await db.application.create({
-      data: { userId: pu.id, positionId: pos.id, status: "ACCEPTED", publicId: "NV-P-1", submittedAt: decided, decidedAt: decided, probationUntil: new Date(Date.now() + 3_600_000), claimedById: team.id, claimedAt: decided, mentorId: mentor.id },
+      data: { userId: pu.id, positionId: pos.id, status: "ACCEPTED", publicId: "JT-P-1", submittedAt: decided, decidedAt: decided, probationUntil: new Date(Date.now() + 3_600_000), claimedById: team.id, claimedAt: decided, mentorId: mentor.id },
     });
     const sent = await sendProbationReminders(db);
     const again = await sendProbationReminders(db);
@@ -578,12 +577,12 @@ try {
     await db.user.updateMany({ where: { isTeam: true }, data: { lastTeamActiveAt: null } });
     const away = await mk("Anton", "100000000000000101", { isTeam: true, lastTeamActiveAt: new Date(), awayUntil: new Date(Date.now() + 5 * 86_400_000) });
     await saveSettings({ "team.autoAssign": true }, team.id);
-    const aa = await db.application.create({ data: { userId: (await mk("Arne", "100000000000000102")).id, positionId: pos.id, status: "SUBMITTED", publicId: "NV-A-1", submittedAt: new Date() } });
+    const aa = await db.application.create({ data: { userId: (await mk("Arne", "100000000000000102")).id, positionId: pos.id, status: "SUBMITTED", publicId: "JT-A-1", submittedAt: new Date() } });
     await autoAssign(db, aa.id);
     check((await db.application.findUniqueOrThrow({ where: { id: aa.id } })).claimedById !== away.id, "Abwesende bekommen keine Bewerbung zugeteilt");
     await saveSettings({ "team.autoAssign": false }, team.id);
     const fu = await db.application.create({
-      data: { userId: (await mk("Fiona", "100000000000000103")).id, positionId: pos.id, status: "IN_REVIEW", publicId: "NV-A-2", submittedAt: new Date(), awaitingReplySince: new Date(Date.now() - 10 * 86_400_000), applicantAwayUntil: new Date(Date.now() + 3 * 86_400_000) },
+      data: { userId: (await mk("Fiona", "100000000000000103")).id, positionId: pos.id, status: "IN_REVIEW", publicId: "JT-A-2", submittedAt: new Date(), awaitingReplySince: new Date(Date.now() - 10 * 86_400_000), applicantAwayUntil: new Date(Date.now() + 3 * 86_400_000) },
     });
     await sendFollowUpReminders(db);
     check(!(await db.application.findUniqueOrThrow({ where: { id: fu.id } })).awaitingRemindedAt, "Bewerber abwesend: keine Rückfrage-Erinnerung");
@@ -594,7 +593,7 @@ try {
     const { postApplicantReply } = await import("../src/lib/applications/reply");
     const owner = await mk("Rieke", "100000000000000201");
     const other = await mk("Ole", "100000000000000202");
-    const ra = await db.application.create({ data: { userId: owner.id, positionId: pos.id, status: "IN_REVIEW", publicId: "NV-R-1", submittedAt: new Date(), awaitingReplySince: new Date() } });
+    const ra = await db.application.create({ data: { userId: owner.id, positionId: pos.id, status: "IN_REVIEW", publicId: "JT-R-1", submittedAt: new Date(), awaitingReplySince: new Date() } });
     const bad = await postApplicantReply({ applicationId: ra.id, owner: { userId: other.id }, body: "Fremde Antwort" });
     check(!bad.ok, "Antwort: fremde Bewerbung abgelehnt");
     const r = await postApplicantReply({ applicationId: ra.id, owner: { userId: owner.id }, body: "  Klar, passt mir!  " });
@@ -640,72 +639,56 @@ try {
     check((await db.suggestion.count({ where: { authorId: sub.id } })) === 0, "Ideen: Konto gelöscht → Einreichungen mitgelöscht");
   }
 
-  // ── Whitelist & Beta: Anlage, Formular, Ablauf (Beta ohne Gespräch), nur Rolle der Stelle
+  // ── Treffpunkt: Rollen bei Annahme (+ „Dazu“), Test-Rolle → volle Rolle nach der Probezeit, Team-Sperre
   {
-    const { seedKinds } = await import("../src/lib/setup/base-seed");
-    const { getFormDefinition } = await import("../src/lib/data/positions");
     const { saveSettings } = await import("../src/lib/settings");
-    await seedKinds(db);
-    check((await db.applicationType.count({ where: { key: { in: ["whitelist", "beta"] } } })) === 2 && (await db.position.count({ where: { slug: { in: ["whitelist", "beta"] } } })) === 2, "Whitelist & Beta angelegt (2 Arten, 2 Stellen)");
-    check((await seedKinds(db)) === 0, "Anlage ist idempotent");
-    const wl = await db.position.findUniqueOrThrow({ where: { slug: "whitelist" }, include: { type: true } });
-    const beta = await db.position.findUniqueOrThrow({ where: { slug: "beta" }, include: { type: true } });
-    check(wl.type.key === "whitelist" && beta.type.key === "beta" && wl.status === "CLOSED" && beta.status === "CLOSED", "Arten stimmen, Stellen starten geschlossen");
-    const wlForm = await getFormDefinition(wl);
-    const quizQs = wlForm.flatMap((x) => x.questions).filter((q) => q.type === "QUIZ");
-    check(wlForm.length === 4 && quizQs.length === 6, `Whitelist-Formular: ${wlForm.length} Schritte, ${quizQs.length} Quizfragen`);
-    check(!wlForm.some((x) => x.general), "Whitelist ohne allgemeine Team-Fragen");
-    check((await db.question.count({ where: { key: { startsWith: "whitelist.quiz_" }, correctOption: null } })) === 0, "Quiz-Lösungen gespeichert");
-    check((await db.messageTemplate.count({ where: { title: { in: ["Whitelist – Freigegeben", "Beta – Zusage"] } } })) === 2, "Bausteine für Whitelist und Beta");
-    // Bausteine je Art: Filter wie in der Bewerbungsansicht
-    const forKind = (k: string) => db.messageTemplate.findMany({ where: { active: true, OR: [{ kinds: { isEmpty: true } }, { kinds: { has: k } }] }, select: { title: true } }).then((r) => r.map((t) => t.title));
-    await db.messageTemplate.createMany({
-      data: [
-        { category: "SONSTIGES", title: "T-Alle", body: "x", kinds: [] },
-        { category: "SONSTIGES", title: "T-Team", body: "x", kinds: ["team"] },
-        { category: "SONSTIGES", title: "T-WL-Beta", body: "x", kinds: ["whitelist", "beta"] },
-      ],
-    });
-    const teamT = await forKind("team");
-    const wlT = await forKind("whitelist");
-    check(teamT.includes("T-Alle") && teamT.includes("T-Team") && !teamT.includes("T-WL-Beta"), "Bausteine: Team sieht „alle“ + Team");
-    check(wlT.includes("T-Alle") && wlT.includes("T-WL-Beta") && !wlT.includes("T-Team") && wlT.includes("Whitelist – Freigegeben") && !wlT.includes("Beta – Zusage"), "Bausteine: Whitelist sieht „alle“ + Whitelist");
-    // Daten-Migration ordnet mitgelieferte Bausteine zu (nur unzugeordnete)
-    await db.messageTemplate.createMany({ data: [{ category: "ANNAHME", title: "Willkommen im Team", body: "x" }, { category: "ANNAHME", title: "Probezeit-Infos", body: "x", kinds: ["beta"] }] });
-    const { runMigrations: rm } = await import("../src/lib/setup/migrations");
-    await db.setting.deleteMany({ where: { key: "migration:2026-11-bausteine-arten" } });
-    await rm(db);
-    check((await db.messageTemplate.findFirstOrThrow({ where: { title: "Willkommen im Team" } })).kinds.join() === "team", "Migration: „Willkommen im Team“ nur fürs Team");
-    check((await db.messageTemplate.findFirstOrThrow({ where: { title: "Probezeit-Infos" } })).kinds.join() === "beta", "Migration: eigene Zuordnung bleibt");
-    // Jede Art hat in jeder Kategorie eigene Bausteine (nach den Migrationen)
-    await db.setting.deleteMany({ where: { key: "migration:2026-11-bausteine-alle-kategorien" } });
-    await rm(db);
-    const cats = ["EINGANG", "RUECKFRAGE", "EINLADUNG", "ANNAHME", "ABLEHNUNG", "ERINNERUNG", "SONSTIGES"] as const;
-    const missing: string[] = [];
-    for (const k of ["whitelist", "beta"]) for (const c of cats) if (!(await db.messageTemplate.count({ where: { category: c, kinds: { has: k } } }))) missing.push(`${k}/${c}`);
-    check(missing.length === 0, `Bausteine in allen Kategorien für Whitelist und Beta${missing.length ? ` – fehlt: ${missing.join(", ")}` : ""}`);
+    const { decideProbation } = await import("../src/lib/team/probation");
+    const { giveTeamBanRole, releaseExpiredTeamBanRoles, blockedByRoles } = await import("../src/lib/team/ban-role");
+    const TEST_MOD = "300000000000000011", MOD = "300000000000000012", TEAM_ROLE = "300000000000000013", BAN_ROLE = "300000000000000014", BLACKLIST = "300000000000000015";
+    await saveSettings({ "discord.autoRoleOnAccept": true, "discord.acceptExtraRoleIds": "", "interview.minStars": 0, "onboarding.probationDays": 30 }, team.id);
+    const modPos = await db.position.create({ data: { typeId: type.id, slug: "moderator-t", title: "Moderator", tagline: "x", description: "x", acceptRoleId: TEST_MOD, passRoleId: MOD, extraRoleIds: [TEAM_ROLE] } });
+    const mu = await mk("Mia", "100000000000000411");
+    const ma = await db.application.create({ data: { userId: mu.id, positionId: modPos.id, status: "INTERVIEW", publicId: "JT-T-1", submittedAt: new Date() } });
+    const jobsSince = async (before: Set<string>) => (await db.outboxJob.findMany()).filter((j) => !before.has(j.id)).map((j) => j.payload as { type: string; roleId?: string });
+    let before = new Set((await db.outboxJob.findMany({ select: { id: true } })).map((j) => j.id));
+    await changeStatus({ applicationId: ma.id, to: "ACCEPTED", actorId: team.id });
+    let roles = await jobsSince(before);
+    check(roles.some((j) => j.type === "ADD_ROLE" && j.roleId === TEST_MOD) && roles.some((j) => j.type === "ADD_ROLE" && j.roleId === TEAM_ROLE) && !roles.some((j) => j.roleId === MOD), "Annahme: Test-Mod + Team, noch nicht Moderator");
+    before = new Set((await db.outboxJob.findMany({ select: { id: true } })).map((j) => j.id));
+    await decideProbation(db, { applicationId: ma.id, decision: "PASSED", actor: { id: team.id, globalName: "Jonas", username: "jonas" } });
+    roles = await jobsSince(before);
+    check(roles.some((j) => j.type === "ADD_ROLE" && j.roleId === MOD) && roles.some((j) => j.type === "REMOVE_ROLE" && j.roleId === TEST_MOD), "Probezeit bestanden: Moderator rein, Test-Mod raus");
+    before = new Set((await db.outboxJob.findMany({ select: { id: true } })).map((j) => j.id));
+    await changeStatus({ applicationId: ma.id, to: "IN_REVIEW", actorId: team.id });
+    roles = await jobsSince(before);
+    check([TEST_MOD, MOD, TEAM_ROLE].every((r) => roles.some((j) => j.type === "REMOVE_ROLE" && j.roleId === r)), "Zurücknehmen: alle Rollen der Stelle weg (auch Moderator)");
 
-    await saveSettings({ "discord.autoRoleOnAccept": true, "discord.acceptExtraRoleIds": "300000000000000001", "discord.welcomeChannelId": "300000000000000002", "interview.minStars": 0, "onboarding.probationDays": 30 }, team.id);
-    await db.position.update({ where: { id: beta.id }, data: { acceptRoleId: "300000000000000003", nickPrefix: "[Beta]" } });
-    const bu = await mk("Bea", "100000000000000401");
-    const ba = await db.application.create({ data: { userId: bu.id, positionId: beta.id, status: "SUBMITTED", publicId: "NV-B-1", submittedAt: new Date() } });
-    let err = "";
-    try { await changeStatus({ applicationId: ba.id, to: "INTERVIEW", actorId: team.id }); } catch (e) { err = (e as Error).message; }
-    check(err.includes("kein Gespräch"), "Beta: kein Status „Gespräch“");
-    const before = new Set((await db.outboxJob.findMany({ select: { id: true } })).map((j) => j.id));
-    await changeStatus({ applicationId: ba.id, to: "ACCEPTED", actorId: team.id });
-    const jobs = (await db.outboxJob.findMany()).filter((j) => !before.has(j.id));
-    const payload = JSON.stringify(jobs.map((j) => j.payload));
-    const accepted = await db.application.findUniqueOrThrow({ where: { id: ba.id } });
-    check(payload.includes("300000000000000003") && !payload.includes("300000000000000001"), "Beta-Annahme: Rolle der Stelle, keine Team-Zusatzrolle");
-    check(!payload.includes("300000000000000002") && !payload.includes("SET_NICK"), "Beta-Annahme: keine Begrüßung im Teamchat, kein Präfix");
-    check(!accepted.probationUntil, "Beta-Annahme: keine Probezeit");
-
-    const wu = await mk("Willi", "100000000000000402");
-    const wa = await db.application.create({ data: { userId: wu.id, positionId: wl.id, status: "SUBMITTED", publicId: "NV-W-1", submittedAt: new Date() } });
-    await changeStatus({ applicationId: wa.id, to: "INTERVIEW", actorId: team.id });
-    check((await db.application.findUniqueOrThrow({ where: { id: wa.id } })).status === "INTERVIEW", "Whitelist: mit Gespräch");
-    await saveSettings({ "discord.autoRoleOnAccept": false, "discord.acceptExtraRoleIds": "", "discord.welcomeChannelId": "" }, team.id);
+    // Team-Sperre: Sperre gibt Rolle, nach Ablauf wird sie entfernt; Blacklist sperrt immer
+    process.env.DISCORD_GUILD_ID ||= "523456789012345678"; // ein früherer Schritt kann sie geleert haben
+    process.env.DISCORD_TEAM_BAN_ROLE_ID = BAN_ROLE;
+    process.env.DISCORD_BLOCKED_ROLE_IDS = `${BLACKLIST},${BAN_ROLE}`;
+    const bu = await mk("Ben2", "100000000000000412");
+    const ban = await db.userBan.create({ data: { subjectId: bu.id, reason: "unfreundlich", expiresAt: new Date(Date.now() + 7 * 24 * H) } });
+    before = new Set((await db.outboxJob.findMany({ select: { id: true } })).map((j) => j.id));
+    await giveTeamBanRole(ban.id);
+    roles = await jobsSince(before);
+    check(roles.some((j) => j.type === "ADD_ROLE" && j.roleId === BAN_ROLE) && !!(await db.userBan.findUniqueOrThrow({ where: { id: ban.id } })).roleAddedAt, "Sperre: Rolle Team-Sperre wird vergeben");
+    check(await blockedByRoles({ id: bu.id, roleIds: [BAN_ROLE] }, [BAN_ROLE]), "Während der Sperre: Bewerben gesperrt");
+    check((await releaseExpiredTeamBanRoles(db, new Date())) === 0, "Sperre läuft noch: Rolle bleibt");
+    before = new Set((await db.outboxJob.findMany({ select: { id: true } })).map((j) => j.id));
+    const later = new Date(Date.now() + 8 * 24 * H);
+    check((await releaseExpiredTeamBanRoles(db, later)) === 1, "Nach Ablauf: Rolle wird entfernt (Tagesaufgabe)");
+    roles = await jobsSince(before);
+    check(roles.some((j) => j.type === "REMOVE_ROLE" && j.roleId === BAN_ROLE), "Nach Ablauf: REMOVE_ROLE Team-Sperre");
+    await db.userBan.update({ where: { id: ban.id }, data: { liftedAt: new Date() } }); // erste Sperre ist vorbei
+    const ban2 = await db.userBan.create({ data: { subjectId: bu.id, reason: "nochmal", expiresAt: new Date(Date.now() - H), roleAddedAt: new Date(Date.now() - 2 * H) } });
+    check(!(await blockedByRoles({ id: bu.id, roleIds: [BAN_ROLE] }, [BAN_ROLE])), "Abgelaufene Sperre, Rolle noch da: beim Bewerben entfernt und durchgelassen");
+    check(!!(await db.userBan.findUniqueOrThrow({ where: { id: ban2.id } })).roleRemovedAt, "… und als entfernt markiert");
+    check(await blockedByRoles({ id: bu.id, roleIds: [BLACKLIST] }, [BLACKLIST]), "Blacklist: immer gesperrt");
+    check(await blockedByRoles({ id: a2.id, roleIds: [BAN_ROLE] }, [BAN_ROLE]), "Team-Sperre von Hand (ohne Portal-Sperre): gesperrt");
+    delete process.env.DISCORD_TEAM_BAN_ROLE_ID;
+    delete process.env.DISCORD_BLOCKED_ROLE_IDS;
+    await saveSettings({ "discord.autoRoleOnAccept": false }, team.id);
   }
 
   // ── Feedback (eins pro Bewerbung)

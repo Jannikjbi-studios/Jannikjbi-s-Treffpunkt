@@ -28,7 +28,7 @@ const SAMPLE = {
   name: "Jonas",
   discord_tag: "@jonas.hh",
   position: "Support",
-  bewerbungs_id: "NV-2026-0042",
+  bewerbungs_id: "JT-2026-0042",
   datum: "11. November 2026",
   termin: "Donnerstag, 13. November 2026 um 19:00 Uhr",
   teammitglied: "Jannik",
@@ -37,7 +37,7 @@ const SAMPLE = {
   sperrfrist_tage: "30 Tage",
   discord_link: "https://discord.gg/KrfKASTHDp",
   bearbeitungszeit: "in der Regel 3–7 Tage",
-  dashboard_link: `${process.env.NEXT_PUBLIC_APP_URL ?? "https://bewerbung.nordverkehr.xyz"}/dashboard`,
+  dashboard_link: `${process.env.NEXT_PUBLIC_APP_URL || "https://portal.jannikjbi.de"}/dashboard`,
 };
 
 type KindFilter = "all" | "global" | KindKey;
@@ -245,7 +245,7 @@ export function TemplateManager({ templates: initial }: { templates: Template[] 
             </label>
             <div>
               <p className="nv-mono mb-2">Vorschau (Beispieldaten)</p>
-              <DiscordPreview title="Nachricht vom Nordverkehr-Team" body={renderTemplate(editing.body ?? "", SAMPLE).text} publicId={SAMPLE.bewerbungs_id} linkLabel="Im Portal antworten" />
+              <DiscordPreview title="Nachricht vom Treffpunkt-Team" body={renderTemplate(editing.body ?? "", SAMPLE).text} publicId={SAMPLE.bewerbungs_id} linkLabel="Im Portal antworten" />
             </div>
             {error && <p className="nv-error">{error}</p>}
             <div className="flex justify-end gap-2">

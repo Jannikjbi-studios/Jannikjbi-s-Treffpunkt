@@ -31,7 +31,7 @@ async function Directory() {
   const { user, access } = await requireTeam();
   const now = nowMs();
   const members = await db.application.findMany({
-    // Nur das Team – angenommene Whitelist-/Beta-Bewerbungen sind keine Teammitglieder
+    // Nur das Team (Bewerbungsart „team“)
     where: { status: "ACCEPTED", isTest: { not: true }, position: { type: { key: "team" } }, ...(await visiblePositionFilter(viewerOf(user, access))) },
     orderBy: { decidedAt: "desc" },
     take: 500,

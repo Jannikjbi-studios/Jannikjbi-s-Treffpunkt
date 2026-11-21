@@ -1,11 +1,12 @@
 @import "tailwindcss";
 
 /* ─────────────────────────────────────────────────────────────
-   Nordverkehr Design-System
-   Abgeleitet von nordverkehr.xyz (Astro/Tailwind v4):
-   DM Serif Display (Headlines, kursiver roter Teil), DM Sans (Text),
-   JetBrains Mono (Labels "NORDVERKEHR // TEAM"), Rot #C41E1E.
+   Design-System Jannikjbi's Treffpunkt
+   Abgeleitet von jannikjbi.de: dunkles Navy, Akzent Amber #FFC123,
+   Barlow Condensed (Headlines), Inter (Text).
    Dunkel ist Standard, Hell per Umschalter (data-theme="light").
+   Hinweis: Die Akzent-Variablen heißen historisch noch „red“
+   (--nv-red, text-red-text, bg-red …) – gemeint ist immer der Akzent.
    ───────────────────────────────────────────────────────────── */
 
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
@@ -13,26 +14,31 @@
 :root,
 [data-theme="dark"] {
   color-scheme: dark;
-  --nv-red: #c41e1e;
-  --nv-red-hover: #a51818;
-  --nv-red-text: #f06060;
-  --nv-red-soft: rgba(196, 30, 30, 0.12);
-  --nv-red-line: rgba(196, 30, 30, 0.3);
-  --nv-bg: #0a0a0c;
-  --nv-surface: #111114;
-  --nv-surface-2: #17171b;
+  --nv-red: #ffc123;
+  --nv-red-hover: #ffcf4d;
+  --nv-red-text: #ffc94d;
+  --nv-red-soft: rgba(255, 193, 35, 0.1);
+  --nv-red-line: rgba(255, 193, 35, 0.32);
+  /* Text auf Akzent-Flächen (Knöpfe, Häkchen) */
+  --nv-on-red: #0b0f18;
+  --nv-danger-solid: #d63a3a;
+  --nv-bg: #070a12;
+  --nv-surface: #10151f;
+  --nv-surface-2: #161c29;
   --nv-card: rgba(255, 255, 255, 0.025);
   --nv-card-hover: rgba(255, 255, 255, 0.045);
-  --nv-border: rgba(255, 255, 255, 0.07);
-  --nv-border-strong: rgba(255, 255, 255, 0.14);
-  --nv-text: #ffffff;
-  --nv-text-2: rgba(255, 255, 255, 0.72);
-  --nv-muted: rgba(255, 255, 255, 0.55);
-  --nv-faint: rgba(255, 255, 255, 0.38);
+  --nv-border: rgba(255, 255, 255, 0.08);
+  --nv-border-strong: rgba(255, 255, 255, 0.15);
+  --nv-text: #f3f5f9;
+  --nv-text-2: rgba(243, 245, 249, 0.74);
+  --nv-muted: rgba(243, 245, 249, 0.58);
+  --nv-faint: rgba(243, 245, 249, 0.4);
   --nv-input: rgba(255, 255, 255, 0.035);
-  --nv-overlay: rgba(10, 10, 12, 0.82);
+  --nv-overlay: rgba(7, 10, 18, 0.84);
   --nv-shadow: 0 10px 40px rgba(0, 0, 0, 0.45);
-  --nv-glow: 0 4px 20px rgba(196, 30, 30, 0.3);
+  --nv-glow: 0 4px 20px rgba(255, 193, 35, 0.22);
+  --nv-glow-strong: 0 6px 28px rgba(255, 193, 35, 0.34);
+  --nv-accent-rgb: 255, 193, 35;
 
   --tone-info: #7fb0ff;
   --tone-info-bg: rgba(127, 176, 255, 0.1);
@@ -46,26 +52,30 @@
 
 [data-theme="light"] {
   color-scheme: light;
-  --nv-red: #c41e1e;
-  --nv-red-hover: #a51818;
-  --nv-red-text: #a51818;
-  --nv-red-soft: rgba(196, 30, 30, 0.08);
-  --nv-red-line: rgba(196, 30, 30, 0.28);
-  --nv-bg: #f5f4f1;
+  --nv-red: #ffc123;
+  --nv-red-hover: #f2b20c;
+  --nv-red-text: #8a5a00;
+  --nv-red-soft: rgba(255, 193, 35, 0.16);
+  --nv-red-line: rgba(196, 136, 0, 0.38);
+  --nv-on-red: #0b0f18;
+  --nv-danger-solid: #c62828;
+  --nv-bg: #f5f5f5;
   --nv-surface: #ffffff;
-  --nv-surface-2: #efeee9;
+  --nv-surface-2: #ececef;
   --nv-card: #ffffff;
-  --nv-card-hover: #fbfaf8;
-  --nv-border: rgba(10, 10, 12, 0.09);
-  --nv-border-strong: rgba(10, 10, 12, 0.18);
-  --nv-text: #0a0a0c;
-  --nv-text-2: rgba(10, 10, 12, 0.78);
-  --nv-muted: rgba(10, 10, 12, 0.62);
-  --nv-faint: rgba(10, 10, 12, 0.45);
+  --nv-card-hover: #fbfbfc;
+  --nv-border: rgba(11, 15, 24, 0.09);
+  --nv-border-strong: rgba(11, 15, 24, 0.18);
+  --nv-text: #0b0f18;
+  --nv-text-2: rgba(11, 15, 24, 0.78);
+  --nv-muted: rgba(11, 15, 24, 0.62);
+  --nv-faint: rgba(11, 15, 24, 0.45);
   --nv-input: #ffffff;
-  --nv-overlay: rgba(245, 244, 241, 0.86);
-  --nv-shadow: 0 10px 40px rgba(10, 10, 12, 0.08);
-  --nv-glow: 0 4px 18px rgba(196, 30, 30, 0.22);
+  --nv-overlay: rgba(245, 245, 245, 0.88);
+  --nv-shadow: 0 10px 40px rgba(11, 15, 24, 0.08);
+  --nv-glow: 0 4px 18px rgba(196, 136, 0, 0.22);
+  --nv-glow-strong: 0 6px 24px rgba(196, 136, 0, 0.3);
+  --nv-accent-rgb: 230, 160, 0;
 
   --tone-info: #1f5fbf;
   --tone-info-bg: rgba(31, 95, 191, 0.08);
@@ -83,6 +93,7 @@
   --color-red-text: var(--nv-red-text);
   --color-red-soft: var(--nv-red-soft);
   --color-red-line: var(--nv-red-line);
+  --color-on-red: var(--nv-on-red);
   --color-bg: var(--nv-bg);
   --color-surface: var(--nv-surface);
   --color-surface-2: var(--nv-surface-2);
@@ -97,9 +108,9 @@
   --color-input: var(--nv-input);
   --color-discord: #5865f2;
 
-  --font-display: var(--font-dm-serif), "DM Serif Display", Georgia, serif;
-  --font-sans: var(--font-dm-sans), "DM Sans", system-ui, sans-serif;
-  --font-mono: var(--font-jetbrains), "JetBrains Mono", ui-monospace, monospace;
+  --font-display: var(--font-barlow), "Barlow Condensed", var(--font-inter), system-ui, sans-serif;
+  --font-sans: var(--font-inter), "Inter", system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
 }
 
 @layer base {
@@ -127,10 +138,14 @@
   }
   ::selection {
     background: var(--nv-red);
-    color: #fff;
+    color: var(--nv-on-red);
+  }
+  /* Barlow Condensed wirkt erst fett – wie die Überschriften auf jannikjbi.de */
+  .font-display {
+    font-weight: 700;
   }
   :focus-visible {
-    outline: 2px solid var(--nv-red);
+    outline: 2px solid var(--nv-red-text);
     outline-offset: 2px;
     border-radius: 6px;
   }
@@ -142,16 +157,16 @@
 }
 
 @layer components {
-  /* Headline wie auf der Hauptseite: "Hamburg RP. *So wie es sein soll.*" */
+  /* Headline: "Mach mit im Team *vom Treffpunkt.*" – betonter Teil im Akzent */
   .nv-headline {
     font-family: var(--font-display);
-    font-weight: 400;
-    letter-spacing: -0.01em;
+    font-weight: 700;
+    letter-spacing: -0.005em;
     color: var(--nv-text);
   }
   .nv-headline em {
-    font-style: italic;
-    color: var(--nv-red);
+    font-style: normal;
+    color: var(--nv-red-text);
   }
 
   .nv-label {
@@ -160,7 +175,7 @@
     font-weight: 500;
     letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: var(--nv-red);
+    color: var(--nv-red-text);
     display: inline-flex;
     align-items: center;
     gap: 0.6rem;
@@ -254,13 +269,13 @@
   }
   .nv-btn-primary {
     background: var(--nv-red);
-    color: #fff;
+    color: var(--nv-on-red);
     box-shadow: var(--nv-glow);
   }
   .nv-btn-primary:hover:not(:disabled) {
     background: var(--nv-red-hover);
     transform: translateY(-1px);
-    box-shadow: 0 6px 28px rgba(196, 30, 30, 0.45);
+    box-shadow: var(--nv-glow-strong);
   }
   .nv-btn-primary:active:not(:disabled) { transform: translateY(0); }
   .nv-btn-ghost {
@@ -291,9 +306,9 @@
   .nv-btn-danger:hover:not(:disabled) { background: var(--tone-danger-bg); }
   /* Gefüllter roter Knopf (Bestätigen von Löschen & Co.) */
   .nv-btn-danger-solid {
-    background: var(--nv-red);
+    background: var(--nv-danger-solid);
     color: #fff;
-    border: 1px solid var(--nv-red);
+    border: 1px solid var(--nv-danger-solid);
   }
   .nv-btn-danger-solid:hover:not(:disabled) { filter: brightness(1.08); }
 
@@ -301,22 +316,22 @@
   .nv-confirm[open] { animation: nvConfirmIn 0.18s ease-out both; }
   .nv-confirm[open]::backdrop { animation: nvFade 0.18s ease-out both; }
 
-  /* Discord-Button wie auf der Hauptseite (3D-Verlauf) */
+  /* Discord-Button in Discord-Blau (3D-Verlauf) */
   .nv-btn-discord {
     color: #fff;
-    background: linear-gradient(135deg, #c41e1e 0%, #8b1515 100%);
-    box-shadow: 0 2px 0 #6b0f0f, 0 4px 8px rgba(196, 30, 30, 0.35), 0 0 20px rgba(196, 30, 30, 0.15);
+    background: linear-gradient(135deg, #5865f2 0%, #4752c4 100%);
+    box-shadow: 0 2px 0 #343da0, 0 4px 8px rgba(88, 101, 242, 0.35), 0 0 20px rgba(88, 101, 242, 0.15);
     border: 1px solid rgba(255, 255, 255, 0.15);
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
   }
   .nv-btn-discord:hover {
     transform: translateY(-1px);
-    background: linear-gradient(135deg, #d42222 0%, #9b1a1a 100%);
-    box-shadow: 0 3px 0 #6b0f0f, 0 6px 12px rgba(196, 30, 30, 0.45), 0 0 25px rgba(196, 30, 30, 0.2);
+    background: linear-gradient(135deg, #6873f4 0%, #505bd0 100%);
+    box-shadow: 0 3px 0 #343da0, 0 6px 12px rgba(88, 101, 242, 0.45), 0 0 25px rgba(88, 101, 242, 0.2);
   }
   .nv-btn-discord:active {
     transform: translateY(1px);
-    box-shadow: 0 1px 0 #6b0f0f, 0 2px 4px rgba(196, 30, 30, 0.3);
+    box-shadow: 0 1px 0 #343da0, 0 2px 4px rgba(88, 101, 242, 0.3);
   }
 
   /* Formularfelder */
@@ -378,8 +393,8 @@
     content: "";
     width: 0.55rem;
     height: 0.3rem;
-    border-left: 2px solid #fff;
-    border-bottom: 2px solid #fff;
+    border-left: 2px solid var(--nv-on-red);
+    border-bottom: 2px solid var(--nv-on-red);
     transform: rotate(-45deg) translate(1px, -1px) scale(0);
     transition: transform 0.15s ease;
   }
@@ -394,7 +409,7 @@
     text-underline-offset: 3px;
     transition: text-decoration-color 0.2s ease, color 0.2s ease;
   }
-  .nv-link:hover { text-decoration-color: var(--nv-red); }
+  .nv-link:hover { text-decoration-color: var(--nv-red-text); }
 
   .nv-divider { height: 1px; background: var(--nv-border); }
 
@@ -429,13 +444,13 @@
   /* Hintergrund-Glow wie im Hero der Hauptseite */
   .nv-hero-glow {
     background:
-      radial-gradient(60% 50% at 15% 0%, rgba(196, 30, 30, 0.16) 0%, transparent 70%),
-      radial-gradient(40% 40% at 90% 10%, rgba(196, 30, 30, 0.06) 0%, transparent 70%);
+      radial-gradient(60% 50% at 15% 0%, rgba(255, 193, 35, 0.11) 0%, transparent 70%),
+      radial-gradient(40% 40% at 90% 10%, rgba(145, 70, 255, 0.08) 0%, transparent 70%);
   }
   [data-theme="light"] .nv-hero-glow {
     background:
-      radial-gradient(60% 50% at 15% 0%, rgba(196, 30, 30, 0.08) 0%, transparent 70%),
-      radial-gradient(40% 40% at 90% 10%, rgba(196, 30, 30, 0.04) 0%, transparent 70%);
+      radial-gradient(60% 50% at 15% 0%, rgba(255, 193, 35, 0.16) 0%, transparent 70%),
+      radial-gradient(40% 40% at 90% 10%, rgba(145, 70, 255, 0.05) 0%, transparent 70%);
   }
   .nv-grid-bg {
     background-image:
@@ -515,7 +530,7 @@ html[data-contrast="high"] {
   --nv-faint: rgba(255, 255, 255, 0.66);
   --nv-border: rgba(255, 255, 255, 0.2);
   --nv-border-strong: rgba(255, 255, 255, 0.34);
-  --nv-red-text: #ff8a8a;
+  --nv-red-text: #ffd36b;
 }
 html[data-contrast="high"][data-theme="light"] {
   --nv-text-2: rgba(10, 10, 12, 0.92);
@@ -523,7 +538,7 @@ html[data-contrast="high"][data-theme="light"] {
   --nv-faint: rgba(10, 10, 12, 0.66);
   --nv-border: rgba(10, 10, 12, 0.22);
   --nv-border-strong: rgba(10, 10, 12, 0.38);
-  --nv-red-text: #8a1010;
+  --nv-red-text: #5c3c00;
 }
 
 @media (prefers-reduced-motion: reduce) {

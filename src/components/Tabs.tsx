@@ -55,7 +55,7 @@ export function Tabs({ id, tabs, defaultKey, className, compact }: { id: string;
             >
               {t.label}
               {t.badge !== undefined && t.badge !== null && t.badge !== 0 && (
-                <span className={`rounded-full px-1.5 text-[0.65rem] leading-4 tabular-nums ${on ? "bg-red text-white" : "bg-surface-2 text-muted"}`}>{t.badge}</span>
+                <span className={`rounded-full px-1.5 text-[0.65rem] leading-4 tabular-nums ${on ? "bg-red text-on-red" : "bg-surface-2 text-muted"}`}>{t.badge}</span>
               )}
               {on && <span className="absolute inset-x-2 -bottom-px h-0.5 rounded-full bg-red" aria-hidden />}
             </button>

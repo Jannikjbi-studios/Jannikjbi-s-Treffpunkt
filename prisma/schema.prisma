@@ -1,4 +1,4 @@
-// Nordverkehr Bewerbungsportal – Datenmodell (PostgreSQL, z. B. Neon)
+// Jannikjbi's Treffpunkt Bewerbungsportal – Datenmodell (PostgreSQL, z. B. Neon)
 // Nach jeder Änderung: `npm run db:migrate:new -- <name>` (legt eine Migration
 // in prisma/migrations an). Beim Deploy spielt `npm run build` sie automatisch ein.
 
@@ -191,17 +191,20 @@ model UserNote {
 }
 
 model UserBan {
-  id          String    @id @default(cuid())
-  subjectId   String
-  subject     User      @relation("BanSubject", fields: [subjectId], references: [id], onDelete: Cascade)
-  reason      String
-  expiresAt   DateTime?
-  createdById String?
-  createdBy   User?     @relation("BanCreator", fields: [createdById], references: [id], onDelete: SetNull)
-  liftedAt    DateTime?
-  liftedById  String?
-  liftedBy    User?     @relation("BanLifter", fields: [liftedById], references: [id], onDelete: SetNull)
-  createdAt   DateTime  @default(now())
+  id            String    @id @default(cuid())
+  subjectId     String
+  subject       User      @relation("BanSubject", fields: [subjectId], references: [id], onDelete: Cascade)
+  reason        String
+  expiresAt     DateTime?
+  createdById   String?
+  createdBy     User?     @relation("BanCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  liftedAt      DateTime?
+  liftedById    String?
+  liftedBy      User?     @relation("BanLifter", fields: [liftedById], references: [id], onDelete: SetNull)
+  /// Discord-Rolle „Team-Sperre“ vergeben bzw. nach Ablauf/Aufheben wieder entfernt
+  roleAddedAt   DateTime?
+  roleRemovedAt DateTime?
+  createdAt     DateTime  @default(now())
 
   @@index([subjectId])
 }
@@ -238,6 +241,10 @@ model Position {
   minAge               Int?
   cooldownDays         Int?
   acceptRoleId         String?
+  /// Rolle nach bestandener Probezeit (z. B. Test-Mod → Moderator): wird vergeben, die Annahme-Rolle entfernt
+  passRoleId           String?
+  /// Zusätzliche Rollen bei Annahme nur für diese Stelle (z. B. 🧩 Team oder 🎬 Content-Team)
+  extraRoleIds         String[]        @default([])
   /// Automatisch öffnen/schließen (täglicher Cron) und Höchstzahl an Bewerbungen
   opensAt              DateTime?
   closesAt             DateTime?
@@ -620,7 +627,7 @@ model Message {
   author         User?            @relation(fields: [authorId], references: [id], onDelete: SetNull)
   body           String
   templateIds    String[]
-  /// Vom Teammitglied bewusst als "Nordverkehr-Team" gesendet (Name bleibt intern sichtbar)
+  /// Vom Teammitglied bewusst als "Treffpunkt-Team" gesendet (Name bleibt intern sichtbar)
   asTeam         Boolean          @default(false)
   deliveryStatus DeliveryStatus   @default(NOT_SENT)
   deliveryError  String?

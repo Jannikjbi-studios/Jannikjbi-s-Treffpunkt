@@ -10,6 +10,7 @@ import { deliverNow } from "@/lib/discord/outbox-db";
 import { acknowledgeWithdrawal, changeStatus, interviewBlockReason, sendTeamMessage, setClaim } from "@/lib/team/service";
 import { UserFacingError } from "@/lib/applications/service";
 import { REJECTION_KEYS } from "@/lib/applications/rejection";
+import { KIND_KEYS, type KindKey } from "@/lib/kinds";
 import type { ActionResult } from "@/app/actions/application";
 
 const id = z.string().min(10).max(40);
@@ -540,7 +541,7 @@ export async function deleteCommentAction(commentId: string): Promise<ActionResu
 
 const messageSchema = z.object({
   applicationId: id,
-  title: z.string().trim().max(120).default("Nachricht vom Nordverkehr-Team"),
+  title: z.string().trim().max(120).default("Nachricht vom Treffpunkt-Team"),
   body: z.string().trim().min(2).max(3800),
   templateIds: z.array(id).max(10).default([]),
   grund: z.string().trim().max(1000).optional(),
@@ -653,7 +654,7 @@ const templateSchema = z.object({
   body: z.string().trim().min(2).max(3500),
   active: z.boolean().default(true),
   /** Nur bei diesen Bewerbungsarten – leer = alle */
-  kinds: z.array(z.enum(["team", "whitelist", "beta"])).max(3).default([]),
+  kinds: z.array(z.enum(KIND_KEYS as [KindKey, ...KindKey[]])).max(3).default([]),
 });
 
 export async function saveTemplateAction(input: z.input<typeof templateSchema>): Promise<ActionResult<{ id: string }>> {
@@ -742,7 +743,7 @@ export async function banUserAction(input: z.input<typeof banSchema>): Promise<A
   const p = banSchema.safeParse(input);
   if (!p.success) return { ok: false, error: "Bitte einen Grund (mind. 3 Zeichen) angeben." };
   if (p.data.subjectId === user.id) return { ok: false, error: "Du kannst dich nicht selbst sperren." };
-  await db.userBan.create({
+  const ban = await db.userBan.create({
     data: {
       subjectId: p.data.subjectId,
       reason: p.data.reason,
@@ -751,6 +752,9 @@ export async function banUserAction(input: z.input<typeof banSchema>): Promise<A
     },
   });
   await audit("user.ban", { actorId: user.id, targetType: "user", targetId: p.data.subjectId, meta: { days: p.data.days } });
+  // Discord: Rolle „Team-Sperre“ geben (wird nach Ablauf/Aufheben wieder entfernt)
+  const { giveTeamBanRole } = await import("@/lib/team/ban-role");
+  await giveTeamBanRole(ban.id).catch((e) => console.error("[ban-role]", e));
   refresh();
   return { ok: true };
 }
@@ -764,6 +768,9 @@ export async function liftBanAction(banId: string): Promise<ActionResult> {
   const ban = await db.userBan.update({ where: { id: banId }, data: { liftedAt: new Date(), liftedById: user.id } }).catch(() => null);
   if (!ban) return { ok: false, error: "Nicht gefunden." };
   await audit("user.unban", { actorId: user.id, targetType: "user", targetId: ban.subjectId });
+  // Keine aktive Sperre mehr → Rolle „Team-Sperre“ wieder entfernen
+  const { releaseTeamBanRole } = await import("@/lib/team/ban-role");
+  await releaseTeamBanRole(ban.subjectId).catch((e) => console.error("[ban-role]", e));
   refresh();
   return { ok: true };
 }

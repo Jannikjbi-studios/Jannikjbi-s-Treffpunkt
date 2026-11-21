@@ -29,7 +29,7 @@ export async function GET() {
     async start(controller) {
       try {
         const positions = await db.position.findMany({ select: { id: true, slug: true, title: true } });
-        controller.enqueue(enc.encode(`{"kind":"nordverkehr-daten","version":1,"exportedAt":${JSON.stringify(new Date().toISOString())},"positions":${JSON.stringify(positions)},"applications":[`));
+        controller.enqueue(enc.encode(`{"kind":"treffpunkt-daten","version":1,"exportedAt":${JSON.stringify(new Date().toISOString())},"positions":${JSON.stringify(positions)},"applications":[`));
         let cursor: string | undefined;
         let first = true;
         for (;;) {
@@ -67,7 +67,7 @@ export async function GET() {
   return new Response(stream, {
     headers: {
       "Content-Type": "application/json; charset=utf-8",
-      "Content-Disposition": `attachment; filename="nordverkehr-bewerbungen-${day}.json"`,
+      "Content-Disposition": `attachment; filename="treffpunkt-bewerbungen-${day}.json"`,
       "Cache-Control": "no-store",
     },
   });

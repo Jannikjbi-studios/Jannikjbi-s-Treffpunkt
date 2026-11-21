@@ -16,7 +16,7 @@ const DAY = 86_400_000;
 export function draftReminderText(name: string, position: string, deleteInDays: number | null) {
   return (
     `Moin ${name},\n\n` +
-    `du hast vor ein paar Tagen angefangen, dich als **${position}** bei Nordverkehr zu bewerben – dein Entwurf ist gespeichert, aber noch nicht abgeschickt.\n\n` +
+    `du hast vor ein paar Tagen angefangen, dich als **${position}** im Treffpunkt zu bewerben – dein Entwurf ist gespeichert, aber noch nicht abgeschickt.\n\n` +
     `Mit dem Knopf unten machst du genau da weiter, wo du aufgehört hast.` +
     (deleteInDays !== null && deleteInDays > 0 ? `\n\n-# Nicht abgeschickte Entwürfe löschen wir nach etwa ${deleteInDays} weiteren Tagen automatisch.` : "") +
     `\n-# Das ist die einzige Erinnerung – keine Lust mehr? Dann einfach ignorieren.`

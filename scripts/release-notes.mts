@@ -20,7 +20,7 @@ const entries = CHANGELOG.filter((e) => (!previous || compareVersions(e.version,
 const md = (t: string) => t.replace(/\{/g, "`{").replace(/\}/g, "}`");
 
 const out: string[] = [];
-out.push(`Größeres Update des Nordverkehr-Bewerbungsportals${tag ? ` (${tag})` : ""}.`, "");
+out.push(`Größeres Update des Treffpunkt-Bewerbungsportals${tag ? ` (${tag})` : ""}.`, "");
 if (!entries.length) out.push("_Keine neuen Changelog-Einträge seit dem letzten Release._");
 for (const e of entries) {
   out.push(`## Version ${e.version} – ${new Date(`${e.date}T12:00:00Z`).toLocaleDateString("de-DE", { day: "numeric", month: "long", year: "numeric" })}${e.title ? ` · ${e.title}` : ""}`);

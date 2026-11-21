@@ -29,6 +29,6 @@ describe("SSL-Modus für pg", () => {
     const { withExplicitSslMode } = await import("@/lib/db");
     expect(withExplicitSslMode("postgresql://u:p@h/db?sslmode=require&channel_binding=require")).toBe("postgresql://u:p@h/db?sslmode=verify-full&channel_binding=require");
     expect(withExplicitSslMode("postgresql://u:p@h/db?x=1&sslmode=prefer")).toBe("postgresql://u:p@h/db?x=1&sslmode=verify-full");
-    expect(withExplicitSslMode("postgresql://postgres:postgres@127.0.0.1:5432/nordverkehr")).toBe("postgresql://postgres:postgres@127.0.0.1:5432/nordverkehr");
+    expect(withExplicitSslMode("postgresql://postgres:postgres@127.0.0.1:5432/treffpunkt")).toBe("postgresql://postgres:postgres@127.0.0.1:5432/treffpunkt");
   });
 });

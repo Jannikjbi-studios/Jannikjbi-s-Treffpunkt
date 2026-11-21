@@ -65,11 +65,15 @@ export function BanForm({ subjectId }: { subjectId: string }) {
       className="space-y-3"
       onSubmit={async (e) => {
         e.preventDefault();
-        if (!(await confirmDialog({ title: "Nutzer sperren?", body: "Gesperrte können sich nicht mehr bewerben.", confirmLabel: "Sperren", tone: "danger" }))) return;
+        if (!(await confirmDialog({ title: "Nutzer sperren?", body: "Gesperrte können sich bis zum Ablauf nicht bewerben und bekommen auf Discord die Rolle „Team-Sperre“.", confirmLabel: "Sperren", tone: "danger" }))) return;
         run(() => banUserAction({ subjectId, reason, days: days === "0" ? null : Number(days) }), () => setReason(""));
       }}
     >
-      <p className="text-sm text-muted">Gesperrte Nutzer können sich nicht bewerben, sehen aber weiter ihre bisherigen Bewerbungen.</p>
+      <p className="text-sm text-muted">
+        Gesperrte können sich bis zum Ablauf nicht bewerben (bisherige Bewerbungen sehen sie weiter). Auf Discord bekommen sie die Rolle 🚷 Team-Sperre – nach
+        Ablauf oder beim Aufheben nimmt der Bot sie wieder weg. War jemand richtig unfreundlich: auf Discord ⛔ Blacklist geben – solange die Rolle da ist, geht kein
+        Bewerben.
+      </p>
       <div>
         <label htmlFor="ban-reason" className="nv-field-label">
           Grund (intern)

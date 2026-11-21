@@ -86,7 +86,7 @@ export async function publishSpotlight(db: PrismaClient, slug: string, opts: { m
   const s = await getSettings();
   const channelId = s["discord.spotlightChannelId"];
   if (!channelId) return { ok: false, error: "Kein Kanal für Einzelaufrufe eingetragen." };
-  // Einzelaufruf: auch Whitelist und Beta (Sammelaufruf bleibt Team-Stellen vorbehalten)
+  // Einzelaufruf: jede aktive Stelle (Sammelaufruf: nur Team-Stellen)
   const position = (await db.position.findFirst({ where: { slug, type: { active: true } }, select: POSITION_SELECT })) as JobPosition | null;
   if (!position) return { ok: false, error: "Position nicht gefunden." };
   if (position.status === "HIDDEN") return { ok: false, error: "Versteckte Positionen werden nicht beworben." };

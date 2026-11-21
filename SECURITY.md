@@ -19,7 +19,7 @@ Beschreibt kurz, was betroffen ist, wie man es nachstellt und welche Auswirkung 
 ## Was nicht dazugehört
 
 - Fehler in eurer eigenen Installation durch falsche Einstellungen (z. B. öffentlich erreichbare Datenbank)
-- Schwächen in Discord, Vercel, MongoDB Atlas oder Anthropic selbst – bitte direkt dort melden
+- Schwächen in Discord, Vercel, Neon oder Anthropic selbst – bitte direkt dort melden
 
 ## Unterstützte Versionen
 

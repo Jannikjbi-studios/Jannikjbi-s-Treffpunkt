@@ -104,6 +104,8 @@ export interface DiscordApi {
   messageExists?(channelId: string, messageId: string): Promise<boolean>;
   /** Alle Mitglieder (seitenweise, je 1000). Braucht den „Server Members Intent“ des Bots. */
   listMembers?(guildId: string, after?: string): Promise<{ userId: string; roles: string[] }[]>;
+  /** Rollen des Servers (ID + Name), z. B. um „Team-Sperre“ per Name zu finden */
+  listRoles?(guildId: string): Promise<{ id: string; name: string }[]>;
   /** Bann auf dem Server (null = nicht gebannt). Wirft, wenn der Bot keine Bans lesen darf. */
   getBan?(guildId: string, userId: string): Promise<{ reason: string | null } | null>;
   /** Server-Event anlegen/ändern/löschen (Gesprächstermine) */
@@ -228,6 +230,14 @@ export function createDiscordApi(token: string, opts: { timeoutMs?: number } = {
     async setNick(guildId, userId, nick, reason) {
       try {
         await rest.patch(Routes.guildMember(guildId, userId), { body: { nick }, reason });
+      } catch (err) {
+        throw classifyDiscordError(err);
+      }
+    },
+    async listRoles(guildId) {
+      try {
+        const roles = (await rest.get(Routes.guildRoles(guildId))) as { id: string; name: string }[];
+        return roles.map((r) => ({ id: r.id, name: r.name }));
       } catch (err) {
         throw classifyDiscordError(err);
       }

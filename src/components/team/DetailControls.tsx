@@ -42,8 +42,6 @@ function useAction() {
 
 const ACCEPT_TEXT: Record<KindKey, { hint: string; confirm: string }> = {
   team: { hint: "Ins Team aufnehmen", confirm: "Die Person wird ins Team aufgenommen." },
-  whitelist: { hint: "Whitelist freigeben", confirm: "Die Whitelist wird freigegeben – die Rolle der Stelle wird vergeben." },
-  beta: { hint: "In die Beta aufnehmen", confirm: "Die Person kommt in die Beta – die Rolle der Stelle wird vergeben." },
 };
 
 export function StatusControl({ applicationId, current, targets, kind = "team" }: { applicationId: string; current: ApplicationStatus; targets: ApplicationStatus[]; kind?: KindKey }) {

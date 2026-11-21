@@ -42,7 +42,7 @@ import { draftReminderText } from "@/lib/applications/draft-reminder";
 
 describe("Persönliche Morgen-DM an Betreuer", () => {
   const at = new Date("2026-11-20T08:00:00Z");
-  const item = (id: string, claimerId: string | null): SummaryItem => ({ id, publicId: `NV-${id}`, name: "Anna", position: "Support", claimer: claimerId ? "Jonas" : null, claimerId, at });
+  const item = (id: string, claimerId: string | null): SummaryItem => ({ id, publicId: `JT-${id}`, name: "Anna", position: "Support", claimer: claimerId ? "Jonas" : null, claimerId, at });
   const summary = {
     date: "2026-11-20", open: 3, newSince: 0, unclaimed: 1, dmProblems: 0,
     interviews: [item("1", "u1")], waiting: [item("2", "u1"), item("3", "u2"), item("4", null)], stale: [], withdrawals: [], leftGuild: [], probation: [item("5", "u3")], escalations: [],
@@ -80,13 +80,13 @@ describe("Erinnerung an Entwürfe", () => {
 import { statusCommandReply } from "@/lib/discord/interactions";
 
 describe("/bewerbung in Discord", () => {
-  const base = { id: "app1234567890", publicId: "NV-2026-0001", position: "Support", submittedAt: new Date("2026-11-10T10:00:00Z"), interviewAt: null };
+  const base = { id: "app1234567890", publicId: "JT-2026-0001", position: "Support", submittedAt: new Date("2026-11-10T10:00:00Z"), interviewAt: null };
   it("ohne Bewerbung: Hinweis auf offene Stellen", () => {
     expect(statusCommandReply([], "https://x.test")).toContain("https://x.test");
   });
   it("zeigt Stelle, ID, Status, Termin und Link", () => {
     const t = statusCommandReply([{ ...base, status: "INTERVIEW", statusLabel: "Gespräch", interviewAt: new Date("2026-11-20T18:00:00Z") }], "https://x.test");
-    expect(t).toContain("**Support** · `NV-2026-0001` – Gespräch");
+    expect(t).toContain("**Support** · `JT-2026-0001` – Gespräch");
     expect(t).toContain("<t:1795197600:f>");
     expect(t).toContain("https://x.test/dashboard/app1234567890");
   });

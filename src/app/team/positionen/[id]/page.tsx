@@ -7,6 +7,13 @@ import { PositionForm } from "@/components/team/PositionForm";
 import { FormBuilder } from "@/components/team/FormBuilder";
 import { requireAdmin } from "@/lib/auth/session";
 import { db } from "@/lib/db";
+import { POSITIONS } from "@/lib/setup/seed-data";
+
+/** Geplante Discord-Rollen der mitgelieferten Stellen (Hinweis für Admins beim Eintragen der IDs). */
+function roleHintFor(slug: string) {
+  const r = POSITIONS.find((p) => p.slug === slug)?.roles;
+  return r ? (r.afterProbation ? `${r.accept} → nach der Probezeit ${r.afterProbation}` : r.accept) : undefined;
+}
 
 export const metadata: Metadata = { title: "Position bearbeiten" };
 
@@ -84,6 +91,8 @@ async function Editor({ params }: Pick<PageProps<"/team/positionen/[id]">, "para
             minAge: position.minAge,
             cooldownDays: position.cooldownDays,
             acceptRoleId: position.acceptRoleId,
+            passRoleId: position.passRoleId ?? null,
+            extraRoleIds: position.extraRoleIds ?? [],
             opensAt: position.opensAt?.toISOString() ?? null,
             closesAt: position.closesAt?.toISOString() ?? null,
             maxApplications: position.maxApplications ?? null,
@@ -99,6 +108,7 @@ async function Editor({ params }: Pick<PageProps<"/team/positionen/[id]">, "para
             teamRoleIds: position.teamRoleIds ?? [],
           }}
           applicationCount={applicationCount}
+          roleHint={roleHintFor(position.slug)}
         />
       )}
       <section className="space-y-3">

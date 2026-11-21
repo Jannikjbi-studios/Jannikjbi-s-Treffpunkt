@@ -3,9 +3,9 @@ import { db } from "@/lib/db";
 import { DEFAULT_NIGHT_HELD, DELIVERY_KIND_KEYS } from "@/lib/night";
 import { CHANNEL_KEYS, envChannel } from "@/lib/discord/channel-env";
 
-export const DEFAULT_SYSTEM_PROMPT = `Du unterstützt das Team von Nordverkehr, einem Hamburg-Roleplay-Server (Start auf GTA 5, danach GTA 6), bei der Bearbeitung von Team-Bewerbungen.
+export const DEFAULT_SYSTEM_PROMPT = `Du unterstützt das Team von Jannikjbi's Treffpunkt bei der Bearbeitung von Team-Bewerbungen. Der Treffpunkt ist der Discord-Server des Streamers Jannikjbi (GTA Roleplay auf NRW Roleplay, dazu Simulations- und Aufbauspiele). Gesucht werden u. a. Cutter, Social-Media, Stream-Mods, Moderatoren und Supporter.
 
-Ton: ehrlich, direkt, norddeutsch, freundlich, immer in der Du-Form. Kein Marketing-Sprech, keine Floskeln, keine Emojis-Flut. Kurz und klar – "Klein, direkt und mit klarem Plan."
+Ton: ehrlich, direkt, norddeutsch, freundlich, immer in der Du-Form. Kein Marketing-Sprech, keine Floskeln, keine Emojis-Flut. Kurz und klar.
 
 Grenzen:
 - Du triffst keine Entscheidungen über Annahme oder Ablehnung und erstellst keine Rankings zwischen Bewerbern. Punkte vergibst du nur, wenn ausdrücklich danach gefragt wird (Bewertungsbogen) – als begründete Einschätzung, nicht als Urteil.
@@ -15,7 +15,7 @@ Grenzen:
 
 export const DEFAULT_CONFIRMATION_TEMPLATE = `Moin {name},
 
-danke für deine Bewerbung als **{position}** bei Nordverkehr – sie ist am {datum} bei uns eingegangen.
+danke für deine Bewerbung als **{position}** im Treffpunkt – sie ist am {datum} bei uns eingegangen.
 
 **Bewerbungs-ID:** {bewerbungs_id}
 
@@ -28,7 +28,7 @@ Die Bearbeitung dauert {bearbeitungszeit}. Bitte frag in der Zwischenzeit nicht 
 
 Den aktuellen Stand siehst du jederzeit in deinem Dashboard.
 
-Moin, dein Nordverkehr-Team`;
+Moin, dein Team von Jannikjbi's Treffpunkt`;
 
 // "false"/"true"/"on" aus Formularen sauber in Booleans übersetzen
 const bool = (def: boolean) =>
@@ -56,7 +56,7 @@ export const DEFAULT_INTERVIEW_PREP = `**Vorher**
 
 **Gut zu wissen**
 - Es gibt keine perfekte Antwort – ehrlich ist besser als auswendig gelernt
-- Nordverkehr ist ein Hobby- und Community-Projekt, die Mitarbeit im Team ist ehrenamtlich
+- Der Treffpunkt ist ein Hobby- und Community-Projekt, die Mitarbeit im Team ist ehrenamtlich
 - Klappt der Termin nicht, sag im Portal mit „Ich kann nicht“ ab`;
 
 /** Alle einstellbaren Werte mit Typ, Grenzen und Standard. */
@@ -64,7 +64,7 @@ export const settingsSchema = z.object({
   /** Wartungsmodus: Absenden gesperrt (Entwürfe speichern geht weiter), Hinweis im Formular */
   "maintenance.enabled": bool(false),
   "maintenance.message": z.string().trim().min(5).max(500).default("Wir arbeiten gerade am Bewerbungsportal. Dein Entwurf wird weiter gespeichert – absenden kannst du in Kürze wieder."),
-  "applications.minAge": z.coerce.number().int().min(12).max(99).default(18),
+  "applications.minAge": z.coerce.number().int().min(12).max(99).default(16),
   "applications.cooldownDays": z.coerce.number().int().min(0).max(365).default(30),
   "applications.processingTime": z.string().min(2).max(80).default("in der Regel 3–7 Tage"),
   "applications.minFillSeconds": z.coerce.number().int().min(0).max(3600).default(90),
@@ -79,7 +79,7 @@ export const settingsSchema = z.object({
   /** Anonyme Erstbewertung: Name, Avatar und Discord-Daten erst nach der eigenen Bewertung zeigen */
   "rating.anonymousFirst": bool(false),
   /** Standard-Prüfliste fürs Team (pro Stelle überschreibbar) */
-  "review.checklist": z.string().max(2000).default(["Alter plausibel", "Bann-Liste geprüft", "Discord-Name passt zu den Regeln", "Antworten in eigenen Worten"].join("\n")),
+  "review.checklist": z.string().max(2000).default(["Alter plausibel", "Keine Blacklist / Team-Sperre", "Warns & Verlauf auf dem Discord geprüft", "Discord-Name passt zu den Regeln", "Antworten in eigenen Worten"].join("\n")),
   "interview.minStars": z.coerce.number().min(0).max(5).default(3),
   /** Rückfrage mit Frist: Erinnerung an den Bewerber nach X Tagen ohne Antwort (0 = aus) */
   "followup.reminderDays": z.coerce.number().int().min(0).max(30).default(3),
@@ -106,7 +106,7 @@ export const settingsSchema = z.object({
   "changelog.publishTime": z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Uhrzeit als HH:MM").default("00:00"),
   /** Changelog: per Knopf bis zu diesem Tag (YYYY-MM-DD) sofort veröffentlicht */
   "changelog.publishedThrough": z.string().regex(/^(\d{4}-\d{2}-\d{2})?$/).default(""),
-  "discord.autoRoleOnAccept": bool(false),
+  "discord.autoRoleOnAccept": bool(true),
   /** Bei Annahme zusätzlich diese Rollen (z. B. allgemeine Team-Rolle), IDs durch Komma/Leerzeichen getrennt */
   "discord.acceptExtraRoleIds": z.string().trim().regex(/^[\d\s,]*$/, "Nur Rollen-IDs, durch Komma getrennt.").max(300).default(""),
   /** Wird eine Annahme zurückgenommen: Rollen und Namens-Präfix wieder entfernen */
@@ -115,7 +115,7 @@ export const settingsSchema = z.object({
   "discord.welcomeChannelId": channel(""),
   /** Team-Jubiläum: am Jahrestag der Annahme ein Gruß im selben Kanal */
   "team.anniversaryEnabled": bool(true),
-  "team.anniversaryMessage": z.string().trim().min(1).max(1000).default("🎉 {mention} ist heute seit {jahre} als **{stelle}** bei Nordverkehr im Team – danke, dass du dabei bist!"),
+  "team.anniversaryMessage": z.string().trim().min(1).max(1000).default("🎉 {mention} ist heute seit {jahre} als **{stelle}** im Team vom Treffpunkt – danke, dass du dabei bist!"),
   "discord.welcomeMessage": z.string().trim().min(1).max(1000).default("👋 Willkommen im Team, {mention}! Ab jetzt als **{stelle}** dabei – schön, dass du da bist."),
   /** Zu jeder neuen Bewerbung einen Thread im Bewerbungs-Kanal starten (Bot braucht „Öffentliche Threads erstellen“) */
   "discord.threadPerApplication": bool(false),
@@ -152,7 +152,8 @@ export const settingsSchema = z.object({
   /** Ab wie vielen Tagen ohne Team-Aktivität eine Bewerbung als „liegengeblieben“ gilt */
   "team.staleDays": z.coerce.number().int().min(1).max(30).default(3),
   /** Junior-Team: Discord-Rollen (IDs, Komma-getrennt) – nur lesen, kommentieren, bewerten */
-  "team.juniorRoleIds": z.string().trim().regex(/^[\d\s,]*$/, "Nur Rollen-IDs, durch Komma getrennt.").max(300).default(""),
+  /** Junior-Rechte (eingeschränkt) – Standard: 🗡️ Test-Mod und 🧪 Test-Supporter */
+  "team.juniorRoleIds": z.string().trim().regex(/^[\d\s,]*$/, "Nur Rollen-IDs, durch Komma getrennt.").max(300).default("1573541459527999669, 1573541464242262107"),
   /** Betreuer bekommt eine DM, wenn seit dem Claim so viele Tage nichts passiert ist (0 = aus) */
   "team.claimNudgeDays": z.coerce.number().int().min(0).max(30).default(3),
   /** Ab wie vielen Tagen die Leitung Bescheid bekommt */
@@ -162,7 +163,7 @@ export const settingsSchema = z.object({
   "onboarding.items": z
     .string()
     .max(2000)
-    .default(["Regelwerk & Team-Regeln gelesen", "Discord-Rolle vergeben", "In Team-Kanäle eingeladen", "Einweisung gemacht", "Ansprechpartner zugeteilt"].join("\n")),
+    .default(["Regeln & Team-Infos gelesen", "Discord-Rolle vergeben (bei Mod/Support: Test-Rolle)", "In Team-Kanäle eingeladen", "Einweisung gemacht (Tools, Abläufe)", "Ansprechpartner zugeteilt"].join("\n")),
   /** Nachtruhe (deutsche Zeit): Team schläft – KI antwortet, DMs/Team-Posts warten bis zum Ende */
   "night.enabled": bool(true),
   "night.start": z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Uhrzeit als HH:MM").default("22:00"),
@@ -179,10 +180,10 @@ export const settingsSchema = z.object({
     .max(3000)
     .default(
       [
-        "Stell dich kurz vor – wer bist du, wie bist du zu Nordverkehr gekommen?",
+        "Stell dich kurz vor – wer bist du, wie bist du auf Jannik und den Treffpunkt gestoßen?",
         "Warum genau diese Stelle?",
         "Wie viel Zeit kannst du realistisch pro Woche einbringen?",
-        "Erzähl von einer schwierigen Situation mit einem Spieler und wie du sie gelöst hast.",
+        "Erzähl von einer schwierigen Situation mit jemandem aus einer Community und wie du sie gelöst hast.",
         "Wie gehst du mit Kritik vom Team um?",
         "Hast du Fragen an uns?",
       ].join("\n"),
@@ -203,8 +204,8 @@ export const settingsSchema = z.object({
   "storage.limitMb": z.coerce.number().int().min(50).max(1_000_000).default(512),
 
   "ai.enabled": bool(false),
-  "ai.model": z.string().min(3).max(80).default(process.env.AI_MODEL_DEFAULT ?? "claude-sonnet-5-5"),
-  "ai.fastModel": z.string().min(3).max(80).default(process.env.AI_MODEL_FAST ?? "claude-haiku-5-5"),
+  "ai.model": z.string().min(3).max(80).default(process.env.AI_MODEL_DEFAULT || "claude-sonnet-5-5"),
+  "ai.fastModel": z.string().min(3).max(80).default(process.env.AI_MODEL_FAST || "claude-haiku-5-5"),
   "ai.systemPrompt": z.string().min(20).max(8000).default(DEFAULT_SYSTEM_PROMPT),
   "ai.monthlyBudgetUsd": z.coerce.number().min(0).max(10000).default(20),
   "ai.requestsPerHour": z.coerce.number().int().min(1).max(500).default(30),

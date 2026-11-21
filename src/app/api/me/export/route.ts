@@ -42,7 +42,7 @@ export async function GET() {
 
   const data = {
     exportiertAm: new Date().toISOString(),
-    hinweis: "Datenexport aus dem Nordverkehr-Bewerbungsportal (Art. 15 & 20 DSGVO).",
+    hinweis: "Datenexport aus dem Treffpunkt-Bewerbungsportal (Art. 15 & 20 DSGVO).",
     account: {
       discordId: full.discordId,
       benutzername: full.username,
@@ -88,7 +88,7 @@ export async function GET() {
   return new Response(JSON.stringify(data, null, 2), {
     headers: {
       "Content-Type": "application/json; charset=utf-8",
-      "Content-Disposition": `attachment; filename="nordverkehr-daten-${new Date().toISOString().slice(0, 10)}.json"`,
+      "Content-Disposition": `attachment; filename="treffpunkt-daten-${new Date().toISOString().slice(0, 10)}.json"`,
       "Cache-Control": "no-store",
     },
   });

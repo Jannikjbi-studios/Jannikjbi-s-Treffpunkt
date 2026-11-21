@@ -12,7 +12,7 @@ import { createPrismaClient } from "../src/lib/db";
 export async function freshTestDatabase(name: string) {
   if (!/^[a-z0-9_]+$/.test(name)) throw new Error("Ungültiger Testdatenbank-Name");
   const dbName = `nvtest_${name}`;
-  const base = new URL(process.env.TEST_DATABASE_URL || process.env.DATABASE_URL || "postgresql://postgres:postgres@127.0.0.1:5432/nordverkehr");
+  const base = new URL(process.env.TEST_DATABASE_URL || process.env.DATABASE_URL || "postgresql://postgres:postgres@127.0.0.1:5432/treffpunkt");
   if (!/^postgres(ql)?:$/.test(base.protocol)) throw new Error("Tests brauchen eine Postgres-URL (TEST_DATABASE_URL oder DATABASE_URL).");
   const admin = new URL(base);
   admin.pathname = "/postgres";

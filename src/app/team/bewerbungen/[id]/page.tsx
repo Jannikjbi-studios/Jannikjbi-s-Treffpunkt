@@ -107,7 +107,7 @@ async function Detail({ params, searchParams }: PageProps<"/team/bewerbungen/[id
 
   const [settings, templates, vars, otherApps, activeBan, applicantAccess, bot] = await Promise.all([
     getSettings(),
-    // Nur Bausteine für alle Arten oder genau diese Bewerbungsart (Team/Whitelist/Beta)
+    // Nur Bausteine für alle Arten oder genau diese Bewerbungsart
     db.messageTemplate.findMany({
       where: { active: true, OR: [{ kinds: { isEmpty: true } }, { kinds: { has: kindOf(app.position.type.key).key } }] },
       orderBy: [{ category: "asc" }, { sortOrder: "asc" }],

@@ -4,7 +4,7 @@ import { Container } from "@/components/ui";
 import { TeamNav } from "@/components/team/TeamNav";
 import { getCurrentAccess } from "@/lib/auth/session";
 
-export const metadata: Metadata = { title: { default: "Team-Bereich", template: "%s · Team | Nordverkehr" }, robots: { index: false } };
+export const metadata: Metadata = { title: { default: "Team-Bereich", template: "%s · Team | Treffpunkt" }, robots: { index: false } };
 
 export default function TeamLayout({ children }: LayoutProps<"/team">) {
   return (

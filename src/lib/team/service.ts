@@ -110,14 +110,16 @@ export async function changeStatus(opts: {
     const accepting = opts.to === "ACCEPTED";
     const reverting = app.status === "ACCEPTED" && !accepting && settings["discord.revertOnUnaccept"];
     if ((accepting || reverting) && settings["discord.autoRoleOnAccept"] && e.DISCORD_GUILD_ID) {
-      const { acceptRoles, enqueueMemberChanges } = await import("@/lib/discord/roles");
+      const { acceptRoles, revertRoles, enqueueMemberChanges } = await import("@/lib/discord/roles");
+      const extra = kind.teamFeatures ? settings["discord.acceptExtraRoleIds"] : "";
       jobIds.push(
         ...(await enqueueMemberChanges(tx, {
           mode: accepting ? "accept" : "revert",
           guildId: e.DISCORD_GUILD_ID,
           discordUserId: app.user.discordId,
-          // Zusatzrollen (z. B. „Team“) und Namens-Präfix nur für Team-Bewerbungen – Whitelist/Beta: nur die Rolle der Stelle
-          roles: acceptRoles(app.position, kind.teamFeatures ? settings["discord.acceptExtraRoleIds"] : ""),
+          // Zusatzrollen (z. B. „Team“) und Namens-Präfix nur bei Arten mit Team-Funktionen.
+          // Zurücknehmen entfernt auch die Rolle nach der Probezeit (z. B. Moderator).
+          roles: accepting ? acceptRoles(app.position, extra) : revertRoles(app.position, extra),
           nickPrefix: kind.teamFeatures ? app.position.nickPrefix : null,
           fallbackName: app.user.globalName || app.user.username,
           applicationId: app.id,
@@ -292,7 +294,7 @@ export async function getTemplateVarsFor(applicationId: string, teamMember: { gl
 export async function sendTeamMessage(opts: {
   applicationId: string;
   actor: Actor;
-  /** Als "Nordverkehr-Team" statt mit eigenem Namen senden */
+  /** Als "Treffpunkt-Team" statt mit eigenem Namen senden */
   asTeam?: boolean;
   title: string;
   body: string;
@@ -304,9 +306,9 @@ export async function sendTeamMessage(opts: {
   const app = await db.application.findUnique({ where: { id: opts.applicationId }, include: { user: true } });
   if (!app || app.status === "DRAFT") throw new UserFacingError("Bewerbung nicht gefunden.");
   const asTeam = !!opts.asTeam;
-  const baseVars = await getTemplateVarsFor(app.id, asTeam ? { globalName: "das Nordverkehr-Team", username: "team" } : opts.actor);
+  const baseVars = await getTemplateVarsFor(app.id, asTeam ? { globalName: "das Treffpunkt-Team", username: "team" } : opts.actor);
   const rendered = renderTemplate(opts.body, { ...baseVars, ...opts.vars });
-  const title = renderTemplate(opts.title || "Nachricht vom Nordverkehr-Team", { ...baseVars, ...opts.vars }).text.slice(0, 200);
+  const title = renderTemplate(opts.title || "Nachricht vom Treffpunkt-Team", { ...baseVars, ...opts.vars }).text.slice(0, 200);
   if (rendered.text.trim().length < 2) throw new UserFacingError("Die Nachricht ist leer.");
 
   return db.$transaction(async (tx) => {

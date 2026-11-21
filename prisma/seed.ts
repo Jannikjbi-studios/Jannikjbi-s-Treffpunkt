@@ -21,28 +21,28 @@ const db = createPrismaClient();
 const DEMO_PREFIX = "11000000000000000";
 
 const PERSONAS = [
-  { name: "Jonas", user: "jonas.hh", age: 24, tone: "solide", status: "SUBMITTED", position: "support" },
+  { name: "Jonas", user: "jonas.ol", age: 19, tone: "solide", status: "SUBMITTED", position: "supporter" },
   { name: "Lea", user: "lea_nord", age: 21, tone: "stark", status: "IN_REVIEW", position: "moderator" },
-  { name: "Mats", user: "matsdev", age: 27, tone: "stark", status: "INTERVIEW", position: "entwickler" },
-  { name: "Finn", user: "finnyboy", age: 19, tone: "kurz", status: "SUBMITTED", position: "support" },
-  { name: "Svenja", user: "svenja.media", age: 23, tone: "solide", status: "ACCEPTED", position: "media" },
-  { name: "Ole", user: "ole_maps", age: 30, tone: "solide", status: "REJECTED", position: "mapper" },
-  { name: "Kim", user: "kim.k", age: 22, tone: "stark", status: "IN_REVIEW", position: "support" },
-  { name: "Hauke", user: "hauke_rp", age: 26, tone: "kurz", status: "DRAFT", position: "moderator" },
+  { name: "Mats", user: "mats.cuts", age: 17, tone: "stark", status: "INTERVIEW", position: "cutter" },
+  { name: "Finn", user: "finnyboy", age: 16, tone: "kurz", status: "SUBMITTED", position: "stream-mod" },
+  { name: "Svenja", user: "svenja.social", age: 18, tone: "solide", status: "ACCEPTED", position: "social-media" },
+  { name: "Ole", user: "ole_chat", age: 22, tone: "solide", status: "REJECTED", position: "stream-mod" },
+  { name: "Kim", user: "kim.k", age: 20, tone: "stark", status: "IN_REVIEW", position: "supporter" },
+  { name: "Hauke", user: "hauke_ttv", age: 24, tone: "kurz", status: "DRAFT", position: "moderator" },
 ] as const;
 
 const TEXT = {
   stark: [
-    "Ich spiele seit gut vier Jahren RP und war zwei Jahre im Support eines mittelgroßen Servers. Dort habe ich gelernt, dass die meisten Konflikte sich mit Ruhe und einer klaren Erklärung lösen lassen. Mir ist wichtig, dass Spieler sich ernst genommen fühlen.",
-    "Mich reizt an Nordverkehr, dass ihr klein und mit klarem Plan startet. Ich habe auf größeren Servern erlebt, wie schnell Teams unübersichtlich werden. Hier kann ich von Anfang an mithelfen, Abläufe sauber aufzusetzen, und das macht mir einfach Spaß.",
+    "Ich bin seit gut vier Jahren in Discord-Communities unterwegs und war zwei Jahre im Support eines mittelgroßen Streamer-Servers. Dort habe ich gelernt, dass die meisten Konflikte sich mit Ruhe und einer klaren Erklärung lösen lassen. Mir ist wichtig, dass sich alle ernst genommen fühlen.",
+    "Mich reizt am Treffpunkt, dass er noch klein ist und gerade wächst. Ich habe auf größeren Servern erlebt, wie schnell Teams unübersichtlich werden. Hier kann ich von Anfang an mithelfen, Abläufe sauber aufzusetzen, und das macht mir einfach Spaß.",
     "Ich würde erst mal nicht auf die Beleidigung eingehen, sondern sachlich bleiben und nachfragen, worum es eigentlich geht. Meistens steckt Frust über etwas anderes dahinter. Wenn es weitergeht, weise ich auf die Regeln hin und gebe das Ticket notfalls an jemand anderen ab, damit es nicht persönlich wird.",
   ],
   solide: [
-    "Ich bin seit ungefähr zwei Jahren im RP unterwegs, vor allem als Zivilist und eine Zeit lang bei der Polizei. Im Team war ich bisher nur kurz auf einem kleinen Server als Supporter, das hat mir aber gut gefallen.",
-    "Ich finde den Ansatz gut, dass ehrliches RP im Vordergrund steht und nicht Show. Ich möchte mithelfen, dass sich neue Spieler schnell wohlfühlen, und bin abends eigentlich immer online.",
-    "Ich bleibe ruhig und erkläre dem Spieler, dass so ein Ton im Ticket nicht geht. Dann versuche ich trotzdem, sein Problem zu lösen. Wenn er weiter beleidigt, schließe ich das Ticket und gebe es an die Leitung weiter.",
+    "Ich schaue seit ungefähr zwei Jahren GTA-RP-Streams und bin in ein paar Communities aktiv. Im Team war ich bisher nur kurz auf einem kleinen Server als Supporter, das hat mir aber gut gefallen.",
+    "Ich mag Janniks Streams und die entspannte Community. Ich möchte mithelfen, dass sich neue Leute schnell wohlfühlen, und bin abends eigentlich immer online.",
+    "Ich bleibe ruhig und erkläre der Person, dass so ein Ton im Ticket nicht geht. Dann versuche ich trotzdem, sein Problem zu lösen. Wenn er weiter beleidigt, schließe ich das Ticket und gebe es an die Leitung weiter.",
   ],
-  kurz: ["Bin schon lange dabei.", "Weil der Server cool ist.", "Ich sag ihm er soll aufhören."],
+  kurz: ["Bin schon lange dabei.", "Weil Jannik cool ist.", "Ich sag ihm er soll aufhören."],
 };
 
 function answerFor(type: QuestionType, options: string[], tone: keyof typeof TEXT, i: number): Prisma.InputJsonValue | null {
@@ -59,7 +59,7 @@ function answerFor(type: QuestionType, options: string[], tone: keyof typeof TEX
     case "MULTI_SELECT":
       return options.slice(0, tone === "stark" ? 2 : 1);
     case "URL":
-      return "https://github.com/";
+      return "https://www.tiktok.com/";
     case "NUMBER":
       return 10;
     case "CHECKBOX":
@@ -121,7 +121,7 @@ async function seedDemo() {
     }
 
     counter++;
-    const publicId = `NV-${year}-${String(counter).padStart(4, "0")}`;
+    const publicId = `JT-${year}-${String(counter).padStart(4, "0")}`;
     const answers: Prisma.AnswerCreateWithoutApplicationInput[] = [];
     let order = 0;
     for (const s of sections) {

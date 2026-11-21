@@ -1,50 +1,43 @@
 import type { Metadata, Viewport } from "next";
-import { DM_Sans, DM_Serif_Display, JetBrains_Mono } from "next/font/google";
+import { Barlow_Condensed, Inter } from "next/font/google";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { ConfirmHost } from "@/components/ConfirmDialog";
 import { publicEnv } from "@/lib/env";
+import { BRAND } from "@/lib/brand";
 import "./globals.css";
 
-const dmSerif = DM_Serif_Display({
-  variable: "--font-dm-serif",
+// Wie auf jannikjbi.de: Barlow Condensed für Überschriften, Inter für Text
+const barlow = Barlow_Condensed({
+  variable: "--font-barlow",
   subsets: ["latin"],
-  weight: "400",
-  style: ["normal", "italic"],
+  weight: ["600", "700"],
   display: "swap",
 });
-const dmSans = DM_Sans({
-  variable: "--font-dm-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  display: "swap",
-});
-const jetbrains = JetBrains_Mono({
-  variable: "--font-jetbrains",
-  subsets: ["latin"],
-  weight: ["400", "500"],
   display: "swap",
 });
 
 export const metadata: Metadata = {
   metadataBase: new URL(publicEnv.appUrl),
-  title: { default: "Team-Bewerbung | Nordverkehr", template: "%s | Nordverkehr" },
-  description:
-    "Werde Teil des Teams von Nordverkehr – Hamburg-Roleplay. Offene Positionen ansehen, ehrlich bewerben, Status jederzeit verfolgen.",
+  title: { default: `Team-Bewerbung | ${BRAND.name}`, template: `%s | ${BRAND.name}` },
+  description: `Werde Teil vom Team von ${BRAND.name}, dem Discord-Server von ${BRAND.creator}: Cutter, Social-Media, Stream-Mod, Moderator und Supporter. Offene Stellen ansehen, ehrlich bewerben, Stand jederzeit verfolgen.`,
   icons: { icon: "/logo.png", apple: "/icons/apple-180.png" },
   // Vom Startbildschirm geöffnet: ohne Browserleiste, eigener Name
-  appleWebApp: { capable: true, title: "Nordverkehr", statusBarStyle: "black" },
+  appleWebApp: { capable: true, title: BRAND.short, statusBarStyle: "black" },
   openGraph: {
     type: "website",
-    siteName: "Nordverkehr Roleplay",
+    siteName: BRAND.name,
     locale: "de_DE",
-    images: [{ url: "/Nord-Verkehr-Wordmark.png", alt: "Nordverkehr Wordmark" }],
+    images: [{ url: "/icons/icon-512.png", width: 512, height: 512, alt: BRAND.name }],
   },
-  twitter: { card: "summary_large_image" },
+  twitter: { card: "summary" },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#c41e1e",
+  themeColor: "#070a12",
   colorScheme: "dark light",
 };
 
@@ -59,7 +52,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       data-theme="dark"
       data-scroll-behavior="smooth"
       suppressHydrationWarning
-      className={`${dmSerif.variable} ${dmSans.variable} ${jetbrains.variable}`}
+      className={`${barlow.variable} ${inter.variable}`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />

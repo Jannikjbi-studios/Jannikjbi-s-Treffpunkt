@@ -15,7 +15,7 @@ import type { ApplicationStatus, TemplateCategory } from "@prisma/client";
 /** Bausteine dieser Kategorien setzen den Status gleich mit */
 const AUTO_STATUS: Partial<Record<TemplateCategory, ApplicationStatus>> = { ANNAHME: "ACCEPTED", ABLEHNUNG: "REJECTED" };
 
-const DEFAULT_TITLE = "Nachricht vom Nordverkehr-Team";
+const DEFAULT_TITLE = "Nachricht vom Treffpunkt-Team";
 
 /** Auf breiten Bildschirmen steht die Vorschau rechts in der Seitenleiste (Platzhalter #composer-preview-slot). */
 const WIDE = "(min-width: 1280px)";
@@ -79,11 +79,11 @@ export function MessageComposer({ applicationId, publicId, templates, vars, sugg
   }, []);
 
   const rendered = useMemo(
-    () => renderTemplate(body, { ...vars, ...(asTeam ? { teammitglied: "das Nordverkehr-Team" } : {}), grund: grund || undefined }),
+    () => renderTemplate(body, { ...vars, ...(asTeam ? { teammitglied: "das Treffpunkt-Team" } : {}), grund: grund || undefined }),
     [body, vars, grund, asTeam],
   );
   const renderedTitle = useMemo(
-    () => renderTemplate(title, { ...vars, ...(asTeam ? { teammitglied: "das Nordverkehr-Team" } : {}) }).text,
+    () => renderTemplate(title, { ...vars, ...(asTeam ? { teammitglied: "das Treffpunkt-Team" } : {}) }).text,
     [title, vars, asTeam],
   );
   const byCat = useMemo(() => templates.filter((t) => t.category === category), [templates, category]);
@@ -328,7 +328,7 @@ export function MessageComposer({ applicationId, publicId, templates, vars, sugg
             <div className="inline-flex rounded-full border border-line p-0.5" role="radiogroup" aria-label="Absender">
               {[
                 { team: false, label: sender.name },
-                { team: true, label: "Nordverkehr-Team" },
+                { team: true, label: "Treffpunkt-Team" },
               ].map((o) => (
                 <button
                   key={String(o.team)}
@@ -336,7 +336,7 @@ export function MessageComposer({ applicationId, publicId, templates, vars, sugg
                   role="radio"
                   aria-checked={asTeam === o.team}
                   onClick={() => setAsTeam(o.team)}
-                  className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${asTeam === o.team ? "bg-red text-white" : "text-muted hover:text-fg"}`}
+                  className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${asTeam === o.team ? "bg-red text-on-red" : "text-muted hover:text-fg"}`}
                 >
                   {o.label}
                 </button>

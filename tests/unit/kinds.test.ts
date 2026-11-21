@@ -11,19 +11,16 @@ describe("Bewerbungsarten", () => {
   it("unbekannte Art → Team", () => {
     expect(kindOf(undefined).key).toBe("team");
     expect(kindOf("gibtsnicht").key).toBe("team");
-    expect(kindOf("beta").interview).toBe(false);
+    expect(kindOf("whitelist").key).toBe("team");
   });
-  it("Bestätigungen je Art", () => {
+  it("Bestätigungen (nur Team)", () => {
     expect(confirmationsFor("team").map((c) => c.key)).toEqual(["voice", "rules", "unpaid", "truth", "privacy"]);
-    expect(confirmationsFor("whitelist").map((c) => c.key)).not.toContain("unpaid");
-    expect(confirmationsFor("beta").map((c) => c.key)).toContain("betaTest");
-    expect(confirmationsFor("whitelist")[0].label).toContain("Whitelist-Gespräch");
-    const beta = confirmationsSchemaFor("beta");
-    expect(beta.safeParse({ voice: true, rules: true, betaTest: true, truth: true, privacy: true }).success).toBe(true);
-    expect(beta.safeParse({ voice: true, rules: true, truth: true, privacy: true }).success).toBe(false);
-    expect(confirmationsSchemaFor("whitelist").safeParse({ voice: true, rules: true, truth: true, privacy: true }).success).toBe(true);
+    expect(confirmationsFor("team").find((c) => c.key === "unpaid")!.label).toContain("Treffpunkt");
+    const team = confirmationsSchemaFor("team");
+    expect(team.safeParse({ voice: true, rules: true, unpaid: true, truth: true, privacy: true }).success).toBe(true);
+    expect(team.safeParse({ voice: true, rules: true, truth: true, privacy: true }).success).toBe(false);
   });
-  it("Beta ohne Gespräch", () => {
+  it("Art ohne Gespräch (falls ergänzt)", () => {
     expect(allowedTeamTargets("SUBMITTED", { interview: false })).not.toContain("INTERVIEW");
     expect(allowedTeamTargets("SUBMITTED")).toContain("INTERVIEW");
     expect(canTeamTransition("IN_REVIEW", "INTERVIEW", { interview: false })).toBe(false);
@@ -33,22 +30,20 @@ describe("Bewerbungsarten", () => {
     expect(timelineFor(false)).toEqual(["SUBMITTED", "IN_REVIEW", "ACCEPTED"]);
     expect(timelineFor(true)).toContain("INTERVIEW");
   });
-  it("Hinweis nach Annahme je Art", () => {
+  it("Hinweis nach Annahme", () => {
     expect(statusHintFor("ACCEPTED", KINDS.team)).toContain("Team");
-    expect(statusHintFor("ACCEPTED", KINDS.whitelist)).toContain("gewhitelistet");
-    expect(statusHintFor("IN_REVIEW", KINDS.beta)).toBe(statusHintFor("IN_REVIEW", KINDS.team));
   });
-  it("Bewerbungs-Post: Beta ohne „Zum Gespräch“", () => {
-    const base = { positionTitle: "Beta-Test", applicantDiscordId: "1", applicantName: "A", publicId: "NV-1", age: 20, teamUrl: "https://x/y", flags: [], claimCustomId: "nv:claim:abcdefghij12" };
+  it("Bewerbungs-Post: Art ohne Gespräch ohne „Zum Gespräch“", () => {
+    const base = { positionTitle: "Test", applicantDiscordId: "1", applicantName: "A", publicId: "JT-1", age: 20, teamUrl: "https://x/y", flags: [], claimCustomId: "nv:claim:abcdefghij12" };
     expect(JSON.stringify(buildLogMessage({ ...base, interview: false }))).not.toContain("nv:status:INTERVIEW");
     expect(JSON.stringify(buildLogMessage(base))).toContain("nv:status:INTERVIEW");
   });
-  it("Einzelaufruf: eigene Texte für Whitelist", () => {
-    const p = { slug: "whitelist", title: "Whitelist", tagline: "t", description: "d", icon: "id", status: "OPEN" as const, tasks: ["a"], requirements: [], minAge: null, acceptRoleId: null, type: { key: "whitelist" } };
+  it("Einzelaufruf: Team-Stelle", () => {
+    const p = { slug: "cutter", title: "Cutter", tagline: "t", description: "d", icon: "scissors", status: "OPEN" as const, tasks: ["a"], requirements: [], minAge: 15, acceptRoleId: null, type: { key: "team" } };
     const json = JSON.stringify(buildSpotlightMessage(p, { appUrl: "https://portal.example", defaultMinAge: 16 }));
-    expect(json).toContain("Die Whitelist ist offen!");
-    expect(json).toContain("So läuft");
-    expect(json).toContain("Jetzt zur Whitelist bewerben");
+    expect(json).toContain("Wir suchen **Cutter**! ✂️");
+    expect(json).toContain("Deine Aufgaben");
+    expect(json).toContain("Jetzt als Cutter bewerben");
   });
   it("Startinhalte: eindeutige Keys, Quiz mit Lösung", () => {
     const keys = KIND_SEEDS.flatMap((k) => k.position.sections.flatMap((s) => [s.key, ...s.questions.map((q) => q.key)]));
@@ -63,7 +58,7 @@ describe("Bewerbungsarten", () => {
       ...TEMPLATES.map((t) => ({ category: t.category, title: t.title, kinds: TEAM_ONLY_TEMPLATE_TITLES.includes(t.title) ? ["team"] : [] })),
       ...KIND_SEEDS.flatMap((k) => k.templates.map((t) => ({ category: t.category, title: t.title, kinds: [k.type.key] }))),
     ];
-    for (const kind of ["team", "whitelist", "beta"]) {
+    for (const kind of ["team"]) {
       for (const c of categories) {
         const own = all.filter((t) => t.category === c && t.kinds.includes(kind));
         expect(own.length, `${kind} / ${c}`).toBeGreaterThan(0);

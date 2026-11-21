@@ -88,6 +88,7 @@ export async function runDailyTasks(opts: { now?: Date; budgetMs?: number } = {}
   await step("Rückfragen-Fristen", async () => (await import("@/lib/applications/followup")).sendFollowUpReminders(db));
   await step("Frist-Erinnerungen", async () => (await import("@/lib/positions/deadline-reminders")).sendDeadlineReminders(db, now));
   await step("Entwurfs-Erinnerungen", async () => (await import("@/lib/applications/draft-reminder")).sendDraftReminders(db));
+  await step("Abgelaufene Sperren (Rolle Team-Sperre)", async () => (await import("@/lib/team/ban-role")).releaseExpiredTeamBanRoles(db, now));
   await step("Löschfristen", async () => (await import("@/lib/retention")).runRetention(now));
   // Nur fehlgeschlagene Zustellungen melden – keine Herzschlag-Prüfung mehr
   await step("Störungs-Alarm", async () => (await import("@/lib/team/alerts")).checkAlerts(db, [], now));
