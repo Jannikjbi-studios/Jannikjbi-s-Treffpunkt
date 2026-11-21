@@ -21,6 +21,7 @@ import { deadlineLabel } from "@/lib/positions/deadline";
 import { listPublicPositions, listUpcomingPositions } from "@/lib/data/positions";
 import { getSettings } from "@/lib/settings";
 import { publicEnv } from "@/lib/env";
+import { db } from "@/lib/db";
 import { BRAND, SERVER_FEATURES, SOCIALS, STREAM_PLAN, STREAM_TIME, TWITCH_URL } from "@/lib/brand";
 
 const STEPS = [
@@ -98,6 +99,10 @@ export default function HomePage() {
           </Suspense>
         </Container>
       </section>
+
+      <Suspense fallback={null}>
+        <PartnerCard />
+      </Suspense>
 
       <section id="jannikjbi" className="scroll-mt-28 pt-24">
         <Container>
@@ -290,6 +295,37 @@ async function UpcomingList() {
         ))}
       </ul>
     </div>
+  );
+}
+
+/** Partner-Anfrage (eigene Art) – nur wenn die Stelle nicht versteckt ist. */
+async function PartnerCard() {
+  await connection();
+  const p = await db.position.findFirst({
+    where: { slug: "partner-anfrage", status: { not: "HIDDEN" }, type: { key: "partner", active: true } },
+    select: { status: true, tagline: true },
+  });
+  if (!p) return null;
+  const open = p.status === "OPEN";
+  return (
+    <section id="partner" className="scroll-mt-28 pt-16">
+      <Container>
+        <Link href="/partner" className="nv-card nv-card-hover group flex flex-col gap-4 p-6 sm:flex-row sm:items-center">
+          <IconTile icon="handshake" />
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="font-display text-2xl">Partner-Anfrage</h3>
+              <span className={`nv-pill !text-[0.7rem] !py-0.5 ${open ? "nv-tone-success" : ""}`}>{open ? "Offen" : "Noch geschlossen"}</span>
+            </div>
+            <p className="mt-1 text-sm text-muted">{p.tagline}</p>
+          </div>
+          <span className="inline-flex items-center gap-1.5 text-sm font-medium text-red-text">
+            {open ? "Anfrage stellen" : "Mehr erfahren"}
+            <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" aria-hidden />
+          </span>
+        </Link>
+      </Container>
+    </section>
   );
 }
 

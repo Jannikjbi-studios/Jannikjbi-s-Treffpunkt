@@ -156,6 +156,7 @@ async function PositionDetail({ params }: Pick<PageProps<"/positionen/[slug]">, 
 }
 
 async function ApplyCta({ position }: { position: PublicPosition }) {
+  const kind = kindOf(position.type.key);
   const user = await getCurrentUser();
   if (!user) {
     return position.status === "OPEN" ? (
@@ -164,7 +165,7 @@ async function ApplyCta({ position }: { position: PublicPosition }) {
           href={`/login?callbackUrl=${encodeURIComponent(`/bewerben/${position.slug}`)}`}
           className="nv-btn nv-btn-primary w-full"
         >
-          Mit Discord einloggen &amp; bewerben <ArrowRight size={16} aria-hidden />
+          Mit Discord einloggen &amp; {kind.key === "team" ? "bewerben" : "Anfrage stellen"} <ArrowRight size={16} aria-hidden />
         </Link>
         <p className="text-xs text-muted text-center">Dein Entwurf wird automatisch gespeichert.</p>
       </div>
@@ -190,7 +191,7 @@ async function ApplyCta({ position }: { position: PublicPosition }) {
     return (
       <div className="space-y-3">
         <Link href={`/bewerben/${position.slug}`} className="nv-btn nv-btn-primary w-full">
-          {e.draftId ? "Entwurf fortsetzen" : "Jetzt bewerben"} <ArrowRight size={16} aria-hidden />
+          {e.draftId ? "Entwurf fortsetzen" : kind.applyLabel} <ArrowRight size={16} aria-hidden />
         </Link>
         {reminder !== undefined && <DeadlineReminderToggle positionId={position.id} on={!!reminder} />}
       </div>

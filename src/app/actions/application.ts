@@ -110,7 +110,9 @@ export async function submitApplicationAction(
   if (access.source === "discord" && access.inGuild) {
     if (missingMemberRole(access.roleIds)) return { ok: false, error: MEMBER_ROLE_MESSAGE };
     const { getSettings } = await import("@/lib/settings");
-    const days = (await getSettings())["applications.minGuildDays"];
+    const { kindOf } = await import("@/lib/kinds");
+    const draftKind = await db.application.findUnique({ where: { id: parsed.data.draftId }, select: { position: { select: { type: { select: { key: true } } } } } });
+    const days = kindOf(draftKind?.position.type.key).teamFeatures ? (await getSettings())["applications.minGuildDays"] : 0;
     const until = guildWaitUntil(access.guildJoinedAt, days);
     if (until) {
       const day = new Intl.DateTimeFormat("de-DE", { day: "numeric", month: "long", timeZone: "Europe/Berlin" }).format(until);

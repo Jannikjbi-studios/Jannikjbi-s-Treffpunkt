@@ -375,7 +375,7 @@ export function ApplicationForm({ position, sections, minAge, displayName, initi
             {step === 0 && (
               <div className="mt-6 space-y-6">
                 <p className="text-muted">
-                  {kind.key === "team" ? "Du bewirbst dich als" : "Du bewirbst dich für"}{" "}
+                  {kind.formIntro}{" "}
                   <strong className="text-fg">{position.title}</strong>. Nimm dir Zeit – dein
                   Entwurf wird automatisch gespeichert, du kannst jederzeit pausieren und später weitermachen.
                 </p>

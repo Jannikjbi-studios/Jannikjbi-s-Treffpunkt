@@ -4,11 +4,12 @@
  * ApplicationType (key) mit eigenen Stellen, Abschnitten und Fragen. Hier steht,
  * was pro Art dazugehört – ohne Server-Abhängigkeiten (auch im Browser nutzbar).
  *
- *  - team: Formular → Gespräch → Annahme, danach Einarbeitung/Probezeit/Pate
+ *  - team:    Formular → Gespräch → Annahme, danach Einarbeitung/Probezeit/Pate
+ *  - partner: Partner-Anfrage (Server, Creator, Marke) → Team antwortet, kein Gespräch, keine Team-Rollen
  *
  * Weitere Arten lassen sich hier ergänzen (eigener Key, Stellen im Formularbaukasten).
  */
-export type KindKey = "team";
+export type KindKey = "team" | "partner";
 
 export type ConfirmationKey = "voice" | "rules" | "unpaid" | "truth" | "privacy" | "parents";
 
@@ -35,6 +36,10 @@ export interface KindConfig {
   path: string;
   /** Eigene Eingangsbestätigung (DM + Portal); ohne Angabe: Text aus dem Admin-Bereich */
   confirmationTemplate?: string;
+  /** Text für den Start-Knopf auf der Seite der Stelle */
+  applyLabel: string;
+  /** „Du bewirbst dich als“ … (Einleitung im Formular) */
+  formIntro: string;
 }
 
 export const KINDS: Record<KindKey, KindConfig> = {
@@ -49,6 +54,30 @@ export const KINDS: Record<KindKey, KindConfig> = {
     teaser:
       "Cutter, Social-Media, Stream-Mod, Moderation und Support – hilf mit, dass Content und Community laufen. Ehrenamtlich, mit kurzem Gespräch auf Discord.",
     path: "/#positionen",
+    applyLabel: "Jetzt bewerben",
+    formIntro: "Du bewirbst dich als",
+  },
+  partner: {
+    key: "partner",
+    label: "Partner",
+    noun: "Partner-Anfrage",
+    interview: false,
+    teamFeatures: false,
+    confirmations: ["truth", "privacy"],
+    acceptedHint: "Wir machen das zusammen! Alles Weitere besprechen wir per Nachricht.",
+    teaser: "Du hast einen Server, einen Kanal oder eine Idee, die zu Jannik passt? Stell eine Partner-Anfrage – das Team meldet sich.",
+    path: "/partner",
+    applyLabel: "Anfrage stellen",
+    formIntro: "Deine",
+    confirmationTemplate: `Moin {name},
+
+danke für deine Partner-Anfrage an Jannikjbi's Treffpunkt – sie ist am {datum} bei uns eingegangen.
+
+**Anfrage-ID:** {bewerbungs_id}
+
+Unser Team schaut sich deine Idee in Ruhe an und meldet sich hier per DM oder im Portal – {bearbeitungszeit}. Den Stand siehst du jederzeit in deinem Dashboard.
+
+Moin, dein Team von Jannikjbi's Treffpunkt`,
   },
 };
 
@@ -59,5 +88,5 @@ export function kindOf(key: string | null | undefined): KindConfig {
   return KINDS[(key ?? "team") as KindKey] ?? KINDS.team;
 }
 
-/** Feste Stellen einzelner Arten (Art mit genau einer „Stelle“) – derzeit keine. */
-export const KIND_POSITION_SLUG: Partial<Record<KindKey, string>> = {};
+/** Feste Stellen einzelner Arten (Art mit genau einer „Stelle“). */
+export const KIND_POSITION_SLUG: Partial<Record<KindKey, string>> = { partner: "partner-anfrage" };

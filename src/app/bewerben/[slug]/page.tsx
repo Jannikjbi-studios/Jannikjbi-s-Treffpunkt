@@ -117,7 +117,8 @@ async function Apply({
   const freshRoles = fresh?.roleIds ?? cachedRoles;
   const gateKnown = !!gate && gate.source !== "error" && gate.source !== "unconfigured" && gate.inGuild;
   const notVerified = gateKnown && missingMemberRole(freshRoles);
-  const waitUntil = gateKnown ? guildWaitUntil(gate.guildJoinedAt ?? user.guildJoinedAt, settings["applications.minGuildDays"]) : null;
+  // Mindestzeit auf dem Server nur für Team-Bewerbungen (Partner kommen oft gerade erst dazu)
+  const waitUntil = gateKnown && kindOf(position.type.key).teamFeatures ? guildWaitUntil(gate.guildJoinedAt ?? user.guildJoinedAt, settings["applications.minGuildDays"]) : null;
   if (maybeBlocked && (await blockedByRoles(user, freshRoles))) {
     return (
       <div className="mx-auto max-w-xl space-y-4 pt-10" data-testid="blocked-role">

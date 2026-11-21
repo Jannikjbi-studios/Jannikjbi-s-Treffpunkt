@@ -167,6 +167,7 @@ interface ConfirmationDef {
 
 const VOICE_LABEL: Record<KindKey, string> = {
   team: "Ich habe ein funktionierendes Mikrofon und bin für das Gespräch und die Absprachen im Team auf Discord erreichbar.",
+  partner: "Ich bin für Rückfragen auf Discord erreichbar.",
 };
 
 const CONFIRMATION_DEFS: Record<Exclude<ConfirmationKey, "voice">, Omit<ConfirmationDef, "key">> = {

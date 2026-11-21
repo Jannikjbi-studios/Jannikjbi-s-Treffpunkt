@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { KINDS, kindOf } from "@/lib/kinds";
+import { KINDS, KIND_KEYS, kindOf } from "@/lib/kinds";
 import { confirmationsFor, confirmationsSchemaFor } from "@/lib/applications/form";
 import { allowedTeamTargets, canTeamTransition, statusHintFor, timelineFor } from "@/lib/applications/status";
 import { buildLogMessage } from "@/lib/messages/embed";
@@ -58,7 +58,7 @@ describe("Bewerbungsarten", () => {
       ...TEMPLATES.map((t) => ({ category: t.category, title: t.title, kinds: TEAM_ONLY_TEMPLATE_TITLES.includes(t.title) ? ["team"] : [] })),
       ...KIND_SEEDS.flatMap((k) => k.templates.map((t) => ({ category: t.category, title: t.title, kinds: [k.type.key] }))),
     ];
-    for (const kind of ["team"]) {
+    for (const kind of KIND_KEYS) {
       for (const c of categories) {
         const own = all.filter((t) => t.category === c && t.kinds.includes(kind));
         expect(own.length, `${kind} / ${c}`).toBeGreaterThan(0);
@@ -66,5 +66,20 @@ describe("Bewerbungsarten", () => {
     }
     const titles = all.map((t) => t.title);
     expect(new Set(titles).size).toBe(titles.length);
+  });
+});
+
+describe("Partner-Anfrage", () => {
+  it("eigene Art ohne Gespräch und ohne Team-Funktionen", () => {
+    const k = kindOf("partner");
+    expect(k.key).toBe("partner");
+    expect(k.interview).toBe(false);
+    expect(k.teamFeatures).toBe(false);
+    expect(confirmationsFor("partner").map((c) => c.key)).toEqual(["truth", "privacy"]);
+  });
+  it("Startinhalte: geschlossen, eigene Fragen mit Slug-Präfix", () => {
+    const p = KIND_SEEDS.find((k) => k.type.key === "partner")!.position;
+    expect(p.status).toBe("CLOSED");
+    for (const s of p.sections) for (const q of s.questions) expect(q.key.startsWith("partner.")).toBe(true);
   });
 });
