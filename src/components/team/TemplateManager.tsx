@@ -35,7 +35,7 @@ const SAMPLE = {
   grund: "Deine Antworten waren uns an einigen Stellen zu knapp.",
   sperrfrist: "11. Dezember 2026",
   sperrfrist_tage: "30 Tage",
-  discord_link: "https://discord.gg/KrfKASTHDp",
+  discord_link: process.env.NEXT_PUBLIC_DISCORD_INVITE || "https://discord.gg/f5ch3x3cMq",
   bearbeitungszeit: "in der Regel 3–7 Tage",
   dashboard_link: `${process.env.NEXT_PUBLIC_APP_URL || "https://portal.jannikjbi.de"}/dashboard`,
 };
