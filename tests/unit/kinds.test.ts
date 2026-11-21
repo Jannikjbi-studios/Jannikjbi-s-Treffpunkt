@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { KINDS, KIND_KEYS, kindOf } from "@/lib/kinds";
+import { KINDS, KIND_KEYS, KIND_POSITION_SLUG, kindOf, positionHref } from "@/lib/kinds";
 import { confirmationsFor, confirmationsSchemaFor } from "@/lib/applications/form";
 import { allowedTeamTargets, canTeamTransition, statusHintFor, timelineFor } from "@/lib/applications/status";
 import { buildLogMessage } from "@/lib/messages/embed";
@@ -85,17 +85,21 @@ describe("Partner-Anfrage", () => {
 });
 
 describe("Werbe-Antrag", () => {
-  it("eigene Art ohne Gespräch und ohne Team-Funktionen, Kurz-Link /antrag", () => {
+  it("eigene Art ohne Gespräch und ohne Team-Funktionen, Anträge unter /antraege", () => {
     const k = kindOf("promo");
     expect(k.key).toBe("promo");
     expect(k.interview).toBe(false);
     expect(k.teamFeatures).toBe(false);
-    expect(k.path).toBe("/antrag");
+    expect(k.path).toBe("/antraege");
+    expect(positionHref("werbung", "promo")).toBe("/antraege/werbung");
+    expect(positionHref("cutter", "team")).toBe("/positionen/cutter");
+    expect(KIND_POSITION_SLUG.promo).toBeUndefined(); // mehrere Anträge möglich, Link änderbar
     expect(confirmationsFor("promo").map((c) => c.key)).toEqual(["truth", "privacy"]);
   });
   it("Startinhalte: offen, nur für die Leitung sichtbar, eigene Fragen mit Slug-Präfix", () => {
     const p = KIND_SEEDS.find((k) => k.type.key === "promo")!.position;
     expect(p.status).toBe("OPEN");
+    expect(p.slug).toBe("werbung");
     expect(p.teamRoleIds?.length).toBeGreaterThan(0);
     for (const s of p.sections) for (const q of s.questions) expect(q.key.startsWith("promo.")).toBe(true);
   });

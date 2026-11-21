@@ -42,13 +42,13 @@ async function PositionDetail({ params }: Pick<PageProps<"/positionen/[slug]">, 
       <section className="relative overflow-hidden pt-32 pb-10 sm:pt-40">
         <div className="absolute inset-0 nv-hero-glow pointer-events-none" aria-hidden />
         <Container className="relative">
-          <Link href={isTeam ? "/#positionen" : "/#anfragen"} className="nv-btn nv-btn-quiet nv-btn-sm -ml-3 mb-6">
-            <ArrowLeft size={14} aria-hidden /> {isTeam ? "Alle Positionen" : "Zur Startseite"}
+          <Link href={isTeam ? "/#positionen" : kind.key === "promo" ? "/antraege" : "/#anfragen"} className="nv-btn nv-btn-quiet nv-btn-sm -ml-3 mb-6">
+            <ArrowLeft size={14} aria-hidden /> {isTeam ? "Alle Positionen" : kind.key === "promo" ? "Alle Anträge" : "Zur Startseite"}
           </Link>
           <div className="flex items-start gap-5 nv-anim">
             <IconTile icon={position.icon} className="h-14 w-14" />
             <div>
-              <p className="nv-label">{isTeam ? `Position // ${position.title}` : `${kind.noun} // Treffpunkt`}</p>
+              <p className="nv-label">{isTeam ? `Position // ${position.title}` : kind.key === "promo" ? `Antrag // ${position.title}` : `${kind.noun} // Treffpunkt`}</p>
               <h1 className="nv-headline text-5xl sm:text-6xl mt-3">
                 {position.title}
                 <em>.</em>

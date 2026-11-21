@@ -18,7 +18,8 @@ import { Container, IconTile, PageHero, PositionIcon, SectionTitle, cn, formatDa
 import { SocialIcon } from "@/components/layout/SocialIcon";
 import { LiveBadge } from "@/components/layout/LiveBadge";
 import { deadlineLabel } from "@/lib/positions/deadline";
-import { listPublicPositions, listUpcomingPositions } from "@/lib/data/positions";
+import { listPublicPositions, listRequestPositions, listUpcomingPositions } from "@/lib/data/positions";
+import { positionHref } from "@/lib/kinds";
 import { getSettings } from "@/lib/settings";
 import { publicEnv } from "@/lib/env";
 import { db } from "@/lib/db";
@@ -298,29 +299,24 @@ async function UpcomingList() {
   );
 }
 
-/** Anfragen neben den Stellen: Werbe-Antrag und Partner-Anfrage – nur, wenn nicht versteckt. */
-const REQUEST_KINDS = [
-  { kind: "promo", slug: "werbe-antrag", href: "/antrag", icon: "megaphone", title: "Werbe-Antrag", cta: "Antrag stellen" },
-  { kind: "partner", slug: "partner-anfrage", href: "/partner", icon: "handshake", title: "Partner-Anfrage", cta: "Anfrage stellen" },
-] as const;
-
+/** Neben den Stellen: alle Anträge (/antraege/<slug>) und die Partner-Anfrage – nur, wenn nicht versteckt. */
 async function RequestCards() {
   await connection();
-  const rows = await db.position.findMany({
-    where: { OR: REQUEST_KINDS.map((k) => ({ slug: k.slug, type: { key: k.kind, active: true } })), status: { not: "HIDDEN" } },
-    select: { slug: true, status: true, tagline: true },
-  });
-  const cards = REQUEST_KINDS.flatMap((k) => {
-    const p = rows.find((r) => r.slug === k.slug);
-    return p ? [{ ...k, open: p.status === "OPEN", tagline: p.tagline }] : [];
-  });
+  const [requests, partner] = await Promise.all([
+    listRequestPositions(),
+    db.position.findFirst({ where: { slug: "partner-anfrage", status: { not: "HIDDEN" }, type: { key: "partner", active: true } }, select: { slug: true, status: true, tagline: true } }),
+  ]);
+  const cards = [
+    ...requests.map((p) => ({ kind: "promo", slug: p.slug, href: positionHref(p.slug, "promo"), icon: p.icon, title: p.title, cta: "Antrag stellen", open: p.status === "OPEN", tagline: p.tagline })),
+    ...(partner ? [{ kind: "partner", slug: partner.slug, href: "/partner", icon: "handshake", title: "Partner-Anfrage", cta: "Anfrage stellen", open: partner.status === "OPEN", tagline: partner.tagline }] : []),
+  ];
   if (!cards.length) return null;
   return (
     <section id="anfragen" className="scroll-mt-28 pt-16">
       <Container>
         <div className={`grid grid-cols-[minmax(0,1fr)] gap-4 ${cards.length > 1 ? "lg:grid-cols-2" : ""}`}>
           {cards.map((c) => (
-            <Link key={c.slug} id={c.kind === "partner" ? "partner" : "antrag"} href={c.href} className="nv-card nv-card-hover group flex flex-col gap-4 p-6 sm:flex-row sm:items-center scroll-mt-28">
+            <Link key={c.slug} id={c.kind === "partner" ? "partner" : undefined} href={c.href} className="nv-card nv-card-hover group flex flex-col gap-4 p-6 sm:flex-row sm:items-center scroll-mt-28">
               <IconTile icon={c.icon} />
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">

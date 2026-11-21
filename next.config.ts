@@ -36,17 +36,20 @@ const nextConfig: NextConfig = {
       },
     },
   },
-  // Kurz-Links für Partner-Anfrage und Werbe-Antrag (URL bleibt /partner bzw. /antrag)
+  // Kurz-Link für die Partner-Anfrage (URL bleibt /partner); Anträge wie Stellen unter /antraege/<slug>
   async rewrites() {
     return [
       { source: "/partner", destination: "/positionen/partner-anfrage" },
-      { source: "/antrag", destination: "/positionen/werbe-antrag" },
-      { source: "/antraege", destination: "/positionen/werbe-antrag" },
+      { source: "/antraege/:slug", destination: "/positionen/:slug" },
     ];
   },
   // Alte Einstellungsseite → Admin-Bereich (Lesezeichen, Links in Hilfetexten)
   async redirects() {
-    return [{ source: "/team/einstellungen", destination: "/team/admin", permanent: false }];
+    return [
+      { source: "/team/einstellungen", destination: "/team/admin", permanent: false },
+      // früherer Kurz-Link des Werbe-Antrags
+      { source: "/antrag", destination: "/antraege", permanent: false },
+    ];
   },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];

@@ -107,6 +107,9 @@ export async function closeIfFull(db: PrismaClient, positionId: string) {
 
 /** DM an alle, die bei neuen Stellen Bescheid bekommen möchten. */
 export async function notifyPositionOpened(db: PrismaClient, position: { id: string; title: string; slug: string }) {
+  // Nur echte Stellen – öffnet ein Antrag oder die Partner-Anfrage, gibt es keine „Stelle offen“-DM
+  const type = await db.position.findUnique({ where: { id: position.id }, select: { type: { select: { key: true } } } });
+  if (type && type.type.key !== "team") return 0;
   const users = await db.user.findMany({ where: { notifyNewPositions: true }, select: { discordId: true } });
   if (!users.length) return 0;
   const url = `${publicEnv.appUrl}/positionen/${position.slug}`;

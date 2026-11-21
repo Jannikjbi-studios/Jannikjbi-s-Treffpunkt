@@ -106,7 +106,7 @@ export function PositionForm({
 }) {
   const k = kindOf(kind);
   const isTeam = k.teamFeatures;
-  // Feste Stelle einer Art (z. B. /antrag → werbe-antrag): Link nicht änderbar, nicht löschen/duplizieren
+  // Feste Stelle einer Art (Partner-Anfrage unter /partner): Link nicht änderbar, nicht löschen/duplizieren
   const fixedSlug = !!position && KIND_POSITION_SLUG[k.key] === position.slug;
   const router = useRouter();
   const [p, setP] = useState<PositionData>(position ?? EMPTY);
@@ -129,7 +129,7 @@ export function PositionForm({
   function save() {
     setError(null);
     start(async () => {
-      const res = await savePositionAction({ ...p, tasks: lines(tasks), requirements: lines(reqs), interviewQuestions: lines(ivq), reviewChecklist: lines(chk), ratingCriteria: lines(crit), acceptRoleId: p.acceptRoleId || null, passRoleId: p.passRoleId || null, extraRoleIds: (extraRoles.match(/\d{15,25}/g) ?? []).slice(0, 5), nickPrefix: p.nickPrefix?.trim() || null });
+      const res = await savePositionAction({ ...p, ...(p.id ? {} : { kind: k.key === "promo" ? ("promo" as const) : ("team" as const) }), tasks: lines(tasks), requirements: lines(reqs), interviewQuestions: lines(ivq), reviewChecklist: lines(chk), ratingCriteria: lines(crit), acceptRoleId: p.acceptRoleId || null, passRoleId: p.passRoleId || null, extraRoleIds: (extraRoles.match(/\d{15,25}/g) ?? []).slice(0, 5), nickPrefix: p.nickPrefix?.trim() || null });
       if (!res.ok) return setError(res.error);
       setSaved(true);
       if (!p.id) router.push(`/team/positionen/${res.data.id}`);

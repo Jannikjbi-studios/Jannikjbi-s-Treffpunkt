@@ -37,13 +37,20 @@ async function Editor({ params }: Pick<PageProps<"/team/positionen/[id]">, "para
   const owner = isOwner(ctx);
   const { id } = await params;
 
-  if (id === "neu") {
+  if (id === "neu" || id === "neuer-antrag") {
+    const antrag = id === "neuer-antrag";
     return (
       <>
         <h1 className="nv-headline text-4xl">
-          Neue <em>Position.</em>
+          {antrag ? "Neuer" : "Neue"} <em>{antrag ? "Antrag." : "Position."}</em>
         </h1>
-        <PositionForm position={null} owner={owner} />
+        {antrag && (
+          <p className="text-sm text-muted max-w-2xl">
+            Erscheint unter /antraege/&lt;slug&gt;. Nach dem Speichern legst du unten die Fragen an. Tipp: Schneller geht&apos;s mit „Duplizieren“ beim Werbe-Antrag – dann
+            sind die Fragen schon da.
+          </p>
+        )}
+        <PositionForm position={null} owner={owner} kind={antrag ? "promo" : "team"} />
       </>
     );
   }

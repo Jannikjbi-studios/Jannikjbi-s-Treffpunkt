@@ -57,6 +57,8 @@ export async function saveSettingsAction(patch: Record<string, unknown>): Promis
 
 const positionSchema = z.object({
   id: id.optional(),
+  /** Nur beim Anlegen: Stelle (team) oder Antrag (promo) */
+  kind: z.enum(["team", "promo"]).optional(),
   slug: z.string().regex(/^[a-z0-9-]{2,60}$/, "Slug: nur a–z, 0–9 und Bindestriche"),
   title: z.string().trim().min(2).max(60),
   tagline: z.string().trim().min(2).max(120),
@@ -113,8 +115,8 @@ export async function savePositionAction(input: z.input<typeof positionSchema>):
   const { user } = ctx;
   const p = positionSchema.safeParse(input);
   if (!p.success) return { ok: false, error: p.error.issues[0].message };
-  const { id: pid, ...rest } = p.data;
-  // Feste Stelle einer Art (Werbe-Antrag /antrag, Partner-Anfrage /partner): Link bleibt
+  const { id: pid, kind: newKind, ...rest } = p.data;
+  // Feste Stelle einer Art (Partner-Anfrage unter /partner): Link bleibt
   if (pid) {
     const fixed = await fixedKindSlug(pid);
     if (fixed && rest.slug !== fixed) return { ok: false, error: `Der Link dieser Stelle ist fest (${fixed}).` };
@@ -144,7 +146,10 @@ export async function savePositionAction(input: z.input<typeof positionSchema>):
     saved = await db.position.update({ where: { id: pid }, data });
     await audit("position.update", { actorId: user.id, targetType: "position", targetId: pid });
   } else {
-    const type = await db.applicationType.findUniqueOrThrow({ where: { key: "team" } });
+    const type =
+      newKind === "promo"
+        ? await db.applicationType.upsert({ where: { key: "promo" }, create: { key: "promo", name: "Antrag", description: "Anträge, z. B. damit Jannik etwas vorstellt" }, update: {} })
+        : await db.applicationType.findUniqueOrThrow({ where: { key: "team" } });
     const max = await db.position.aggregate({ _max: { sortOrder: true } });
     saved = await db.position.create({ data: { ...data, typeId: type.id, sortOrder: (max._max.sortOrder ?? 0) + 1 } });
     await audit("position.create", { actorId: user.id, targetType: "position", targetId: saved.id });

@@ -501,6 +501,15 @@ const MIGRATIONS: { id: string; run: (db: PrismaClient, opts: Options) => Promis
     id: "2026-11-antrag-bausteine",
     run: async (db, o) => (o.dryRun ? 0 : replacePromoTemplates(db)),
   },
+  // Anträge wie Stellen unter /antraege/<slug>: Werbe-Antrag bekommt den Link /antraege/werbung
+  {
+    id: "2026-11-antraege",
+    run: async (db, o) => {
+      if (o.dryRun) return 0;
+      if (await db.position.findUnique({ where: { slug: "werbung" }, select: { id: true } })) return 0;
+      return (await db.position.updateMany({ where: { slug: "werbe-antrag", type: { key: "promo" } }, data: { slug: "werbung" } })).count;
+    },
+  },
 ];
 
 /** Erste Werbe-Antrag-Bausteine (Titel, Text) – werden ersetzt, solange niemand sie geändert hat. */

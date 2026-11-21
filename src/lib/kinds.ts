@@ -6,7 +6,8 @@
  *
  *  - team:    Formular → Gespräch → Annahme, danach Einarbeitung/Probezeit/Pate
  *  - partner: Partner-Anfrage (Server, Creator, Marke) → Team antwortet, kein Gespräch, keine Team-Rollen
- *  - promo:   Werbe-Antrag (Jannik soll ein Spiel, eine App oder ein Produkt vorstellen) → wie Partner, nur für die Leitung sichtbar
+ *  - promo:   Anträge (z. B. Werbe-Antrag: Jannik soll ein Spiel, eine App oder ein Produkt vorstellen) –
+ *             beliebig viele, wie Stellen unter /antraege/<slug>, kein Gespräch, keine Rollen
  *
  * Weitere Arten lassen sich hier ergänzen (eigener Key, Stellen im Formularbaukasten).
  */
@@ -93,7 +94,7 @@ Moin, dein Team von Jannikjbi's Treffpunkt`,
     confirmations: ["truth", "privacy"],
     acceptedHint: "Jannik ist dabei! Die Details besprechen wir per Nachricht.",
     teaser: "Du möchtest, dass Jannik dein Spiel, deine App oder dein Produkt vorstellt? Stell einen Werbe-Antrag – Jannik schaut sich jeden an.",
-    path: "/antrag",
+    path: "/antraege",
     applyLabel: "Antrag stellen",
     formIntro: "Dein",
     plural: "Anträge",
@@ -117,4 +118,9 @@ export function kindOf(key: string | null | undefined): KindConfig {
 }
 
 /** Feste Stellen einzelner Arten (Art mit genau einer „Stelle“). */
-export const KIND_POSITION_SLUG: Partial<Record<KindKey, string>> = { partner: "partner-anfrage", promo: "werbe-antrag" };
+export const KIND_POSITION_SLUG: Partial<Record<KindKey, string>> = { partner: "partner-anfrage" };
+
+/** Öffentliche Seite einer Stelle bzw. eines Antrags (Anträge liegen unter /antraege/<slug>). */
+export function positionHref(slug: string, kindKey: string | null | undefined): string {
+  return kindOf(kindKey).key === "promo" ? `/antraege/${slug}` : `/positionen/${slug}`;
+}

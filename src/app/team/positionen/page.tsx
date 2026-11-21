@@ -1,4 +1,4 @@
-import { kindOf } from "@/lib/kinds";
+import { kindOf, positionHref } from "@/lib/kinds";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -84,14 +84,18 @@ async function List() {
         ))}
       </ul>
 
-      {requestPositions.length > 0 && (
-        <section className="space-y-3 pt-4" aria-labelledby="requests-title">
-          <div>
-            <h2 id="requests-title" className="font-semibold text-lg">Anträge &amp; Anfragen</h2>
-            <p className="text-sm text-muted">
-              Werbe-Antrag und Partner-Anfrage: Fragen, Texte und Status bearbeitest du wie bei den Stellen. Eingegangene Anträge stehen unter „Bewerbungen“ – mit Status,
-              Nachrichten und Bausteinen wie bei Bewerbungen.
-            </p>
+      <section className="space-y-3 pt-4" aria-labelledby="requests-title">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h2 id="requests-title" className="font-semibold text-lg">Anträge &amp; Anfragen</h2>
+              <p className="text-sm text-muted">
+                Anträge stehen öffentlich unter /antraege – anlegen, Fragen, Texte und Status wie bei den Stellen. Eingänge stehen unter „Bewerbungen“, mit Status, Nachrichten
+                und den Bausteinen „Antrag – …“.
+              </p>
+            </div>
+            <Link href="/team/positionen/neuer-antrag" className="nv-btn nv-btn-ghost shrink-0">
+              <Plus size={16} aria-hidden /> Neuer Antrag
+            </Link>
           </div>
           <ul className="grid gap-3">
             {requestPositions.map((p) => {
@@ -105,7 +109,7 @@ async function List() {
                       <span className="nv-pill nv-pill-red !text-[0.7rem] !py-0.5">{kind.label}</span>
                     </p>
                     <p className="text-sm text-muted">
-                      {kind.path} · {p._count.applications} eingegangen · {p._count.sections} {p._count.sections === 1 ? "Schritt" : "Schritte"}
+                      {kind.key === "promo" ? positionHref(p.slug, kind.key) : kind.path} · {p._count.applications} eingegangen · {p._count.sections} {p._count.sections === 1 ? "Schritt" : "Schritte"}
                       {p.teamRoleIds.length > 0 && " · nur für zuständige Rollen und Admins sichtbar"}
                     </p>
                   </div>
@@ -121,7 +125,6 @@ async function List() {
             })}
           </ul>
         </section>
-      )}
 
       <section className="nv-card p-5 sm:p-6 space-y-4" aria-labelledby="jobs-title">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">

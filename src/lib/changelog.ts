@@ -96,7 +96,7 @@ export const CHANGELOG: ChangelogEntry[] = [
       { kind: "neu", text: "**Test-Rolle bis zur Probezeit** – Moderator und Supporter starten als 🗡️ Test-Mod bzw. 🧪 Test-Supporter. Bei „Probezeit bestanden“ tauscht der Bot die Rolle gegen ⚔️ Moderator bzw. 🎧 Supporter." },
       { kind: "neu", text: "**Gesperrt fürs Bewerben** – wer auf Discord ⛔ Blacklist oder 🚷 Team-Sperre hat, kann keine Bewerbung starten oder absenden." },
       { kind: "neu", text: "**Partner-Anfrage** – unter /partner können Server, Creator und Marken eine Zusammenarbeit vorschlagen (öffnet, sobald der Partner-Manager startet)." },
-      { kind: "neu", text: "**Werbe-Antrag** – unter /antrag können Entwickler und Firmen anfragen, ob Jannik ihr Spiel, ihre App oder ihr Produkt vorstellt." },
+      { kind: "neu", text: "**Anträge** – unter /antraege, z. B. der Werbe-Antrag: Entwickler und Firmen fragen an, ob Jannik ihr Spiel, ihre App oder ihr Produkt vorstellt." },
       { kind: "neu", text: "**Einzelaufruf bei neuer Stelle** – öffnet eine Stelle, postet der Bot automatisch „Wir suchen …“ im Discord." },
       { kind: "neu", text: "**Content-Board** – Cutter reichen fertige Shorts ein, Social-Media hakt TikTok, YouTube und Instagram ab oder gibt mit Feedback zurück." },
       { kind: "neu", text: "**Live-Anzeige und Stream-Abdeckung** – die Startseite zeigt, wenn Jannik live ist; das Team sieht, welche Streamtage schon einen Stream-Mod haben." },

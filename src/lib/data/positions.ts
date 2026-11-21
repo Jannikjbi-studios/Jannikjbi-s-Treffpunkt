@@ -36,6 +36,15 @@ export function listUpcomingPositions() {
   });
 }
 
+/** Anträge (z. B. Werbe-Antrag) – offene zuerst, versteckte nie. */
+export function listRequestPositions() {
+  return db.position.findMany({
+    where: { status: { not: "HIDDEN" }, type: { key: "promo", active: true } },
+    orderBy: [{ status: "asc" }, { sortOrder: "asc" }],
+    select: { id: true, slug: true, title: true, tagline: true, description: true, icon: true, status: true, closesAt: true },
+  });
+}
+
 export async function getPublicPosition(slug: string) {
   if (!/^[a-z0-9-]{1,60}$/.test(slug)) return null;
   const p = await db.position.findUnique({ where: { slug }, include: { type: true } });

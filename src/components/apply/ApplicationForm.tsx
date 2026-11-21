@@ -1,6 +1,6 @@
 "use client";
 
-import { kindOf, type KindKey } from "@/lib/kinds";
+import { kindOf, positionHref, type KindKey } from "@/lib/kinds";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
@@ -583,7 +583,7 @@ export function ApplicationForm({ position, sections, minAge, displayName, initi
                 <ArrowLeft size={16} aria-hidden /> Zurück
               </button>
             ) : (
-              <Link href={`/positionen/${position.slug}`} className="nv-btn nv-btn-quiet">
+              <Link href={positionHref(position.slug, kind.key)} className="nv-btn nv-btn-quiet">
                 <ArrowLeft size={16} aria-hidden /> {kind.key === "team" ? "Zur Position" : "Zurück"}
               </Link>
             )}

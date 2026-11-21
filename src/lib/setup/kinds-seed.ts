@@ -127,11 +127,15 @@ export const PARTNER_SEED: KindSeed = {
 /** ⚜️ Owner und Co-Owner – Werbe-Anträge sehen nur sie und die Admins. */
 const LEAD_ROLE_IDS = ["1573541450833199276", "1573541451806285917"];
 
-/** Werbe-Antrag: Jannik soll ein Spiel, eine App oder ein Produkt vorstellen (Discord-Server → Partner-Anfrage). Startet offen, nur für die Leitung sichtbar. */
+/**
+ * Erster Antrag (/antraege/werbung): Jannik soll ein Spiel, eine App oder ein Produkt vorstellen
+ * (Discord-Server → Partner-Anfrage). Startet offen, nur für die Leitung sichtbar. Weitere Anträge
+ * legen Admins im Team-Bereich an (Positionen & Fragen → Neuer Antrag).
+ */
 export const PROMO_SEED: KindSeed = {
   type: { key: "promo", name: "Werbe-Antrag", description: "Anträge, damit Jannik ein Spiel, eine App oder ein Projekt vorstellt" },
   position: {
-    slug: "werbe-antrag",
+    slug: "werbung",
     title: "Werbe-Antrag",
     tagline: "Spiel, App oder Produkt? Frag an, ob Jannik es vorstellt.",
     description:

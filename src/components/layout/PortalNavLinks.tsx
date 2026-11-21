@@ -11,6 +11,7 @@ export const PORTAL_LINKS = [
     match: (p: string) => p === "/" || p.startsWith("/positionen") || p.startsWith("/bewerben"),
   },
   { href: "/passt-zu-mir", label: "Welche passt?", match: (p: string) => p.startsWith("/passt-zu-mir") },
+  { href: "/antraege", label: "Anträge", match: (p: string) => p.startsWith("/antraege") },
   { href: "/dashboard", label: "Meine Bewerbungen", match: (p: string) => p.startsWith("/dashboard") },
 ];
 
