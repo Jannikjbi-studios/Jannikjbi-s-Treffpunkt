@@ -162,3 +162,13 @@ describe("Stream-Abdeckung", () => {
     expect(c.find((d) => d.day === "Dienstag")).toEqual({ day: "Dienstag", mods: [], pending: 0 });
   });
 });
+
+import { parseStreams } from "@/lib/twitch";
+
+describe("Live-Anzeige (Twitch)", () => {
+  it("live nur bei laufendem Stream", () => {
+    expect(parseStreams({ data: [] })).toEqual({ live: false });
+    expect(parseStreams(null)).toEqual({ live: false });
+    expect(parseStreams({ data: [{ type: "live", title: "Taxi auf NRW", game_name: "Grand Theft Auto V", viewer_count: 12 }] })).toEqual({ live: true, title: "Taxi auf NRW", game: "Grand Theft Auto V", viewers: 12 });
+  });
+});

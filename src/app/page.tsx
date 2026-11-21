@@ -16,6 +16,7 @@ import {
 } from "@phosphor-icons/react/ssr";
 import { Container, IconTile, PageHero, PositionIcon, SectionTitle, cn, formatDay } from "@/components/ui";
 import { SocialIcon } from "@/components/layout/SocialIcon";
+import { LiveBadge } from "@/components/layout/LiveBadge";
 import { deadlineLabel } from "@/lib/positions/deadline";
 import { listPublicPositions, listUpcomingPositions } from "@/lib/data/positions";
 import { getSettings } from "@/lib/settings";
@@ -47,6 +48,11 @@ export default function HomePage() {
           </div>
         }
       >
+        <Suspense fallback={null}>
+          <div className="mb-4 empty:hidden">
+            <LiveBadge />
+          </div>
+        </Suspense>
         <p>
           {BRAND.name} ist der Discord-Server von {BRAND.creator}. Damit Clips, Shorts, Chat und Community rund laufen, suchen wir
           Leute, die mit anpacken – vom Cutter bis zum Supporter.
