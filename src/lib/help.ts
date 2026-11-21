@@ -62,6 +62,7 @@ export const HELP: HelpSection[] = [
           { label: "Geschlossen", text: "Designer, Event-Team (ab ca. 100–150 Mitgliedern), Partner-Manager – angelegt, auf der Startseite unter „Demnächst“." },
           { label: "Probezeit-Rolle", text: "„Rolle bei Annahme“ z. B. 🗡️ Test-Mod, „Rolle nach bestandener Probezeit“ z. B. ⚔️ Moderator. Bei „Probezeit bestanden“ tauscht der Bot die Rollen." },
           { label: "Gesperrt", text: "Wer auf Discord ⛔ Blacklist oder 🚷 Team-Sperre hat, kann sich nicht bewerben (Rollen-IDs in Vercel: DISCORD_BLOCKED_ROLE_IDS)." },
+          { label: "Voraussetzungen", text: "Absenden geht nur mit 👤 User (verifiziert, DISCORD_MEMBER_ROLE_ID) und nach der Mindestzeit auf dem Discord (Admin-Bereich → Bewerbungen, Standard 7 Tage). Unter 16 bestätigen Bewerber zusätzlich das Okay der Eltern." },
           { label: "Owner", text: "Owner und Co-Owner (OWNER_ROLE_ID) dürfen mehr als Admins: alle Bewerbungen zurücksetzen, Sicherungen einspielen, alle Bewerbungen exportieren, Bewerbungen und Stellen endgültig löschen, Discord-Rollen an Stellen und Rollen-Einstellungen ändern, Rollen-Abgleich beheben, unbefristet sperren und Sperren aufheben, den Bot einrichten (Knopf „Übernehmen“, Befehle), Changelog-Posts löschen und die KI-Einstellungen (Budget, Modelle) ändern." },
         ],
       },

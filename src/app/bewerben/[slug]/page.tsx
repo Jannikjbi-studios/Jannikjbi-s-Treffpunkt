@@ -103,12 +103,21 @@ async function Apply({
 
   // Blacklist / Team-Sperre: gar nicht erst ausfüllen lassen. Zeigt der Zwischenspeicher eine
   // Sperr-Rolle, frisch bei Discord nachsehen (sie kann inzwischen entfernt sein).
-  const { BLOCKED_ROLE_MESSAGE, hasBlockedRole } = await import("@/lib/applications/blocked-roles");
+  const { BLOCKED_ROLE_MESSAGE, MEMBER_ROLE_MESSAGE, guildWaitUntil, hasBlockedRole, missingMemberRole } = await import("@/lib/applications/blocked-roles");
   const { blockedByRoles, teamBanRoleId } = await import("@/lib/team/ban-role");
   const teamBanRole = await teamBanRoleId();
   const cachedRoles = access?.roleIds ?? user.roleIds;
   const maybeBlocked = hasBlockedRole(cachedRoles) || (!!teamBanRole && cachedRoles.includes(teamBanRole));
-  const freshRoles = maybeBlocked && access?.source !== "discord" ? ((await getAccess(user, { force: true }).catch(() => null))?.roleIds ?? cachedRoles) : cachedRoles;
+  // Gerade verifiziert oder Sperre vorbei? Dann frisch bei Discord nachsehen statt Zwischenspeicher
+  const fresh =
+    (maybeBlocked || missingMemberRole(cachedRoles)) && access && access.source !== "discord" && access.source !== "unconfigured"
+      ? await getAccess(user, { force: true }).catch(() => null)
+      : null;
+  const gate = fresh ?? access;
+  const freshRoles = fresh?.roleIds ?? cachedRoles;
+  const gateKnown = !!gate && gate.source !== "error" && gate.source !== "unconfigured" && gate.inGuild;
+  const notVerified = gateKnown && missingMemberRole(freshRoles);
+  const waitUntil = gateKnown ? guildWaitUntil(gate.guildJoinedAt ?? user.guildJoinedAt, settings["applications.minGuildDays"]) : null;
   if (maybeBlocked && (await blockedByRoles(user, freshRoles))) {
     return (
       <div className="mx-auto max-w-xl space-y-4 pt-10" data-testid="blocked-role">
@@ -179,6 +188,24 @@ async function Apply({
 
   return (
     <>
+      {notVerified && (
+        <div className="mx-auto max-w-3xl mb-6" data-testid="not-verified">
+          <Notice tone="warn" icon={Info} title="Erst verifizieren">
+            {MEMBER_ROLE_MESSAGE} Ausfüllen und speichern geht schon.{" "}
+            <a className="nv-link" href={publicEnv.discordInvite} target="_blank" rel="noopener noreferrer">
+              Zum Discord
+            </a>
+          </Notice>
+        </div>
+      )}
+      {waitUntil && (
+        <div className="mx-auto max-w-3xl mb-6" data-testid="guild-wait">
+          <Notice tone="warn" icon={ClockCountdown} title={`Absenden ab dem ${formatDay(waitUntil)}`}>
+            Du bist noch neu im Treffpunkt – bewerben geht nach {settings["applications.minGuildDays"]} Tagen auf dem Discord. Du kannst dein Formular schon in Ruhe
+            ausfüllen, es wird gespeichert.
+          </Notice>
+        </div>
+      )}
       {settings["maintenance.enabled"] && (
         <div className="mx-auto max-w-3xl mb-6" data-testid="maintenance-notice">
           <Notice tone="warn" icon={Wrench} title="Wartung – Absenden gerade nicht möglich">

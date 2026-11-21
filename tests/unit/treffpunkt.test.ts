@@ -118,3 +118,31 @@ describe("Owner: Rollen und Rechte", () => {
     expect(isOwnerSetting("discord.claimButton")).toBe(false);
   });
 });
+
+import { guildWaitUntil, memberRoleIds, missingMemberRole } from "@/lib/applications/blocked-roles";
+import { confirmationsFor, confirmationsSchemaFor } from "@/lib/applications/form";
+
+describe("Voraussetzungen zum Bewerben", () => {
+  it("Verifiziert-Rolle (👤 User) nur Pflicht, wenn eingetragen", () => {
+    expect(memberRoleIds(`${A}`)).toEqual([A]);
+    expect(missingMemberRole([B], [A])).toBe(true);
+    expect(missingMemberRole([A, B], [A])).toBe(false);
+    expect(missingMemberRole([], [])).toBe(false);
+  });
+  it("Mindestzeit auf dem Server", () => {
+    const now = new Date("2026-11-21T12:00:00Z");
+    const joined = new Date("2026-11-18T12:00:00Z");
+    expect(guildWaitUntil(joined, 7, now)?.toISOString()).toBe("2026-11-25T12:00:00.000Z");
+    expect(guildWaitUntil(joined, 3, now)).toBeNull();
+    expect(guildWaitUntil(joined, 0, now)).toBeNull();
+    expect(guildWaitUntil(null, 7, now)).toBeNull();
+  });
+  it("unter 16 zusätzlich das Okay der Eltern", () => {
+    expect(confirmationsFor("team", { age: 15 }).map((c) => c.key)).toContain("parents");
+    expect(confirmationsFor("team", { age: 16 }).map((c) => c.key)).not.toContain("parents");
+    const all = { voice: true, rules: true, unpaid: true, truth: true, privacy: true };
+    expect(confirmationsSchemaFor("team", { age: 15 }).safeParse(all).success).toBe(false);
+    expect(confirmationsSchemaFor("team", { age: 15 }).safeParse({ ...all, parents: true }).success).toBe(true);
+    expect(confirmationsSchemaFor("team", { age: 17 }).safeParse(all).success).toBe(true);
+  });
+});

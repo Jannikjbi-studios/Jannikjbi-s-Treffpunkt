@@ -3,7 +3,7 @@
  * und auf dem Server (verbindliche Prüfung beim Absenden).
  */
 import { z } from "zod";
-import { kindOf, type ConfirmationKey, type KindKey } from "@/lib/kinds";
+import { PARENTAL_CONSENT_AGE, kindOf, type ConfirmationKey, type KindKey } from "@/lib/kinds";
 export type { ConfirmationKey };
 import type { QuestionType } from "@prisma/client";
 import { RULES_URL } from "@/lib/public-urls";
@@ -175,21 +175,29 @@ const CONFIRMATION_DEFS: Record<Exclude<ConfirmationKey, "voice">, Omit<Confirma
     label: "Mir ist klar, dass Jannikjbi's Treffpunkt ein Hobby- und Community-Projekt ist und die Mitarbeit im Team ehrenamtlich ist – es gibt keine Bezahlung.",
   },
   truth: { label: "Meine Angaben sind ehrlich und von mir selbst geschrieben." },
+  parents: { label: "Ich bin unter 16: Meine Eltern bzw. Erziehungsberechtigten wissen von meiner Bewerbung und sind mit der Verarbeitung meiner Daten einverstanden." },
   privacy: {
     label: "Ich habe die Datenschutzhinweise gelesen und willige in die Verarbeitung meiner Bewerbungsdaten ein.",
     link: { href: "/datenschutz", label: "Datenschutzhinweise" },
   },
 };
 
-/** Bestätigungen im letzten Schritt – je nach Bewerbungsart. */
-export function confirmationsFor(kind: string | null | undefined): ConfirmationDef[] {
-  const k = kindOf(kind);
-  return k.confirmations.map((key) => (key === "voice" ? { key, label: VOICE_LABEL[k.key] } : { key, ...CONFIRMATION_DEFS[key] }));
+/** Welche Bestätigungen gelten – je nach Art, unter 16 zusätzlich das Okay der Eltern. */
+function confirmationKeys(kind: string | null | undefined, opts: { age?: number | null } = {}): ConfirmationKey[] {
+  const keys = [...kindOf(kind).confirmations];
+  if (typeof opts.age === "number" && opts.age < PARENTAL_CONSENT_AGE) keys.push("parents");
+  return keys;
 }
 
-/** Alle bestätigten Punkte müssen `true` sein – welche, hängt von der Art ab. */
-export function confirmationsSchemaFor(kind: string | null | undefined) {
-  const shape = Object.fromEntries(kindOf(kind).confirmations.map((key) => [key, z.literal(true, { error: "Bitte bestätigen." })]));
+/** Bestätigungen im letzten Schritt – je nach Bewerbungsart (und Alter). */
+export function confirmationsFor(kind: string | null | undefined, opts: { age?: number | null } = {}): ConfirmationDef[] {
+  const k = kindOf(kind);
+  return confirmationKeys(kind, opts).map((key) => (key === "voice" ? { key, label: VOICE_LABEL[k.key] } : { key, ...CONFIRMATION_DEFS[key] }));
+}
+
+/** Alle bestätigten Punkte müssen `true` sein – welche, hängt von Art und Alter ab. */
+export function confirmationsSchemaFor(kind: string | null | undefined, opts: { age?: number | null } = {}) {
+  const shape = Object.fromEntries(confirmationKeys(kind, opts).map((key) => [key, z.literal(true, { error: "Bitte bestätigen." })]));
   return z.object(shape);
 }
 

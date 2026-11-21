@@ -150,6 +150,7 @@ export function SettingsForm({ section, settings, env, channels, spend, spendMic
           </div>
           {num("applications.minFillSeconds", "Mindest-Ausfüllzeit (Sekunden)", "Spam-Schutz: schnellere Absendungen werden abgewiesen.")}
           {num("applications.minDiscordAccountDays", "Hinweis bei jungen Discord-Accounts (Tage)", "Nur Hinweis für das Team, keine Sperre.")}
+          {num("applications.minGuildDays", "Mindestzeit auf dem Treffpunkt (Tage)", "Wer kürzer auf dem Discord ist, kann noch nicht absenden. 0 = aus.")}
         </div>
         <div className="mt-4 space-y-3">
           {toggle("maintenance.enabled", "Wartungsmodus", "Absenden ist gesperrt, Bewerber sehen im Formular den Hinweistext unten. Entwürfe werden weiter gespeichert, der Team-Bereich läuft normal.")}

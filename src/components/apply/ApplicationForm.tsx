@@ -92,7 +92,8 @@ export function ApplicationForm({ position, sections, minAge, displayName, initi
   const [draftId, setDraftId] = useState<string | null>(initial.draftId);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const kind = kindOf(position.kind);
-  const CONFIRMATIONS = confirmationsFor(kind.key);
+  // Unter 16 kommt das Okay der Eltern dazu
+  const CONFIRMATIONS = confirmationsFor(kind.key, { age });
   const [confirm, setConfirm] = useState<Partial<Record<ConfirmationKey, boolean>>>({});
   const [uploads, setUploads] = useState(initialUploads);
   const [save, setSave] = useState<SaveState>(initial.draftId ? { kind: "saved", at: new Date() } : { kind: "idle" });

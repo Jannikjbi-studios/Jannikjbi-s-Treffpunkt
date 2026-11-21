@@ -115,6 +115,7 @@ Vorlage: [`.env.example`](.env.example). Die wichtigsten:
 | `AUTH_SECRET`, `AUTH_DISCORD_ID`, `AUTH_DISCORD_SECRET`, `AUTH_TRUST_HOST` | Login |
 | `DISCORD_BOT_TOKEN`, `DISCORD_GUILD_ID`, `TEAM_ROLE_ID`, `ADMIN_ROLE_ID` | Bot & Rollen (Team/Admin: eine oder mehrere IDs mit Komma) |
 | `OWNER_ROLE_ID` | Owner-Stufe über Admin (Owner, Co-Owner): Zurücksetzen, Sicherung einspielen, Datenexport, Bewerbungen/Stellen endgültig löschen, Discord-Rollen an Stellen & Rollen-Einstellungen, Rollen-Abgleich beheben, unbefristet sperren & Sperren aufheben, Bot einrichten, KI-Budget. Ohne Angabe = jeder Admin |
+| `DISCORD_MEMBER_ROLE_ID` | Pflichtrolle zum Absenden (👤 User = verifiziert). Dazu im Portal: Mindestzeit auf dem Discord (Standard 7 Tage) |
 | `DISCORD_BLOCKED_ROLE_IDS` | Rollen, die vom Bewerben ausschließen (⛔ Blacklist, 🚷 Team-Sperre) |
 | `DISCORD_TEAM_BAN_ROLE_ID` | 🚷 Team-Sperre – vergibt der Bot bei einer Sperre im Portal (ohne Angabe sucht er sie per Name) |
 | `ANTHROPIC_API_KEY` | KI (optional, kostenpflichtig – siehe [5. KI](#5-ki-optional)) |

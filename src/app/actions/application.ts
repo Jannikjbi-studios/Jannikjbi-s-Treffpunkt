@@ -103,9 +103,20 @@ export async function submitApplicationAction(
     return { ok: false, error: NOT_IN_GUILD, fieldErrors: { discord: "not_in_guild" } };
   }
   // Blacklist / Team-Sperre (Discord-Rollen aus DISCORD_BLOCKED_ROLE_IDS, frisch geprüft)
-  const { BLOCKED_ROLE_MESSAGE } = await import("@/lib/applications/blocked-roles");
+  const { BLOCKED_ROLE_MESSAGE, MEMBER_ROLE_MESSAGE, guildWaitUntil, missingMemberRole } = await import("@/lib/applications/blocked-roles");
   const { blockedByRoles } = await import("@/lib/team/ban-role");
   if (await blockedByRoles(user, access.roleIds)) return { ok: false, error: BLOCKED_ROLE_MESSAGE };
+  // Verifiziert (👤 User) und lange genug auf dem Server? Nur prüfen, wenn Discord sicher geantwortet hat
+  if (access.source === "discord" && access.inGuild) {
+    if (missingMemberRole(access.roleIds)) return { ok: false, error: MEMBER_ROLE_MESSAGE };
+    const { getSettings } = await import("@/lib/settings");
+    const days = (await getSettings())["applications.minGuildDays"];
+    const until = guildWaitUntil(access.guildJoinedAt, days);
+    if (until) {
+      const day = new Intl.DateTimeFormat("de-DE", { day: "numeric", month: "long", timeZone: "Europe/Berlin" }).format(until);
+      return { ok: false, error: `Du bist noch neu im Treffpunkt – absenden kannst du ab dem ${day} (nach ${days} Tagen auf dem Discord). Dein Entwurf bleibt gespeichert.` };
+    }
+  }
 
   try {
     const res = await submitApplication(user, {

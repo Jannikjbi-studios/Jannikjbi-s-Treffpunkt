@@ -91,8 +91,8 @@ async function Content() {
       <p>
         Team-Bewerbungen sind ab {s["applications.minAge"]} Jahren möglich; bei einzelnen Stellen kann das Mindestalter
         abweichen (steht dann bei der Stelle). Wir fragen dein Alter ab und nehmen jüngere Bewerbungen nicht an. Bist du
-        jünger als 16, brauchen wir für die Einwilligung zusätzlich das Okay deiner Eltern (Art. 8 DSGVO) – das klären wir
-        spätestens im Gespräch.
+        jünger als 16, bestätigst du beim Absenden zusätzlich, dass deine Eltern bzw. Erziehungsberechtigten einverstanden
+        sind (Art. 8 DSGVO).
       </p>
 
       <H>Wer bekommt die Daten?</H>

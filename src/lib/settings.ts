@@ -69,6 +69,8 @@ export const settingsSchema = z.object({
   "applications.processingTime": z.string().min(2).max(80).default("in der Regel 3–7 Tage"),
   "applications.minFillSeconds": z.coerce.number().int().min(0).max(3600).default(90),
   "applications.minDiscordAccountDays": z.coerce.number().int().min(0).max(3650).default(30),
+  /** Mindestzeit auf dem Discord-Server, bevor man absenden kann (0 = aus) */
+  "applications.minGuildDays": z.coerce.number().int().min(0).max(365).default(7),
   /** Bewerber bekommen eine Nachricht (Portal + DM), wenn ein Teammitglied ihre Bewerbung übernimmt */
   "applications.claimNotice": bool(true),
   /** Bewerber dürfen Antworten nachreichen, solange noch niemand die Bewerbung angesehen hat */

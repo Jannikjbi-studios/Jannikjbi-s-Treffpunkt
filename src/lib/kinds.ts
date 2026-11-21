@@ -10,7 +10,10 @@
  */
 export type KindKey = "team";
 
-export type ConfirmationKey = "voice" | "rules" | "unpaid" | "truth" | "privacy";
+export type ConfirmationKey = "voice" | "rules" | "unpaid" | "truth" | "privacy" | "parents";
+
+/** Unter diesem Alter braucht die Einwilligung das Okay der Eltern (Art. 8 DSGVO, Deutschland: 16). */
+export const PARENTAL_CONSENT_AGE = 16;
 
 export interface KindConfig {
   key: KindKey;

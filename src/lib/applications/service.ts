@@ -121,7 +121,7 @@ export async function submitApplication(
   const validation = validateAll(sections, answers);
   if (!validation.ok) throw new UserFacingError("Ein paar Angaben fehlen noch.", validation.errors);
 
-  const confirmations = confirmationsSchemaFor(kind.key).safeParse(input.confirmations);
+  const confirmations = confirmationsSchemaFor(kind.key, { age: input.age }).safeParse(input.confirmations);
   if (!confirmations.success) throw new UserFacingError("Bitte bestätige alle Punkte im letzten Schritt.");
 
   const uploadIds = await verifyUploads(user.id, sections, answers);
