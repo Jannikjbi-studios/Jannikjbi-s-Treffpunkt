@@ -65,6 +65,8 @@ export const backupSchema = z.object({
       nickPrefix: z.string().max(12).nullable().optional(),
       quizDrawCount: z.number().int().nullable().optional(),
       reviewChecklist: z.array(str(120)).max(15).optional(),
+      // Art der Stelle (Team, Partner-Anfrage, Werbe-Antrag) – ältere Sicherungen: Team
+      kind: z.enum(KIND_KEYS as [KindKey, ...KindKey[]]).optional(),
     }),
   ).max(50),
   sections: z.array(
@@ -87,7 +89,7 @@ export const backupSchema = z.object({
         sortOrder: z.number().int(),
         active: z.boolean(),
         // ältere Sicherungen haben das Feld nicht → für alle Arten
-        kinds: z.array(z.enum(KIND_KEYS as [KindKey, ...KindKey[]])).max(3).default([]),
+        kinds: z.array(z.enum(KIND_KEYS as [KindKey, ...KindKey[]])).max(KIND_KEYS.length).default([]),
       }),
     )
     .max(300),
@@ -97,7 +99,7 @@ export type Backup = z.infer<typeof backupSchema>;
 export async function exportConfig(db: PrismaClient): Promise<Backup> {
   const [settings, positions, sections, templates] = await Promise.all([
     getSettings(),
-    db.position.findMany({ orderBy: { sortOrder: "asc" } }),
+    db.position.findMany({ orderBy: { sortOrder: "asc" }, include: { type: { select: { key: true } } } }),
     db.formSection.findMany({ include: { questions: { orderBy: { sortOrder: "asc" } }, position: { select: { slug: true } } }, orderBy: { sortOrder: "asc" } }),
     db.messageTemplate.findMany({ orderBy: [{ category: "asc" }, { sortOrder: "asc" }] }),
   ]);
@@ -131,6 +133,7 @@ export async function exportConfig(db: PrismaClient): Promise<Backup> {
       nickPrefix: p.nickPrefix ?? null,
       quizDrawCount: p.quizDrawCount ?? null,
       reviewChecklist: p.reviewChecklist ?? [],
+      kind: (p.type.key in KINDS ? p.type.key : "team") as KindKey,
     })),
     sections: sections.map((s) => ({
       key: s.key,
@@ -174,10 +177,19 @@ export async function importConfig(db: PrismaClient, backup: Backup, opts: { dry
   const r: ImportReport = { positions: { created: 0, updated: 0 }, sections: { created: 0, updated: 0 }, questions: { created: 0, updated: 0 }, templates: { created: 0, updated: 0 }, settings: 0, skipped: [] };
   const type = await db.applicationType.findUnique({ where: { key: "team" } });
   if (!type) throw new Error("Bewerbungsart „team“ fehlt – Datenbank erst einrichten.");
+  // Art einer Stelle → ApplicationType (fehlt sie, wird sie angelegt)
+  const typeIds = new Map<string, string>([["team", type.id]]);
+  const typeIdFor = async (kind: KindKey) => {
+    if (!typeIds.has(kind)) {
+      const t = await db.applicationType.upsert({ where: { key: kind }, create: { key: kind, name: KINDS[kind].noun }, update: {} });
+      typeIds.set(kind, t.id);
+    }
+    return typeIds.get(kind)!;
+  };
 
-  // Positionen per Slug
+  // Positionen per Slug (die Art einer bestehenden Stelle bleibt, wie sie ist)
   const posIds = new Map<string, string>();
-  for (const p of backup.positions) {
+  for (const { kind, ...p } of backup.positions) {
     const existing = await db.position.findUnique({ where: { slug: p.slug }, select: { id: true } });
     if (existing) {
       r.positions.updated++;
@@ -185,11 +197,12 @@ export async function importConfig(db: PrismaClient, backup: Backup, opts: { dry
       if (!opts.dryRun) await db.position.update({ where: { id: existing.id }, data: p });
     } else {
       r.positions.created++;
-      if (!opts.dryRun) posIds.set(p.slug, (await db.position.create({ data: { ...p, typeId: type.id, opensAt: null, closesAt: null } })).id);
+      if (!opts.dryRun) posIds.set(p.slug, (await db.position.create({ data: { ...p, typeId: await typeIdFor(kind ?? "team"), opensAt: null, closesAt: null } })).id);
     }
   }
-  const knownPositions = new Map((await db.position.findMany({ select: { id: true, slug: true } })).map((p) => [p.slug, p.id]));
-  for (const [k, v] of knownPositions) if (!posIds.has(k)) posIds.set(k, v);
+  const knownPositions = await db.position.findMany({ select: { id: true, slug: true, typeId: true } });
+  for (const p of knownPositions) if (!posIds.has(p.slug)) posIds.set(p.slug, p.id);
+  const posType = new Map(knownPositions.map((p) => [p.id, p.typeId]));
 
   // Schritte per Key, sonst (Stelle, Titel); Fragen per Key, sonst (Schritt, Text)
   for (const s of backup.sections) {
@@ -202,7 +215,9 @@ export async function importConfig(db: PrismaClient, backup: Backup, opts: { dry
     const existing = s.key
       ? await db.formSection.findFirst({ where: { key: s.key } })
       : await db.formSection.findFirst({ where: { title: s.title, positionId } });
-    const data = { key: s.key, title: s.title, description: s.description, sortOrder: s.sortOrder, archived: s.archived, positionId, typeId: type.id };
+    // Schritt gehört zur Art seiner Stelle (Werbe-Antrag, Partner-Anfrage …), allgemeine Schritte zu „team“
+    const typeId = (positionId && posType.get(positionId)) || type.id;
+    const data = { key: s.key, title: s.title, description: s.description, sortOrder: s.sortOrder, archived: s.archived, positionId, typeId };
     let sectionId = existing?.id ?? null;
     if (existing) {
       r.sections.updated++;

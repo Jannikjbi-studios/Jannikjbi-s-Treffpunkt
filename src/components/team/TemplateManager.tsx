@@ -45,7 +45,7 @@ type KindFilter = "all" | "global" | KindKey;
 const KIND_FILTERS: { key: KindFilter; label: string; hint: string }[] = [
   { key: "all", label: "Alle", hint: "Alle Bausteine" },
   { key: "global", label: "Global", hint: "Bausteine, die bei jeder Bewerbungsart erscheinen" },
-  ...KIND_KEYS.map((k) => ({ key: k, label: KINDS[k].label, hint: `Was bei ${KINDS[k].noun}en zur Auswahl steht (eigene + globale)` })),
+  ...KIND_KEYS.map((k) => ({ key: k, label: KINDS[k].label, hint: `Was bei der Art „${KINDS[k].noun}“ zur Auswahl steht (eigene + globale)` })),
 ];
 
 /** Wie die Auswahl im Nachrichteneditor: globale Bausteine gehören zu jeder Art. */

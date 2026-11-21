@@ -447,6 +447,14 @@ try {
       (await db.position.findUnique({ where: { slug: "support" } }))!.title === "Support (neu)" && !!(await db.position.findUnique({ where: { slug: "neu-aus-backup" } })) && done.questions.created === 0,
       `Sicherung: eingespielt, nichts doppelt (${JSON.stringify(done.questions)})`,
     );
+    // Anträge: Art der Stelle wird mitgesichert, Schritte bleiben beim Antrag (nicht bei „team“)
+    const promoType = await db.applicationType.upsert({ where: { key: "promo" }, create: { key: "promo", name: "Werbe-Antrag" }, update: {} });
+    const promoPos = await db.position.create({ data: { typeId: promoType.id, slug: "werbe-test", title: "Werbe-Test", tagline: "x", description: "x" } });
+    await db.formSection.create({ data: { key: "werbe-test.offer", typeId: promoType.id, positionId: promoPos.id, title: "Dein Antrag" } });
+    const b3 = JSON.parse(JSON.stringify(await exportConfig(db)));
+    check(b3.positions.find((x: { slug: string; kind?: string }) => x.slug === "werbe-test")?.kind === "promo", "Sicherung: Art der Stelle (Werbe-Antrag) wird mitgesichert");
+    await importConfig(db, b3, { dryRun: false, actorId: team.id });
+    check((await db.formSection.findFirst({ where: { key: "werbe-test.offer" } }))?.typeId === promoType.id, "Sicherung: Schritte eines Antrags bleiben nach dem Einspielen beim Antrag");
   }
 
   // ── Regel-Quiz pro Stelle (Migration), Claim-Nachricht, Changelog sofort veröffentlichen

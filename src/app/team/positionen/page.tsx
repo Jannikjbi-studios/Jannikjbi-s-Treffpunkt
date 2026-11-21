@@ -52,6 +52,7 @@ async function List() {
   ]);
   // Stellenaufruf in Discord: nur Team-Stellen
   const teamPositions = positions.filter((p) => p.type.key === "team");
+  const requestPositions = positions.filter((p) => p.type.key !== "team");
   const jobsMessage = buildJobsMessage(teamPositions as unknown as JobPosition[], { appUrl: publicEnv.appUrl, defaultMinAge: settings["applications.minAge"] });
   return (
     <div className="space-y-4">
@@ -66,16 +67,13 @@ async function List() {
         <ArrowRight size={16} className="text-muted" aria-hidden />
       </Link>
       <ul className="grid gap-3">
-        {positions.map((p) => (
+        {teamPositions.map((p) => (
           <li key={p.id} className="nv-card p-5 flex flex-col gap-4 sm:flex-row sm:items-center">
             <IconTile icon={p.icon} />
             <div className="flex-1 min-w-0">
-              <p className="font-display text-2xl flex flex-wrap items-center gap-2">
-                {p.title}
-                {p.type.key !== "team" && <span className="nv-pill nv-pill-red !text-[0.7rem] !py-0.5">{kindOf(p.type.key).noun}</span>}
-              </p>
+              <p className="font-display text-2xl flex flex-wrap items-center gap-2">{p.title}</p>
               <p className="text-sm text-muted">
-                /{p.slug} · {p._count.applications} Bewerbungen · {p._count.sections} eigene Schritte
+                /{p.slug} · {p._count.applications} {p._count.applications === 1 ? "Bewerbung" : "Bewerbungen"} · {p._count.sections} eigene {p._count.sections === 1 ? "Schritt" : "Schritte"}
               </p>
             </div>
             <PositionStatusSelect positionId={p.id} status={p.status} />
@@ -85,6 +83,45 @@ async function List() {
           </li>
         ))}
       </ul>
+
+      {requestPositions.length > 0 && (
+        <section className="space-y-3 pt-4" aria-labelledby="requests-title">
+          <div>
+            <h2 id="requests-title" className="font-semibold text-lg">Anträge &amp; Anfragen</h2>
+            <p className="text-sm text-muted">
+              Werbe-Antrag und Partner-Anfrage: Fragen, Texte und Status bearbeitest du wie bei den Stellen. Eingegangene Anträge stehen unter „Bewerbungen“ – mit Status,
+              Nachrichten und Bausteinen wie bei Bewerbungen.
+            </p>
+          </div>
+          <ul className="grid gap-3">
+            {requestPositions.map((p) => {
+              const kind = kindOf(p.type.key);
+              return (
+                <li key={p.id} className="nv-card p-5 flex flex-col gap-4 sm:flex-row sm:items-center">
+                  <IconTile icon={p.icon} />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-display text-2xl flex flex-wrap items-center gap-2">
+                      {p.title}
+                      <span className="nv-pill nv-pill-red !text-[0.7rem] !py-0.5">{kind.label}</span>
+                    </p>
+                    <p className="text-sm text-muted">
+                      {kind.path} · {p._count.applications} eingegangen · {p._count.sections} {p._count.sections === 1 ? "Schritt" : "Schritte"}
+                      {p.teamRoleIds.length > 0 && " · nur für zuständige Rollen und Admins sichtbar"}
+                    </p>
+                  </div>
+                  <PositionStatusSelect positionId={p.id} status={p.status} />
+                  <Link href={`/team/bewerbungen?position=${p.slug}`} className="nv-btn nv-btn-ghost nv-btn-sm">
+                    Eingänge
+                  </Link>
+                  <Link href={`/team/positionen/${p.id}`} className="nv-btn nv-btn-ghost nv-btn-sm">
+                    Fragen &amp; Texte
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
 
       <section className="nv-card p-5 sm:p-6 space-y-4" aria-labelledby="jobs-title">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -119,7 +156,7 @@ async function List() {
           </p>
         </div>
         <ul className="divide-y divide-[var(--nv-border)]">
-          {positions
+          {teamPositions
             .filter((p) => p.status !== "HIDDEN")
             .map((p) => {
               const post = spotlights[p.slug];

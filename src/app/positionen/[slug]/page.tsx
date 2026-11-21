@@ -42,8 +42,8 @@ async function PositionDetail({ params }: Pick<PageProps<"/positionen/[slug]">, 
       <section className="relative overflow-hidden pt-32 pb-10 sm:pt-40">
         <div className="absolute inset-0 nv-hero-glow pointer-events-none" aria-hidden />
         <Container className="relative">
-          <Link href="/#positionen" className="nv-btn nv-btn-quiet nv-btn-sm -ml-3 mb-6">
-            <ArrowLeft size={14} aria-hidden /> {isTeam ? "Alle Positionen" : "Alle Bewerbungen"}
+          <Link href={isTeam ? "/#positionen" : "/#anfragen"} className="nv-btn nv-btn-quiet nv-btn-sm -ml-3 mb-6">
+            <ArrowLeft size={14} aria-hidden /> {isTeam ? "Alle Positionen" : "Zur Startseite"}
           </Link>
           <div className="flex items-start gap-5 nv-anim">
             <IconTile icon={position.icon} className="h-14 w-14" />
@@ -84,7 +84,7 @@ async function PositionDetail({ params }: Pick<PageProps<"/positionen/[slug]">, 
             <div className="mt-2 flex items-center gap-2">
               {open ? (
                 <span className="nv-pill nv-tone-success">
-                  <span className="h-1.5 w-1.5 rounded-full bg-current nv-pulse-dot" aria-hidden /> Bewerbungen offen
+                  <span className="h-1.5 w-1.5 rounded-full bg-current nv-pulse-dot" aria-hidden /> {kind.plural} offen
                 </span>
               ) : (
                 <span className="nv-pill">Gerade geschlossen</span>
@@ -92,7 +92,7 @@ async function PositionDetail({ params }: Pick<PageProps<"/positionen/[slug]">, 
             </div>
             {open && position.closesAt && (
               <p className="mt-2 text-xs text-muted">
-                Bewerbungen bis {formatDay(position.closesAt)} möglich.
+                {kind.plural} bis {formatDay(position.closesAt)} möglich.
                 {deadlineLabel(position.closesAt) && (
                   <span className="mt-1.5 flex w-fit nv-pill nv-tone-warn !text-[0.7rem] !py-0" data-testid="deadline-label">
                     {deadlineLabel(position.closesAt)}
@@ -105,14 +105,35 @@ async function PositionDetail({ params }: Pick<PageProps<"/positionen/[slug]">, 
               <p className="mt-2 text-xs text-muted">{position.seats === 1 ? "Nur noch 1 Platz frei." : `Noch ${position.seats} Plätze frei.`}</p>
             )}
             <dl className="mt-5 space-y-2 text-sm">
-              <div className="flex justify-between gap-3">
-                <dt className="text-muted">Mindestalter</dt>
-                <dd>{minAge} Jahre</dd>
-              </div>
-              <div className="flex justify-between gap-3">
-                <dt className="text-muted">{kind.interview ? "Gespräch & Support" : "Support"}</dt>
-                <dd>Discord</dd>
-              </div>
+              {isTeam ? (
+                <>
+                  <div className="flex justify-between gap-3">
+                    <dt className="text-muted">Mindestalter</dt>
+                    <dd>{minAge} Jahre</dd>
+                  </div>
+                  <div className="flex justify-between gap-3">
+                    <dt className="text-muted">{kind.interview ? "Gespräch & Support" : "Support"}</dt>
+                    <dd>Discord</dd>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex justify-between gap-3">
+                    <dt className="text-muted">Dauer</dt>
+                    <dd>ca. 5 Minuten</dd>
+                  </div>
+                  <div className="flex justify-between gap-3">
+                    <dt className="text-muted">Antwort</dt>
+                    <dd className="text-right">per Discord-DM und im Portal</dd>
+                  </div>
+                  {position.teamRoleIds?.length > 0 && (
+                    <div className="flex justify-between gap-3">
+                      <dt className="text-muted">Wer liest mit</dt>
+                      <dd className="text-right">Nur Jannik und die Leitung</dd>
+                    </div>
+                  )}
+                </>
+              )}
               {isTeam && settings["onboarding.probationDays"] > 0 && (
                 <div className="flex justify-between gap-3">
                   <dt className="text-muted">Probezeit</dt>
@@ -128,11 +149,11 @@ async function PositionDetail({ params }: Pick<PageProps<"/positionen/[slug]">, 
                 </div>
               )}
               <div className="flex justify-between gap-3">
-                <dt className="text-muted">Sperrfrist nach Absage</dt>
-                <dd>{position.cooldownDays ?? settings["applications.cooldownDays"]} Tage</dd>
+                <dt className="text-muted">{isTeam ? "Sperrfrist nach Absage" : "Erneut möglich nach Absage"}</dt>
+                <dd>{isTeam ? `${position.cooldownDays ?? settings["applications.cooldownDays"]} Tage` : `nach ${position.cooldownDays ?? settings["applications.cooldownDays"]} Tagen`}</dd>
               </div>
               <div className="flex justify-between gap-3">
-                <dt className="text-muted">Bearbeitung</dt>
+                <dt className="text-muted">{isTeam ? "Bearbeitung" : "Rückmeldung"}</dt>
                 <dd className="text-right">{settings["applications.processingTime"]}</dd>
               </div>
             </dl>
@@ -170,14 +191,14 @@ async function ApplyCta({ position }: { position: PublicPosition }) {
         <p className="text-xs text-muted text-center">Dein Entwurf wird automatisch gespeichert.</p>
       </div>
     ) : (
-      <p className="text-sm text-muted">Für diese Position nehmen wir gerade keine Bewerbungen an. Schau bald wieder vorbei.</p>
+      <p className="text-sm text-muted">{kind.key === "team" ? "Für diese Position nehmen wir gerade keine Bewerbungen an." : `Gerade nehmen wir keine ${kind.plural} an.`} Schau bald wieder vorbei.</p>
     );
   }
   if (position.status !== "OPEN") {
     const me = await db.user.findUnique({ where: { id: user.id }, select: { notifyNewPositions: true } });
     return (
       <div className="space-y-3">
-        <p className="text-sm text-muted">Für diese Position nehmen wir gerade keine Bewerbungen an.</p>
+        <p className="text-sm text-muted">{kind.key === "team" ? "Für diese Position nehmen wir gerade keine Bewerbungen an." : `Gerade nehmen wir keine ${kind.plural} an.`}</p>
         <NotifyToggle on={!!me?.notifyNewPositions} />
       </div>
     );
@@ -201,18 +222,18 @@ async function ApplyCta({ position }: { position: PublicPosition }) {
     case "open_exists":
       return (
         <div className="space-y-3">
-          <Notice tone="info" icon={CheckCircle} title="Du hast dich schon beworben.">
+          <Notice tone="info" icon={CheckCircle} title={kind.key === "team" ? "Du hast dich schon beworben." : `${kind.formIntro} ${kind.noun} läuft schon.`}>
             Den aktuellen Stand siehst du im Dashboard.
           </Notice>
           <Link href={`/dashboard/${e.applicationId}`} className="nv-btn nv-btn-ghost w-full">
-            Zur Bewerbung
+            {kind.key === "team" ? "Zur Bewerbung" : "Zum Stand"}
           </Link>
         </div>
       );
     case "cooldown":
       return (
         <Notice tone="warn" icon={ClockCountdown} title="Sperrfrist läuft.">
-          Du kannst dich ab dem {formatDay(e.until)} wieder bewerben.
+          {kind.key === "team" ? `Du kannst dich ab dem ${formatDay(e.until)} wieder bewerben.` : `Neu stellen kannst du ab dem ${formatDay(e.until)}.`}
         </Notice>
       );
     case "banned":

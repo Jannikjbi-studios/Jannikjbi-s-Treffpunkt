@@ -496,7 +496,31 @@ const MIGRATIONS: { id: string; run: (db: PrismaClient, opts: Options) => Promis
     id: "2026-11-werbe-antrag",
     run: async (db, o) => (o.dryRun ? 0 : (await import("@/lib/setup/base-seed")).seedKinds(db)),
   },
+  // Werbe-Antrag: eigene, neue Bausteine „Antrag – …“ statt der ersten „Werbung – …“ (nur unveränderte werden ersetzt)
+  {
+    id: "2026-11-antrag-bausteine",
+    run: async (db, o) => (o.dryRun ? 0 : replacePromoTemplates(db)),
+  },
 ];
+
+/** Erste Werbe-Antrag-Bausteine (Titel, Text) – werden ersetzt, solange niemand sie geändert hat. */
+const OLD_PROMO_TEMPLATES: [string, string][] = [
+  ["Werbung – Antrag angekommen", "Moin {name},\n\ndanke für deinen Werbe-Antrag ({bewerbungs_id})! Jannik schaut ihn sich in Ruhe an und meldet sich – {bearbeitungszeit}."],
+  ["Werbung – Rückfrage", "Moin {name},\n\nzu deinem Werbe-Antrag haben wir noch eine Frage:\n\n{grund}\n\nAntworte einfach direkt hier im Portal."],
+  ["Werbung – kurzer Austausch", "Moin {name},\n\ndein Antrag klingt spannend! Lass uns kurz auf Discord sprechen – schreib uns im Portal zwei, drei Zeiten, an denen du kannst."],
+  ["Werbung – Wir warten auf deine Antwort", "Moin {name},\n\nwir hatten dir zu deinem Werbe-Antrag {bewerbungs_id} eine Frage gestellt und noch nichts gehört. Melde dich gern in den nächsten Tagen – sonst schließen wir den Antrag."],
+  ["Werbung – Zusage", "Moin {name},\n\nJannik ist dabei! 📣 Danke für deinen Antrag.\n\n**So geht's weiter:**\n{grund}\n\nGut zu wissen: Bezahlte oder gesponserte Inhalte kennzeichnet Jannik immer als Werbung."],
+  ["Werbung – Absage", "Moin {name},\n\ndanke für deinen Werbe-Antrag! Diesmal passt es leider nicht:\n\n{grund}\n\nDu kannst ab dem **{sperrfrist}** gern einen neuen Antrag stellen."],
+  ["Werbung – Infos zu Werbung", "**Gut zu wissen:**\n- Jannik stellt nur vor, was zu ihm und der Community passt.\n- Bezahlte oder gesponserte Inhalte werden immer als Werbung gekennzeichnet.\n- Keine Werbung für Glücksspiel, Wetten, Krypto oder NSFW.\n- Termine und Konditionen besprechen wir per Nachricht."],
+];
+
+async function replacePromoTemplates(db: PrismaClient) {
+  let removed = 0;
+  for (const [title, body] of OLD_PROMO_TEMPLATES) removed += (await db.messageTemplate.deleteMany({ where: { title, body } })).count;
+  const { ensureKindTemplates } = await import("@/lib/setup/base-seed");
+  const added = await ensureKindTemplates(db);
+  return { removed, added };
+}
 
 /** Frage „stream-mod.days“ anlegen (falls es sie nicht gibt) und „stream-mod.streams“ archivieren – Antworten bleiben. */
 async function streamDaysQuestion(db: PrismaClient) {

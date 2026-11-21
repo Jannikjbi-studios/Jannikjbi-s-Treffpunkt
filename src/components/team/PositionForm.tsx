@@ -8,6 +8,7 @@ import { useState, useTransition } from "react";
 import { Copy, FloppyDisk, Trash } from "@phosphor-icons/react/ssr";
 import { deletePositionAction, duplicatePositionAction, savePositionAction } from "@/app/actions/admin";
 import { POSITION_ICON_KEYS_CLIENT, PositionIconClient } from "@/components/team/position-icons";
+import { KIND_POSITION_SLUG, kindOf, type KindKey } from "@/lib/kinds";
 
 interface PositionData {
   id?: string;
@@ -89,7 +90,24 @@ const slugify = (s: string) =>
     .replace(/^-|-$/g, "")
     .slice(0, 60);
 
-export function PositionForm({ position, applicationCount = 0, roleHint, owner = true }: { position: PositionData | null; applicationCount?: number; roleHint?: string; owner?: boolean }) {
+export function PositionForm({
+  position,
+  applicationCount = 0,
+  roleHint,
+  owner = true,
+  kind = "team",
+}: {
+  position: PositionData | null;
+  applicationCount?: number;
+  roleHint?: string;
+  owner?: boolean;
+  /** Art der Stelle: Bei Werbe-Antrag/Partner-Anfrage nur die passenden Felder (keine Rollen, kein Quiz, keine Probezeit) */
+  kind?: KindKey;
+}) {
+  const k = kindOf(kind);
+  const isTeam = k.teamFeatures;
+  // Feste Stelle einer Art (z. B. /antrag → werbe-antrag): Link nicht änderbar, nicht löschen/duplizieren
+  const fixedSlug = !!position && KIND_POSITION_SLUG[k.key] === position.slug;
   const router = useRouter();
   const [p, setP] = useState<PositionData>(position ?? EMPTY);
   const [tasks, setTasks] = useState((position?.tasks ?? []).join("\n"));
@@ -140,7 +158,8 @@ export function PositionForm({ position, applicationCount = 0, roleHint, owner =
           <label htmlFor="p-slug" className="nv-field-label">
             URL-Slug
           </label>
-          <input id="p-slug" className="nv-input font-mono text-sm" maxLength={60} value={p.slug} onChange={(e) => set("slug", slugify(e.target.value))} />
+          <input id="p-slug" className="nv-input font-mono text-sm" maxLength={60} value={p.slug} disabled={fixedSlug} onChange={(e) => set("slug", slugify(e.target.value))} />
+          {fixedSlug && <p className="nv-help mt-1">Fester Link {k.path} – nicht änderbar.</p>}
         </div>
         <div className="sm:col-span-2">
           <label htmlFor="p-tag" className="nv-field-label">
@@ -156,7 +175,7 @@ export function PositionForm({ position, applicationCount = 0, roleHint, owner =
         </div>
         <div>
           <label htmlFor="p-tasks" className="nv-field-label">
-            Aufgaben (eine pro Zeile)
+            {isTeam ? "Aufgaben (eine pro Zeile)" : "So läuft's (ein Schritt pro Zeile)"}
           </label>
           <textarea id="p-tasks" className="nv-input text-sm" rows={5} value={tasks} onChange={(e) => { setTasks(e.target.value); setSaved(false); }} />
         </div>
@@ -166,6 +185,7 @@ export function PositionForm({ position, applicationCount = 0, roleHint, owner =
           </label>
           <textarea id="p-reqs" className="nv-input text-sm" rows={5} value={reqs} onChange={(e) => { setReqs(e.target.value); setSaved(false); }} />
         </div>
+        {k.interview && (
         <div className="sm:col-span-2">
           <label htmlFor="p-ivq" className="nv-field-label">
             Gesprächsfragen fürs Protokoll (eine pro Zeile)
@@ -173,6 +193,7 @@ export function PositionForm({ position, applicationCount = 0, roleHint, owner =
           <textarea id="p-ivq" className="nv-input text-sm" rows={4} placeholder="Leer = Standard-Fragen aus den Einstellungen" value={ivq} onChange={(e) => { setIvq(e.target.value); setSaved(false); }} />
           <p className="nv-help mt-1">Nur für das Team: erscheinen im Reiter „Gespräch“ der Bewerbung zum Abhaken, mit Notizen pro Frage.</p>
         </div>
+        )}
         <div className="sm:col-span-2">
           <label htmlFor="p-chk" className="nv-field-label">
             Prüfliste fürs Team (ein Punkt pro Zeile)
@@ -236,6 +257,8 @@ export function PositionForm({ position, applicationCount = 0, roleHint, owner =
           </label>
           <input id="p-cd" type="number" className="nv-input" placeholder="Standard" value={p.cooldownDays ?? ""} onChange={(e) => set("cooldownDays", optNum(e.target.value))} />
         </div>
+        {isTeam && (
+        <>
         <div>
           <label htmlFor="p-role" className="nv-field-label">
             Discord-Rolle bei Annahme
@@ -286,6 +309,8 @@ export function PositionForm({ position, applicationCount = 0, roleHint, owner =
           <input id="p-quiz-draw" type="number" min={1} className="nv-input" placeholder="alle" value={p.quizDrawCount ?? ""} onChange={(e) => set("quizDrawCount", optNum(e.target.value))} />
           <p className="nv-help mt-1">Fragenpool: Jede Person bekommt so viele zufällige Quizfragen. Reihenfolge von Fragen und Antworten ist immer pro Person gemischt.</p>
         </div>
+        </>
+        )}
         <div>
           <label htmlFor="p-minpro" className="nv-field-label">
             Vier-Augen: Pro-Stimmen für Annahme
@@ -329,7 +354,7 @@ export function PositionForm({ position, applicationCount = 0, roleHint, owner =
           </div>
           <div>
             <label htmlFor="p-max" className="nv-field-label">
-              Höchstzahl Bewerbungen
+              {isTeam ? "Höchstzahl Bewerbungen" : "Höchstzahl Einsendungen"}
             </label>
             <input id="p-max" type="number" min={1} className="nv-input" placeholder="unbegrenzt" value={p.maxApplications ?? ""} onChange={(e) => set("maxApplications", optNum(e.target.value))} />
             {p.maxApplications ? (
@@ -346,7 +371,7 @@ export function PositionForm({ position, applicationCount = 0, roleHint, owner =
 
       {error && <p className="nv-error">{error}</p>}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        {p.id ? (
+        {p.id && !fixedSlug ? (
           <div className="flex flex-wrap items-center gap-2">
           {owner && (
           <button

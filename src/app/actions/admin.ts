@@ -100,12 +100,25 @@ function openedAfter(position: { id: string; title: string; slug: string }) {
   });
 }
 
+/** Slug der festen Stelle einer Art (z. B. „werbe-antrag“), sonst null. */
+async function fixedKindSlug(positionId: string) {
+  const { KIND_POSITION_SLUG, kindOf } = await import("@/lib/kinds");
+  const pos = await db.position.findUnique({ where: { id: positionId }, select: { slug: true, type: { select: { key: true } } } });
+  const fixed = pos ? KIND_POSITION_SLUG[kindOf(pos.type.key).key] : undefined;
+  return fixed && pos?.slug === fixed ? fixed : null;
+}
+
 export async function savePositionAction(input: z.input<typeof positionSchema>): Promise<ActionResult<{ id: string }>> {
   const ctx = await requireAdmin();
   const { user } = ctx;
   const p = positionSchema.safeParse(input);
   if (!p.success) return { ok: false, error: p.error.issues[0].message };
   const { id: pid, ...rest } = p.data;
+  // Feste Stelle einer Art (Werbe-Antrag /antrag, Partner-Anfrage /partner): Link bleibt
+  if (pid) {
+    const fixed = await fixedKindSlug(pid);
+    if (fixed && rest.slug !== fixed) return { ok: false, error: `Der Link dieser Stelle ist fest (${fixed}).` };
+  }
   // Discord-Rollen einer Stelle (Annahme, nach Probezeit, „Dazu“, Präfix) ändern nur Owner
   {
     const { OWNER_ONLY, isOwner, rolesChanged } = await import("@/lib/auth/owner");
@@ -164,6 +177,7 @@ export async function deletePositionAction(positionId: string): Promise<ActionRe
     const { OWNER_ONLY, isOwner } = await import("@/lib/auth/owner");
     if (!isOwner(ctx)) return { ok: false, error: OWNER_ONLY };
   }
+  if (await fixedKindSlug(positionId)) return { ok: false, error: "Diese Stelle gehört fest zu ihrer Art – setz sie stattdessen auf „Versteckt“." };
   const count = await db.application.count({ where: { positionId } });
   if (count > 0) return { ok: false, error: "Es gibt Bewerbungen auf diese Position. Setz sie stattdessen auf „Versteckt“." };
   await db.position.delete({ where: { id: positionId } });
@@ -185,6 +199,7 @@ export async function duplicatePositionAction(positionId: string): Promise<Actio
     include: { sections: { where: { archived: false }, orderBy: { sortOrder: "asc" }, include: { questions: { where: { archived: false }, orderBy: { sortOrder: "asc" } } } } },
   });
   if (!src) return { ok: false, error: "Stelle nicht gefunden." };
+  if (await fixedKindSlug(src.id)) return { ok: false, error: "Diese Stelle gibt es nur einmal." };
   const base = `${src.slug.slice(0, 50)}-kopie`;
   let slug = base;
   for (let i = 2; await db.position.findUnique({ where: { slug }, select: { id: true } }); i++) slug = `${base}-${i}`;
@@ -258,17 +273,19 @@ export async function saveSectionAction(input: z.input<typeof sectionSchema>): P
   const { user } = await requireAdmin();
   const p = sectionSchema.safeParse(input);
   if (!p.success) return { ok: false, error: p.error.issues[0].message };
-  const type = await db.applicationType.findUniqueOrThrow({ where: { key: "team" } });
   let saved;
   if (p.data.id) {
     saved = await db.formSection.update({ where: { id: p.data.id }, data: { title: p.data.title, description: p.data.description } });
   } else {
     const max = await db.formSection.aggregate({ _max: { sortOrder: true }, where: { positionId: p.data.positionId } });
-    const pos = p.data.positionId ? await db.position.findUnique({ where: { id: p.data.positionId }, select: { slug: true } }) : null;
+    const pos = p.data.positionId ? await db.position.findUnique({ where: { id: p.data.positionId }, select: { slug: true, typeId: true } }) : null;
+    if (p.data.positionId && !pos) return { ok: false, error: "Stelle nicht gefunden." };
+    // Schritt gehört zur Art seiner Stelle (z. B. Werbe-Antrag) – sonst taucht er im Formular nicht auf
+    const typeId = pos?.typeId ?? (await db.applicationType.findUniqueOrThrow({ where: { key: "team" } })).id;
     const base = normalizeLabel(p.data.title).replace(/ /g, "_").slice(0, 40) || "abschnitt";
     const key = await uniqueKey(pos ? `${pos.slug}.${base}` : base, async (k) => !!(await db.formSection.findFirst({ where: { key: k }, select: { id: true } })));
     saved = await db.formSection.create({
-      data: { key, typeId: type.id, positionId: p.data.positionId, title: p.data.title, description: p.data.description, sortOrder: (max._max.sortOrder ?? 0) + 1 },
+      data: { key, typeId, positionId: p.data.positionId, title: p.data.title, description: p.data.description, sortOrder: (max._max.sortOrder ?? 0) + 1 },
     });
   }
   await audit("form.update", { actorId: user.id, targetType: "section", targetId: saved.id });

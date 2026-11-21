@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import { ArrowLeft } from "@phosphor-icons/react/ssr";
 import { PositionForm } from "@/components/team/PositionForm";
 import { FormBuilder } from "@/components/team/FormBuilder";
+import { kindOf } from "@/lib/kinds";
 import { requireAdmin } from "@/lib/auth/session";
 import { db } from "@/lib/db";
 import { POSITIONS } from "@/lib/setup/seed-data";
@@ -48,8 +49,9 @@ async function Editor({ params }: Pick<PageProps<"/team/positionen/[id]">, "para
   }
 
   const isGeneral = id === "allgemein";
-  const position = isGeneral ? null : await db.position.findUnique({ where: { id } });
+  const position = isGeneral ? null : await db.position.findUnique({ where: { id }, include: { type: { select: { key: true } } } });
   if (!isGeneral && !position) notFound();
+  const kind = kindOf(position?.type.key);
 
   const applicationCount = position
     ? await db.application.count({ where: { positionId: position.id, submittedAt: { not: null }, status: { not: "WITHDRAWN" } } })
@@ -112,6 +114,7 @@ async function Editor({ params }: Pick<PageProps<"/team/positionen/[id]">, "para
           applicationCount={applicationCount}
           roleHint={roleHintFor(position.slug)}
           owner={owner}
+          kind={kind.key}
         />
       )}
       <section className="space-y-3">
@@ -120,7 +123,9 @@ async function Editor({ params }: Pick<PageProps<"/team/positionen/[id]">, "para
           <p className="text-sm text-muted">
             {isGeneral
               ? "Diese Schritte sehen alle Bewerber, egal für welche Position."
-              : "Diese Schritte kommen nach den allgemeinen Fragen – nur für diese Position."}{" "}
+              : kind.teamFeatures
+                ? "Diese Schritte kommen nach den allgemeinen Fragen – nur für diese Position."
+                : `Das sind alle Fragen der ${kind.noun} (ohne allgemeine Team-Fragen). Schritte und Fragen kannst du hier anlegen, ändern, sortieren und archivieren.`}{" "}
             Geänderte Fragen wirken nur auf neue Bewerbungen; eingereichte Antworten bleiben unverändert.
           </p>
         </div>

@@ -41,6 +41,8 @@ export interface KindConfig {
   applyLabel: string;
   /** „Du bewirbst dich als“ … (Einleitung im Formular) */
   formIntro: string;
+  /** Mehrzahl, kurz: „Bewerbungen“, „Anfragen“, „Anträge“ (z. B. „Anträge offen“) */
+  plural: string;
 }
 
 export const KINDS: Record<KindKey, KindConfig> = {
@@ -57,6 +59,7 @@ export const KINDS: Record<KindKey, KindConfig> = {
     path: "/#positionen",
     applyLabel: "Jetzt bewerben",
     formIntro: "Du bewirbst dich als",
+    plural: "Bewerbungen",
   },
   partner: {
     key: "partner",
@@ -70,6 +73,7 @@ export const KINDS: Record<KindKey, KindConfig> = {
     path: "/partner",
     applyLabel: "Anfrage stellen",
     formIntro: "Deine",
+    plural: "Anfragen",
     confirmationTemplate: `Moin {name},
 
 danke für deine Partner-Anfrage an Jannikjbi's Treffpunkt – sie ist am {datum} bei uns eingegangen.
@@ -92,15 +96,16 @@ Moin, dein Team von Jannikjbi's Treffpunkt`,
     path: "/antrag",
     applyLabel: "Antrag stellen",
     formIntro: "Dein",
-    confirmationTemplate: `Moin {name},
+    plural: "Anträge",
+    confirmationTemplate: `Moin {name}! 👋
 
-danke für deinen Werbe-Antrag an Jannikjbi – er ist am {datum} bei uns eingegangen.
+dein Werbe-Antrag ist am {datum} angekommen – danke, dass du an Jannik gedacht hast.
 
 **Antrags-ID:** {bewerbungs_id}
 
-Jannik schaut sich deinen Antrag in Ruhe an und meldet sich hier per DM oder im Portal – {bearbeitungszeit}. Den Stand siehst du jederzeit in deinem Dashboard.
+Jannik schaut sich jeden Antrag persönlich an und meldet sich hier per DM oder im Portal – {bearbeitungszeit}. Den Stand siehst du jederzeit in deinem Dashboard.
 
-Moin, dein Team von Jannikjbi's Treffpunkt`,
+Bis bald – Jannik & das Team vom Treffpunkt`,
   },
 };
 

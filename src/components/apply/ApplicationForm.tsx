@@ -410,7 +410,7 @@ export function ApplicationForm({ position, sections, minAge, displayName, initi
                     <p className="text-fg-2 mt-0.5">
                       {kind.key === "team"
                         ? <>Aus Jugendschutzgründen nehmen wir ins Team erst Leute ab {minAge} Jahren auf. Spiel gern weiter auf dem Server – und komm wieder, wenn&apos;s so weit ist.</>
-                        : <>Für die {kind.noun} gilt ein Mindestalter von {minAge} Jahren. Komm gern wieder, wenn&apos;s so weit ist.</>}
+                        : <>{kind.plural} sind erst ab {minAge} Jahren möglich. Komm gern wieder, wenn&apos;s so weit ist.</>}
                     </p>
                   </div>
                 )}
