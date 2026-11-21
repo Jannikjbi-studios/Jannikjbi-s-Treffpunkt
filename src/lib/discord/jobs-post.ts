@@ -123,6 +123,31 @@ export async function announceOpenedPosition(db: PrismaClient, slug: string): Pr
   return publish(db, SPOT_PREFIX + slug, channelId, message, { mode: "new" });
 }
 
+/**
+ * Alle schon geposteten Einzelaufrufe neu aufbauen und bearbeiten (z. B. damit sie das Banner
+ * bekommen). Nur bearbeiten – kein neuer Post; wurde ein Post in Discord gelöscht, wird er vergessen.
+ */
+export async function updateSpotlightsInPlace(db: PrismaClient) {
+  const s = await getSettings();
+  const { getDiscordApi } = await import("@/lib/discord/client");
+  const api = getDiscordApi();
+  let updated = 0;
+  for (const [slug, post] of Object.entries(await getSpotlights(db))) {
+    const position = (await db.position.findFirst({ where: { slug, type: { active: true } }, select: POSITION_SELECT })) as JobPosition | null;
+    if (!position || position.status === "HIDDEN") continue;
+    const message = buildSpotlightMessage(position, { appUrl: publicEnv.appUrl, defaultMinAge: s["applications.minAge"] });
+    try {
+      await api.editMessage(post.channelId, post.messageId, message);
+      await db.setting.update({ where: { key: SPOT_PREFIX + slug }, data: { value: { ...post, at: new Date().toISOString() } } });
+      updated++;
+    } catch (e) {
+      if ((e as { kind?: string }).kind === "not_found") await db.setting.delete({ where: { key: SPOT_PREFIX + slug } }).catch(() => {});
+      else console.warn(`[jobs] Einzelaufruf ${slug} nicht aktualisiert:`, e instanceof Error ? e.message : e);
+    }
+  }
+  return updated;
+}
+
 /** Nach Änderungen an Positionen: vorhandene Posts still im Hintergrund aktualisieren. */
 export async function refreshJobsPostQuietly(db: PrismaClient) {
   const s = await getSettings();

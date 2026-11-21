@@ -740,6 +740,35 @@ try {
     await announceOpened(db, spot.slug);
     check(posts.length === 2, "Abgeschaltet: kein Einzelaufruf");
     await saveSettings({ "discord.announceOnOpen": true }, team.id);
+    // Bestehende Einzelaufrufe bekommen das Banner: nur bearbeiten, gelöschte Posts nicht neu posten
+    const { updateSpotlightsInPlace } = await import("../src/lib/discord/jobs-post");
+    const edits: string[] = [];
+    let postsBefore = posts.length;
+    const prevUrl = process.env.NEXT_PUBLIC_APP_URL;
+    setDiscordApiForTests({
+      getMember: async () => null,
+      openDm: async (u: string) => `dm-${u}`,
+      postMessage: async (ch: string, m: unknown) => (ch === SPOT && posts.push({ ch, body: JSON.stringify(m) }), `post-${++n}`),
+      editMessage: async (_ch: string, id: string, m: unknown) => {
+        if (id === "weg") throw Object.assign(new Error("Unknown Message"), { kind: "not_found" });
+        edits.push(JSON.stringify(m));
+      },
+      deleteMessage: async () => {},
+      addRole: async () => {},
+      removeRole: async () => {},
+      setNick: async () => {},
+      startThread: async () => "t",
+      archiveThread: async () => {},
+    });
+    const other = await db.position.create({ data: { typeId: type.id, slug: "spot-weg", title: "Weg", tagline: "x", description: "x", status: "OPEN" } });
+    await db.setting.upsert({ where: { key: "discord:spotlight:spot-weg" }, create: { key: "discord:spotlight:spot-weg", value: { channelId: SPOT, messageId: "weg", at: new Date().toISOString() } }, update: {} });
+    postsBefore = posts.length;
+    const updated = await updateSpotlightsInPlace(db);
+    check(updated >= 1 && edits.some((e) => e.includes("Spot-Test")), `Bestehender Einzelaufruf wird bearbeitet (${updated})`);
+    check(posts.length === postsBefore, "Dabei kein neuer Post");
+    check(!(await db.setting.findUnique({ where: { key: "discord:spotlight:spot-weg" } })), "In Discord gelöschter Aufruf wird vergessen, nicht neu gepostet");
+    await db.position.delete({ where: { id: other.id } });
+    process.env.NEXT_PUBLIC_APP_URL = prevUrl;
     delete process.env.DISCORD_SPOTLIGHT_CHANNEL_ID;
     setDiscordApiForTests(null);
   }

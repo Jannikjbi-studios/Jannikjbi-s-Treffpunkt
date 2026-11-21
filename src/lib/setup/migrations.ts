@@ -501,6 +501,15 @@ const MIGRATIONS: { id: string; run: (db: PrismaClient, opts: Options) => Promis
     id: "2026-11-antrag-bausteine",
     run: async (db, o) => (o.dryRun ? 0 : replacePromoTemplates(db)),
   },
+  // Einzelaufrufe bekommen ihr Banner: bestehende Posts in Discord einmal bearbeiten (kein neuer Post)
+  {
+    id: "2026-11-einzelaufruf-banner",
+    run: async (db, o) => {
+      if (o.dryRun || !process.env.DISCORD_BOT_TOKEN) return 0;
+      const { updateSpotlightsInPlace } = await import("@/lib/discord/jobs-post");
+      return updateSpotlightsInPlace(db);
+    },
+  },
   // Anträge wie Stellen unter /antraege/<slug>: Werbe-Antrag bekommt den Link /antraege/werbung
   {
     id: "2026-11-antraege",
