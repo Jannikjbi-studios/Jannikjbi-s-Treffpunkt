@@ -56,7 +56,7 @@ export function DeleteNoteButton({ noteId }: { noteId: string }) {
   );
 }
 
-export function BanForm({ subjectId }: { subjectId: string }) {
+export function BanForm({ subjectId, allowPermanent = true }: { subjectId: string; allowPermanent?: boolean }) {
   const { pending, error, run } = useRun();
   const [reason, setReason] = useState("");
   const [days, setDays] = useState("30");
@@ -93,7 +93,7 @@ export function BanForm({ subjectId }: { subjectId: string }) {
               { value: "90", label: "90 Tage" },
               { value: "180", label: "180 Tage" },
               { value: "365", label: "1 Jahr" },
-              { value: "0", label: "Unbefristet", hint: "Bis jemand die Sperre aufhebt" },
+              ...(allowPermanent ? [{ value: "0", label: "Unbefristet", hint: "Bis Owner oder Co-Owner die Sperre aufheben" }] : []),
             ]}
             value={days}
             onChange={setDays}

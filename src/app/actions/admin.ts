@@ -6,7 +6,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth/session";
 import { audit } from "@/lib/audit";
-import { saveSettings, settingsSchema, type Settings } from "@/lib/settings";
+import { getSettings, saveSettings, settingsSchema, type Settings } from "@/lib/settings";
 import type { ActionResult } from "@/app/actions/application";
 import { KEY_PATTERN, findSimilarQuestions, suggestKey } from "@/lib/applications/similarity";
 import { normalizeLabel } from "@/lib/setup/questions";
@@ -30,7 +30,14 @@ export async function saveSettingsAction(patch: Record<string, unknown>): Promis
   const { user } = ctx;
   // KI (Budget, Modelle) verursacht Kosten → nur Owner und Co-Owner
   const { OWNER_ONLY, isOwner, isOwnerSetting } = await import("@/lib/auth/owner");
-  if (Object.keys(patch).some(isOwnerSetting) && !isOwner(ctx)) return { ok: false, error: `KI-Einstellungen: ${OWNER_ONLY}` };
+  if (!isOwner(ctx)) {
+    // Unveränderte Owner-Werte (z. B. beim Speichern des ganzen Bereichs) still ignorieren
+    const current = await getSettings();
+    const parsedOwner = settingsSchema.partial().safeParse(Object.fromEntries(Object.entries(patch).filter(([k]) => isOwnerSetting(k))));
+    const changed = parsedOwner.success ? Object.entries(parsedOwner.data).filter(([k, v]) => JSON.stringify(v) !== JSON.stringify(current[k as keyof Settings])) : [];
+    if (changed.length) return { ok: false, error: `KI- und Rollen-Einstellungen: ${OWNER_ONLY}` };
+    for (const k of Object.keys(patch)) if (isOwnerSetting(k)) delete patch[k];
+  }
   const parsed = settingsSchema.partial().safeParse(patch);
   if (!parsed.success) {
     const first = parsed.error.issues[0];
@@ -87,10 +94,20 @@ function notifyOpenedAfter(position: { id: string; title: string; slug: string }
 }
 
 export async function savePositionAction(input: z.input<typeof positionSchema>): Promise<ActionResult<{ id: string }>> {
-  const { user } = await requireAdmin();
+  const ctx = await requireAdmin();
+  const { user } = ctx;
   const p = positionSchema.safeParse(input);
   if (!p.success) return { ok: false, error: p.error.issues[0].message };
   const { id: pid, ...rest } = p.data;
+  // Discord-Rollen einer Stelle (Annahme, nach Probezeit, „Dazu“, Präfix) ändern nur Owner
+  {
+    const { OWNER_ONLY, isOwner, rolesChanged } = await import("@/lib/auth/owner");
+    if (!isOwner(ctx)) {
+      const current = pid ? await db.position.findUnique({ where: { id: pid }, select: { acceptRoleId: true, passRoleId: true, extraRoleIds: true, nickPrefix: true } }) : null;
+      const next = { acceptRoleId: rest.acceptRoleId ?? null, passRoleId: rest.passRoleId ?? null, extraRoleIds: rest.extraRoleIds ?? [], nickPrefix: rest.nickPrefix || null };
+      if (rolesChanged(current, next)) return { ok: false, error: `Discord-Rollen einer Stelle: ${OWNER_ONLY}` };
+    }
+  }
   const data = { ...rest, opensAt: rest.opensAt ?? null, closesAt: rest.closesAt ?? null, maxApplications: rest.maxApplications ?? null, quizMinScore: rest.quizMinScore ?? null, quizDrawCount: rest.quizDrawCount ?? null, interviewQuestions: rest.interviewQuestions ?? [], reviewChecklist: rest.reviewChecklist ?? [], minProVotes: rest.minProVotes ?? null, requireAdminApproval: rest.requireAdminApproval ?? false, teamRoleIds: rest.teamRoleIds ?? [], ratingCriteria: rest.ratingCriteria ?? [], seats: rest.seats ?? null, nickPrefix: rest.nickPrefix || null, passRoleId: rest.passRoleId ?? null, extraRoleIds: rest.extraRoleIds ?? [] };
   if (data.opensAt && data.closesAt && data.opensAt >= data.closesAt) return { ok: false, error: "Das Enddatum muss nach dem Startdatum liegen." };
   if (data.status === "OPEN" && data.closesAt && data.closesAt <= new Date()) {
@@ -134,7 +151,12 @@ export async function setPositionStatusAction(positionId: string, status: "OPEN"
 }
 
 export async function deletePositionAction(positionId: string): Promise<ActionResult> {
-  const { user } = await requireAdmin();
+  const ctx = await requireAdmin();
+  const { user } = ctx;
+  {
+    const { OWNER_ONLY, isOwner } = await import("@/lib/auth/owner");
+    if (!isOwner(ctx)) return { ok: false, error: OWNER_ONLY };
+  }
   const count = await db.application.count({ where: { positionId } });
   if (count > 0) return { ok: false, error: "Es gibt Bewerbungen auf diese Position. Setz sie stattdessen auf „Versteckt“." };
   await db.position.delete({ where: { id: positionId } });
@@ -404,7 +426,11 @@ export async function runDailyTasksAction(): Promise<ActionResult<{ message: str
 
 /** Alle Changelog-Posts des Bots im Kanal löschen; beim nächsten Tageslauf werden die veröffentlichten Versionen neu gepostet. */
 export async function deleteChangelogPostsAction(): Promise<ActionResult<{ message: string }>> {
-  await requireAdmin();
+  const ctx = await requireAdmin();
+  {
+    const { OWNER_ONLY, isOwner } = await import("@/lib/auth/owner");
+    if (!isOwner(ctx)) return { ok: false, error: OWNER_ONLY };
+  }
   const { deleteChangelogPosts } = await import("@/lib/discord/changelog-post");
   const r = await deleteChangelogPosts(db);
   return { ok: true, data: { message: `${r.deleted} Changelog-Post(s) gelöscht. Neu gepostet wird mit „Fertige Changelog-Tage jetzt posten“ oder beim nächsten Tageslauf.` } };
@@ -439,7 +465,12 @@ export async function postSummaryNowAction(): Promise<ActionResult<{ message: st
  * schaltet den Knopf „Übernehmen“ an neuen Bewerbungen ein.
  */
 export async function setupInteractionsAction(): Promise<ActionResult<{ message: string }>> {
-  const { user } = await requireAdmin();
+  const ctx = await requireAdmin();
+  const { user } = ctx;
+  {
+    const { OWNER_ONLY, isOwner } = await import("@/lib/auth/owner");
+    if (!isOwner(ctx)) return { ok: false, error: OWNER_ONLY };
+  }
   const token = process.env.DISCORD_BOT_TOKEN;
   if (!token) return { ok: false, error: "DISCORD_BOT_TOKEN fehlt." };
   const { publicEnv } = await import("@/lib/env");
@@ -487,7 +518,12 @@ async function registerStatusCommand(token: string): Promise<{ ok: true } | { ok
 
 /** Nur die Befehle (neu) registrieren – die Interaktions-URL muss schon eingerichtet sein. */
 export async function registerCommandsAction(): Promise<ActionResult<{ message: string }>> {
-  const { user } = await requireAdmin();
+  const ctx = await requireAdmin();
+  const { user } = ctx;
+  {
+    const { OWNER_ONLY, isOwner } = await import("@/lib/auth/owner");
+    if (!isOwner(ctx)) return { ok: false, error: OWNER_ONLY };
+  }
   const token = process.env.DISCORD_BOT_TOKEN;
   if (!token) return { ok: false, error: "DISCORD_BOT_TOKEN fehlt." };
   const r = await registerStatusCommand(token);
@@ -799,7 +835,12 @@ const roleFixSchema = z.object({ discordId: z.string().regex(/^\d{15,25}$/), rol
 
 /** Eine Abweichung beheben: Rolle geben oder entfernen (über die Zustellung, mit Audit-Eintrag). */
 export async function fixRoleAction(input: z.input<typeof roleFixSchema>): Promise<ActionResult> {
-  const { user } = await requireAdmin();
+  const ctx = await requireAdmin();
+  const { user } = ctx;
+  {
+    const { OWNER_ONLY, isOwner } = await import("@/lib/auth/owner");
+    if (!isOwner(ctx)) return { ok: false, error: OWNER_ONLY };
+  }
   const p = roleFixSchema.safeParse(input);
   if (!p.success) return { ok: false, error: "Ungültig." };
   const guildId = (await import("@/lib/env")).env().DISCORD_GUILD_ID;

@@ -18,7 +18,7 @@ export interface FailedJob {
 type Result = { ok: true; data: { message: string } } | { ok: false; error: string };
 
 /** Discord-Zustellung prüfen: Testnachricht pro Kanal, Changelog erneut posten, Fehlerliste. */
-export function DiscordDiagnostics({ failed, pending }: { failed: FailedJob[]; pending: number }) {
+export function DiscordDiagnostics({ failed, pending, owner = true }: { failed: FailedJob[]; pending: number; owner?: boolean }) {
   const router = useRouter();
   const [busy, start] = useTransition();
   const [result, setResult] = useState<{ label: string; ok: boolean; text: string } | null>(null);
@@ -79,6 +79,7 @@ export function DiscordDiagnostics({ failed, pending }: { failed: FailedJob[]; p
         <button type="button" className="nv-btn nv-btn-ghost nv-btn-sm" disabled={busy} onClick={() => run("Changelog", () => postChangelogNowAction())}>
           <ArrowClockwise size={14} aria-hidden /> Fertige Changelog-Tage jetzt posten
         </button>
+        {owner && (
         <button
           type="button"
           className="nv-btn nv-btn-ghost nv-btn-sm"
@@ -94,6 +95,8 @@ export function DiscordDiagnostics({ failed, pending }: { failed: FailedJob[]; p
         >
           Changelog-Posts im Kanal löschen
         </button>
+        )}
+        {owner && (
         <button
           type="button"
           className="nv-btn nv-btn-ghost nv-btn-sm"
@@ -108,12 +111,15 @@ export function DiscordDiagnostics({ failed, pending }: { failed: FailedJob[]; p
         >
           Knopf „Übernehmen“ einrichten
         </button>
+        )}
         <button type="button" className="nv-btn nv-btn-ghost nv-btn-sm" disabled={busy} onClick={() => run("Wochenbericht", () => postWeeklyNowAction())}>
           Wochenbericht jetzt senden
         </button>
+        {owner && (
         <button type="button" className="nv-btn nv-btn-ghost nv-btn-sm" disabled={busy} onClick={() => run("Discord-Befehle", () => registerCommandsAction())}>
           Befehle /bewerbung, /offen, /claim registrieren
         </button>
+        )}
         <button type="button" className="nv-btn nv-btn-ghost nv-btn-sm" disabled={busy} onClick={() => run("Discord-Prüfung", () => scanGuildNowAction())} data-testid="guild-scan">
           Bewerber auf dem Discord prüfen
         </button>

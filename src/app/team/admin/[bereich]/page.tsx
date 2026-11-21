@@ -57,8 +57,8 @@ async function Section({ params }: Pick<PageProps<"/team/admin/[bereich]">, "par
           </p>
         )}
       </section>
-      {sec.key === "discord" && <DiscordTools />}
-      {sec.key === "discord" && <RoleAuditPanel />}
+      {sec.key === "discord" && <DiscordTools owner={owner} />}
+      {sec.key === "discord" && <RoleAuditPanel canFix={owner} />}
       {sec.key === "zustellung" && <DeliveryStatus />}
       {sec.key === "ki" && !owner && (
         <p className="nv-card p-4 text-sm text-muted">🔒 Die KI-Einstellungen (Budget, Modelle) können nur Owner und Co-Owner ändern – du siehst sie hier zur Info.</p>
@@ -70,7 +70,7 @@ async function Section({ params }: Pick<PageProps<"/team/admin/[bereich]">, "par
   );
 }
 
-async function DiscordTools() {
+async function DiscordTools({ owner }: { owner: boolean }) {
   const [failedJobs, pending] = await Promise.all([
     db.outboxJob.findMany({ where: { status: "FAILED" }, orderBy: { updatedAt: "desc" }, take: 8 }),
     db.outboxJob.count({ where: { status: "PENDING", runAt: { lte: new Date() } } }),
@@ -93,7 +93,7 @@ async function DiscordTools() {
         Schickt eine Testnachricht direkt an den Kanal und zeigt den genauen Fehler von Discord, falls es nicht klappt.{" "}
         <HelpLink id="discord-kanaele" label="Welcher Kanal wofür?" />
       </p>
-      <DiscordDiagnostics failed={failed} pending={pending} />
+      <DiscordDiagnostics failed={failed} pending={pending} owner={owner} />
     </section>
   );
 }

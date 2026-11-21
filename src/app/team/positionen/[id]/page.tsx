@@ -8,6 +8,7 @@ import { FormBuilder } from "@/components/team/FormBuilder";
 import { requireAdmin } from "@/lib/auth/session";
 import { db } from "@/lib/db";
 import { POSITIONS } from "@/lib/setup/seed-data";
+import { isOwner } from "@/lib/auth/owner";
 
 /** Geplante Discord-Rollen der mitgelieferten Stellen (Hinweis für Admins beim Eintragen der IDs). */
 function roleHintFor(slug: string) {
@@ -31,7 +32,8 @@ export default function PositionEditPage({ params }: PageProps<"/team/positionen
 }
 
 async function Editor({ params }: Pick<PageProps<"/team/positionen/[id]">, "params">) {
-  await requireAdmin();
+  const ctx = await requireAdmin();
+  const owner = isOwner(ctx);
   const { id } = await params;
 
   if (id === "neu") {
@@ -40,7 +42,7 @@ async function Editor({ params }: Pick<PageProps<"/team/positionen/[id]">, "para
         <h1 className="nv-headline text-4xl">
           Neue <em>Position.</em>
         </h1>
-        <PositionForm position={null} />
+        <PositionForm position={null} owner={owner} />
       </>
     );
   }
@@ -109,6 +111,7 @@ async function Editor({ params }: Pick<PageProps<"/team/positionen/[id]">, "para
           }}
           applicationCount={applicationCount}
           roleHint={roleHintFor(position.slug)}
+          owner={owner}
         />
       )}
       <section className="space-y-3">

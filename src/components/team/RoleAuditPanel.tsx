@@ -7,7 +7,7 @@ import { fixRoleAction, roleAuditAction, type RoleAuditReport } from "@/app/acti
 type Row = RoleAuditReport["missing"][number];
 
 /** Rollen-Abgleich: zeigt, wo Portal und Discord nicht zusammenpassen, und behebt es auf Knopfdruck. */
-export function RoleAuditPanel() {
+export function RoleAuditPanel({ canFix = true }: { canFix?: boolean }) {
   const [pending, start] = useTransition();
   const [report, setReport] = useState<RoleAuditReport | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -40,7 +40,7 @@ export function RoleAuditPanel() {
             <span className="min-w-0">
               <span className="font-medium">{r.name}</span> <span className="text-muted">· {r.position}</span>
             </span>
-            {mode &&
+            {mode && canFix &&
               (done.has(key) ? (
                 <span className="text-xs text-[var(--tone-success)]">erledigt</span>
               ) : (
@@ -59,7 +59,7 @@ export function RoleAuditPanel() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h2 className="font-semibold">Rollen-Abgleich</h2>
-          <p className="text-sm text-muted">Vergleicht Annahmen im Portal mit den Rollen der Stellen auf Discord. Ändert nichts, bis du einen Knopf drückst.</p>
+          <p className="text-sm text-muted">Vergleicht Annahmen im Portal mit den Rollen der Stellen auf Discord. Ändert nichts, bis du einen Knopf drückst.{!canFix && " Beheben dürfen nur Owner und Co-Owner."}</p>
         </div>
         <button type="button" className="nv-btn nv-btn-primary nv-btn-sm shrink-0" disabled={pending} onClick={check}>
           {pending && !report ? "Prüft …" : "Jetzt prüfen"}

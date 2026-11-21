@@ -89,7 +89,7 @@ const slugify = (s: string) =>
     .replace(/^-|-$/g, "")
     .slice(0, 60);
 
-export function PositionForm({ position, applicationCount = 0, roleHint }: { position: PositionData | null; applicationCount?: number; roleHint?: string }) {
+export function PositionForm({ position, applicationCount = 0, roleHint, owner = true }: { position: PositionData | null; applicationCount?: number; roleHint?: string; owner?: boolean }) {
   const router = useRouter();
   const [p, setP] = useState<PositionData>(position ?? EMPTY);
   const [tasks, setTasks] = useState((position?.tasks ?? []).join("\n"));
@@ -240,28 +240,29 @@ export function PositionForm({ position, applicationCount = 0, roleHint }: { pos
           <label htmlFor="p-role" className="nv-field-label">
             Discord-Rolle bei Annahme
           </label>
-          <input id="p-role" className="nv-input font-mono text-sm" inputMode="numeric" placeholder="Rollen-ID (optional)" value={p.acceptRoleId ?? ""} onChange={(e) => set("acceptRoleId", e.target.value.trim() || null)} />
+          <input id="p-role" disabled={!owner} title={owner ? undefined : "Nur Owner und Co-Owner"} className="nv-input font-mono text-sm" inputMode="numeric" placeholder="Rollen-ID (optional)" value={p.acceptRoleId ?? ""} onChange={(e) => set("acceptRoleId", e.target.value.trim() || null)} />
           <p className="nv-help mt-1">{roleHint ? <>Geplant: <strong>{roleHint}</strong></> : "Mit Probezeit z. B. „Test-Mod“ bzw. „Test-Supporter“."}</p>
+          {!owner && <p className="nv-help mt-1">🔒 Discord-Rollen und Präfix ändern nur Owner und Co-Owner.</p>}
         </div>
         <div>
           <label htmlFor="p-pass-role" className="nv-field-label">
             Rolle nach bestandener Probezeit
           </label>
-          <input id="p-pass-role" className="nv-input font-mono text-sm" inputMode="numeric" placeholder="Rollen-ID (optional)" value={p.passRoleId ?? ""} onChange={(e) => set("passRoleId", e.target.value.trim() || null)} />
+          <input id="p-pass-role" disabled={!owner} title={owner ? undefined : "Nur Owner und Co-Owner"} className="nv-input font-mono text-sm" inputMode="numeric" placeholder="Rollen-ID (optional)" value={p.passRoleId ?? ""} onChange={(e) => set("passRoleId", e.target.value.trim() || null)} />
           <p className="nv-help mt-1">Z. B. „Moderator“: Bei „Probezeit bestanden“ gibt es diese Rolle, die Rolle bei Annahme wird entfernt. Leer = Rolle bleibt.</p>
         </div>
         <div>
           <label htmlFor="p-extra-roles" className="nv-field-label">
             Dazu bei Annahme
           </label>
-          <input id="p-extra-roles" className="nv-input font-mono text-sm" placeholder="Rollen-IDs mit Komma (optional)" value={extraRoles} onChange={(e) => setExtraRoles(e.target.value)} />
+          <input id="p-extra-roles" disabled={!owner} title={owner ? undefined : "Nur Owner und Co-Owner"} className="nv-input font-mono text-sm" placeholder="Rollen-IDs mit Komma (optional)" value={extraRoles} onChange={(e) => setExtraRoles(e.target.value)} />
           <p className="nv-help mt-1">Z. B. 🧩 Team oder 🎬 Content-Team – kommt zur Rolle der Stelle dazu und geht beim Zurücknehmen wieder weg.</p>
         </div>
         <div>
           <label htmlFor="p-nick" className="nv-field-label">
             Namens-Präfix bei Annahme
           </label>
-          <input id="p-nick" className="nv-input text-sm" maxLength={12} placeholder="z. B. [Support]" value={p.nickPrefix ?? ""} onChange={(e) => set("nickPrefix", e.target.value || null)} />
+          <input id="p-nick" disabled={!owner} title={owner ? undefined : "Nur Owner und Co-Owner"} className="nv-input text-sm" maxLength={12} placeholder="z. B. [Support]" value={p.nickPrefix ?? ""} onChange={(e) => set("nickPrefix", e.target.value || null)} />
           <p className="nv-help mt-1">Steht dann vor dem Server-Namen. Braucht „Spitznamen verwalten“ und die Einstellung „Rolle bei Annahme vergeben“.</p>
         </div>
         <div>
@@ -347,6 +348,7 @@ export function PositionForm({ position, applicationCount = 0, roleHint }: { pos
       <div className="flex flex-wrap items-center justify-between gap-3">
         {p.id ? (
           <div className="flex flex-wrap items-center gap-2">
+          {owner && (
           <button
             type="button"
             className="nv-btn nv-btn-danger nv-btn-sm"
@@ -361,6 +363,7 @@ export function PositionForm({ position, applicationCount = 0, roleHint }: { pos
           >
             <Trash size={14} aria-hidden /> Löschen
           </button>
+          )}
           <button
             type="button"
             className="nv-btn nv-btn-ghost nv-btn-sm"

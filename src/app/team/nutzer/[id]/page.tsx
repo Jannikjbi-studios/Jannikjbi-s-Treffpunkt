@@ -6,6 +6,7 @@ import { ArrowLeft } from "@phosphor-icons/react/ssr";
 import { Avatar, StatusBadge, formatDay, formatRelative } from "@/components/ui";
 import { BanForm, LiftBanButton, NoteForm, DeleteNoteButton } from "@/components/team/UserControls";
 import { requireTeam } from "@/lib/auth/session";
+import { isOwner } from "@/lib/auth/owner";
 import { db } from "@/lib/db";
 
 export const metadata: Metadata = { title: "Nutzer" };
@@ -20,6 +21,7 @@ export default function UserPage({ params }: PageProps<"/team/nutzer/[id]">) {
 
 async function UserDetail({ params }: Pick<PageProps<"/team/nutzer/[id]">, "params">) {
   const { user: me, access } = await requireTeam();
+  const owner = isOwner({ user: me, access });
   const { id } = await params;
   if (!/^[a-z0-9]{10,40}$/i.test(id)) notFound();
   const u = await db.user.findUnique({
@@ -76,13 +78,13 @@ async function UserDetail({ params }: Pick<PageProps<"/team/nutzer/[id]">, "para
                 von {activeBan.createdBy?.globalName ?? activeBan.createdBy?.username ?? "?"} · {formatRelative(activeBan.createdAt)}
               </p>
               <div className="pt-2">
-                <LiftBanButton banId={activeBan.id} />
+                {owner ? <LiftBanButton banId={activeBan.id} /> : <p className="text-xs text-muted">🔒 Vorzeitig aufheben dürfen nur Owner und Co-Owner – sonst läuft die Sperre von selbst ab.</p>}
               </div>
             </div>
           ) : u.id === me.id ? (
             <p className="text-sm text-muted">Du kannst dich nicht selbst sperren.</p>
           ) : (
-            <BanForm subjectId={u.id} />
+            <BanForm subjectId={u.id} allowPermanent={owner} />
           )}
           {u.bansAbout.filter((b) => b !== activeBan).length > 0 && (
             <details>

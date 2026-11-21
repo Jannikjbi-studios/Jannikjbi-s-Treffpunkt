@@ -99,3 +99,22 @@ describe("Owner-Stufe über Admin (Owner, Co-Owner)", () => {
     expect(isOwnerSetting("applications.minAge")).toBe(false);
   });
 });
+
+import { rolesChanged } from "@/lib/auth/owner";
+
+describe("Owner: Rollen und Rechte", () => {
+  const base = { acceptRoleId: A, passRoleId: null, extraRoleIds: [B], nickPrefix: null };
+  it("erkennt geänderte Rollen einer Stelle", () => {
+    expect(rolesChanged(base, { ...base })).toBe(false);
+    expect(rolesChanged(base, { ...base, extraRoleIds: [B] })).toBe(false);
+    expect(rolesChanged(base, { ...base, acceptRoleId: C })).toBe(true);
+    expect(rolesChanged(base, { ...base, extraRoleIds: [B, C] })).toBe(true);
+    expect(rolesChanged(base, { ...base, nickPrefix: "[Mod]" })).toBe(true);
+    expect(rolesChanged(null, { acceptRoleId: null, passRoleId: null, extraRoleIds: [], nickPrefix: null })).toBe(false);
+    expect(rolesChanged(null, { ...base })).toBe(true);
+  });
+  it("Rollen-Einstellungen sind Owner-Sache", () => {
+    for (const k of ["discord.acceptExtraRoleIds", "discord.autoRoleOnAccept", "discord.revertOnUnaccept", "team.juniorRoleIds"]) expect(isOwnerSetting(k), k).toBe(true);
+    expect(isOwnerSetting("discord.claimButton")).toBe(false);
+  });
+});

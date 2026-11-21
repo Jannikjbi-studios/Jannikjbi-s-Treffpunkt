@@ -742,6 +742,11 @@ export async function banUserAction(input: z.input<typeof banSchema>): Promise<A
   }
   const p = banSchema.safeParse(input);
   if (!p.success) return { ok: false, error: "Bitte einen Grund (mind. 3 Zeichen) angeben." };
+  // Unbefristet sperren nur Owner und Co-Owner
+  if (p.data.days === null) {
+    const { OWNER_ONLY, isOwner } = await import("@/lib/auth/owner");
+    if (!isOwner({ user, access })) return { ok: false, error: `Unbefristete Sperre: ${OWNER_ONLY}` };
+  }
   if (p.data.subjectId === user.id) return { ok: false, error: "Du kannst dich nicht selbst sperren." };
   const ban = await db.userBan.create({
     data: {
@@ -764,6 +769,11 @@ export async function liftBanAction(banId: string): Promise<ActionResult> {
   {
     const j = await juniorDenied(user, access);
     if (j) return j;
+  }
+  // Sperren vorzeitig aufheben nur Owner und Co-Owner (sonst laufen sie von selbst ab)
+  {
+    const { OWNER_ONLY, isOwner } = await import("@/lib/auth/owner");
+    if (!isOwner({ user, access })) return { ok: false, error: OWNER_ONLY };
   }
   const ban = await db.userBan.update({ where: { id: banId }, data: { liftedAt: new Date(), liftedById: user.id } }).catch(() => null);
   if (!ban) return { ok: false, error: "Nicht gefunden." };
