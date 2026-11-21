@@ -181,6 +181,7 @@ export function SettingsForm({ section, settings, env, channels, spend, spendMic
             {channelField("discord.changelogChannelId", "Kanal: Changelog")}
             {channelField("discord.summaryChannelId", "Kanal: Teamchat (Übersicht)")}
             {channelField("discord.leadChannelId", "Kanal: Leitungs-Chat")}
+            {channelField("discord.contentChannelId", "Kanal: Content (neue Shorts)")}
           </div>
           <p className="nv-help">Rechtsklick auf den Kanal in Discord → „Kanal-ID kopieren“ (Entwicklermodus). Der Bot braucht dort „Nachrichten senden“ und „Links einbetten“.</p>
           {toggle("discord.logChannelEnabled", "Neue Bewerbungen im Bewerbungs-Kanal posten")}

@@ -172,3 +172,35 @@ describe("Live-Anzeige (Twitch)", () => {
     expect(parseStreams({ data: [{ type: "live", title: "Taxi auf NRW", game_name: "Grand Theft Auto V", viewer_count: 12 }] })).toEqual({ live: true, title: "Taxi auf NRW", game: "Grand Theft Auto V", viewers: 12 });
   });
 });
+
+import { DEFAULT_CONTENT_ROLE_IDS, canUseContent, clipInputSchema, contentRoleIds, statusAfterPlatforms } from "@/lib/content/clips";
+import { classifyRoute } from "@/lib/auth/routes";
+
+describe("Content-Board", () => {
+  const none = { tiktokAt: null, youtubeAt: null, instagramAt: null };
+  const d = new Date();
+  it("Team oder Content-Rolle", () => {
+    expect(canUseContent({ isTeam: true, roleIds: [] }, [A])).toBe(true);
+    expect(canUseContent({ isTeam: false, roleIds: [A] }, [A])).toBe(true);
+    expect(canUseContent({ isTeam: false, roleIds: [B] }, [A])).toBe(false);
+    expect(contentRoleIds("")).toEqual(DEFAULT_CONTENT_ROLE_IDS);
+    expect(contentRoleIds(`${A},${B}`)).toEqual([A, B]);
+  });
+  it("alle Plattformen abgehakt → hochgeladen, Haken weg → wieder bereit", () => {
+    expect(statusAfterPlatforms("READY", { ...none, tiktokAt: d })).toBe("READY");
+    expect(statusAfterPlatforms("READY", { tiktokAt: d, youtubeAt: d, instagramAt: d })).toBe("POSTED");
+    expect(statusAfterPlatforms("POSTED", { ...none, tiktokAt: d })).toBe("READY");
+    expect(statusAfterPlatforms("NEEDS_CHANGES", none)).toBe("NEEDS_CHANGES");
+  });
+  it("nur https-Links", () => {
+    const ok = clipInputSchema.safeParse({ title: "Crash", url: "https://drive.google.com/x", streamDate: "2026-11-20", note: "" });
+    expect(ok.success && ok.data.streamDate?.toISOString()).toBe("2026-11-20T12:00:00.000Z");
+    expect(ok.success && ok.data.note).toBeNull();
+    expect(clipInputSchema.safeParse({ title: "Crash", url: "http://drive.google.com/x" }).success).toBe(false);
+    expect(clipInputSchema.safeParse({ title: "Crash", url: "javascript:alert(1)" }).success).toBe(false);
+    expect(clipInputSchema.safeParse({ title: "Crash", url: "https://x.de", streamDate: "" }).success).toBe(true);
+  });
+  it("/content braucht ein Login", () => {
+    expect(classifyRoute("/content")).toBe("user-page");
+  });
+});

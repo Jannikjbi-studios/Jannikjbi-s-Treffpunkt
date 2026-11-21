@@ -13,6 +13,7 @@ export const CHANNEL_ENV = {
   "discord.summaryChannelId": "DISCORD_TEAM_CHANNEL_ID",
   "discord.leadChannelId": "DISCORD_LEAD_CHANNEL_ID",
   "discord.welcomeChannelId": "DISCORD_WELCOME_CHANNEL_ID",
+  "discord.contentChannelId": "DISCORD_CONTENT_CHANNEL_ID",
   "interview.voiceChannelId": "DISCORD_INTERVIEW_VOICE_CHANNEL_ID",
   "interview.waitingRoomChannelId": "DISCORD_WAITING_ROOM_CHANNEL_ID",
 } as const;

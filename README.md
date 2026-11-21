@@ -118,10 +118,11 @@ Vorlage: [`.env.example`](.env.example). Die wichtigsten:
 | `DISCORD_MEMBER_ROLE_ID` | Pflichtrolle zum Absenden (👤 User = verifiziert). Dazu im Portal: Mindestzeit auf dem Discord (Standard 7 Tage) |
 | `DISCORD_BLOCKED_ROLE_IDS` | Rollen, die vom Bewerben ausschließen (⛔ Blacklist, 🚷 Team-Sperre) |
 | `DISCORD_TEAM_BAN_ROLE_ID` | 🚷 Team-Sperre – vergibt der Bot bei einer Sperre im Portal (ohne Angabe sucht er sie per Name) |
+| `DISCORD_CONTENT_ROLE_ID` | Wer ins Content-Board (`/content`) darf, zusätzlich zum Team (Standard: 🎬 Content-Team, ✂️ Cutter, 📱 Social-Media, 🎨 Designer) |
 | `TWITCH_CLIENT_ID`, `TWITCH_CLIENT_SECRET` | Optional: „Jannik ist live“ auf der Startseite (Twitch-App unter dev.twitch.tv). Ohne Angabe keine Anzeige |
 | `ANTHROPIC_API_KEY` | KI (optional, kostenpflichtig – siehe [5. KI](#5-ki-optional)) |
 | `PUBLIC_ID_PREFIX` | Präfix der Bewerbungs-IDs (Standard `JT` → `JT-2026-0001`) |
-| `DISCORD_*_CHANNEL_ID` | Kanäle (Bewerbungen, Bot-Log, Teamchat, Leitung, Stellenaufruf, Willkommen, Changelog …) – siehe `.env.example` |
+| `DISCORD_*_CHANNEL_ID` | Kanäle (Bewerbungen, Bot-Log, Teamchat, Leitung, Stellenaufruf, Willkommen, Changelog, Content …) – siehe `.env.example` |
 
 Leere Werte gelten als „nicht gesetzt“. Nach Änderungen in Vercel: *Deployments → Redeploy*.
 

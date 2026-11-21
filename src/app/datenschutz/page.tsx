@@ -75,6 +75,11 @@ async function Content() {
           dir antworten. Löschst du deinen Account, werden deine Einreichungen mitgelöscht.
         </li>
         <li>
+          <strong>Content-Board (nur Content-Team):</strong> eingereichte Shorts (Titel, Link zur Datei, Hinweise, Feedback,
+          Upload-Haken) mit deinem Discord-Namen. Die Datei selbst liegt nicht im Portal, nur der Link. Hochgeladene Clips werden
+          nach 60 Tagen gelöscht, alle anderen nach 120 Tagen – und sofort, wenn du deinen Account löschst.
+        </li>
+        <li>
           <strong>Technisch:</strong> Sicherheits-Logs (Audit-Log), Zähler für Rate Limits.
         </li>
       </ul>

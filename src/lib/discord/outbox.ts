@@ -33,7 +33,7 @@ export type OutboxPayload =
       /** Trotz Nachtruhe sofort (z. B. Admin-Knopf) */
       ignoreNight?: boolean;
       /** Art des Posts (Nachtruhe-Einstellung, lib/night.ts); ohne Angabe = Bot-Log */
-      kind?: "botlog" | "applications" | "threads" | "summary" | "changelog";
+      kind?: "botlog" | "applications" | "threads" | "summary" | "changelog" | "content";
     }
   | { type: "ADD_ROLE"; guildId: string; discordUserId: string; roleId: string; reason?: string }
   | { type: "REMOVE_ROLE"; guildId: string; discordUserId: string; roleId: string; reason?: string }

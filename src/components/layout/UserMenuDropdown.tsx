@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
-import { CaretDown, ClipboardText, Gear, Lightbulb, ShieldCheck, SignOut, UserCircle } from "@phosphor-icons/react/ssr";
+import { CaretDown, ClipboardText, FilmSlate, Gear, Lightbulb, ShieldCheck, SignOut, UserCircle } from "@phosphor-icons/react/ssr";
 import { signOutAction } from "@/app/actions/auth";
 
 interface Props {
@@ -11,9 +11,10 @@ interface Props {
   avatar: string;
   isTeam: boolean;
   isAdmin: boolean;
+  canContent?: boolean;
 }
 
-export function UserMenuDropdown({ name, username, avatar, isTeam, isAdmin }: Props) {
+export function UserMenuDropdown({ name, username, avatar, isTeam, isAdmin, canContent }: Props) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const menuId = useId();
@@ -74,6 +75,11 @@ export function UserMenuDropdown({ name, username, avatar, isTeam, isAdmin }: Pr
           {isTeam && (
             <Link href="/team" className={item} role="menuitem" onClick={() => setOpen(false)}>
               <ShieldCheck size={17} aria-hidden /> Team-Bereich
+            </Link>
+          )}
+          {canContent && (
+            <Link href="/content" className={item} role="menuitem" onClick={() => setOpen(false)}>
+              <FilmSlate size={17} aria-hidden /> Content-Board
             </Link>
           )}
           {isAdmin && (

@@ -164,6 +164,8 @@ model User {
   deadlineReminders  DeadlineReminder[]
   followUps          FollowUpReminder[]
   reviewChecks       ReviewCheck[]      @relation("ReviewCheckAuthor")
+  clipsCreated       ContentClip[]      @relation("ClipCreator")
+  clipsHandled       ContentClip[]      @relation("ClipHandler")
 }
 
 /// Allgemeine Angaben eines Bewerbers (einmal ausgefüllt, für weitere Bewerbungen wiederverwendet).
@@ -846,4 +848,37 @@ model ReviewCheck {
   checkedAt     DateTime    @default(now())
 
   @@unique([applicationId, item])
+}
+
+/// Content-Board: Cutter reichen fertige Shorts ein, Social-Media lädt sie hoch
+model ContentClip {
+  id          String     @id @default(cuid())
+  /// Großer Titel im Short (auch Arbeitstitel fürs Hochladen)
+  title       String
+  /// Link zum fertigen Short (z. B. Google Drive, YouTube nicht gelistet)
+  url         String
+  /// Aus welchem Stream (optional)
+  streamDate  DateTime?
+  /// Hinweis für Social-Media (Beschreibung, Hashtag-Ideen, Uhrzeit …)
+  note        String?
+  status      ClipStatus @default(READY)
+  /// Rückmeldung an den Cutter (bei „Überarbeiten“)
+  feedback    String?
+  tiktokAt    DateTime?
+  youtubeAt   DateTime?
+  instagramAt DateTime?
+  createdById String
+  createdBy   User       @relation("ClipCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  handledById String?
+  handledBy   User?      @relation("ClipHandler", fields: [handledById], references: [id], onDelete: SetNull)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([status, createdAt])
+}
+
+enum ClipStatus {
+  READY
+  NEEDS_CHANGES
+  POSTED
 }

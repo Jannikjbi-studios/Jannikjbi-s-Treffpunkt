@@ -19,6 +19,7 @@ export interface CleanupResult {
   rateLimits: number;
   outbox: number;
   profiles: number;
+  clips: number;
 }
 
 async function deleteApplications(where: Prisma.ApplicationWhereInput) {
@@ -56,9 +57,15 @@ export async function runRetention(now = new Date()): Promise<CleanupResult> {
 
   const audit = (await db.auditLog.deleteMany({ where: { createdAt: { lt: before(s["retention.auditDays"]) } } })).count;
   const rateLimits = (await db.rateLimit.deleteMany({ where: { resetAt: { lt: now } } })).count;
+  // Content-Board: hochgeladene Clips nach 60 Tagen, liegengebliebene nach 120 Tagen
+  const clips = (
+    await db.contentClip.deleteMany({
+      where: { OR: [{ status: "POSTED", updatedAt: { lt: before(60) } }, { updatedAt: { lt: before(120) } }] },
+    })
+  ).count;
   const outbox = (await db.outboxJob.deleteMany({ where: { status: { in: ["DONE", "FAILED"] }, updatedAt: { lt: before(30) } } })).count;
 
-  const result = { drafts, withdrawn, rejected, accepted, orphanUploads: orphans.count, decidedUploads, audit, rateLimits, outbox, profiles };
+  const result = { drafts, withdrawn, rejected, accepted, orphanUploads: orphans.count, decidedUploads, audit, rateLimits, outbox, profiles, clips };
   if (drafts + withdrawn + rejected + accepted + orphans.count + decidedUploads > 0) {
     await db.auditLog.create({ data: { action: "retention.cleanup", meta: { ...result } } });
   }

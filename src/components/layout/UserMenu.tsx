@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getCurrentAccess } from "@/lib/auth/session";
 import { avatarUrl } from "@/lib/discord/snowflake";
 import { UserMenuDropdown } from "@/components/layout/UserMenuDropdown";
+import { canUseContent } from "@/lib/content/clips";
 
 export async function UserMenu() {
   const { user, access } = await getCurrentAccess();
@@ -21,6 +22,7 @@ export async function UserMenu() {
       avatar={avatarUrl(user.discordId, user.avatar, 64)}
       isTeam={!!access?.isTeam}
       isAdmin={!!access?.isAdmin}
+      canContent={canUseContent({ isTeam: !!access?.isTeam, roleIds: access?.roleIds?.length ? access.roleIds : user.roleIds })}
     />
   );
 }

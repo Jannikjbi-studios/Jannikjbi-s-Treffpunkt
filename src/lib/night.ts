@@ -80,6 +80,7 @@ export const DELIVERY_KINDS = [
   { key: "threads", label: "Threads", desc: "Gespiegelte Kommentare und Abschluss-Hinweise im Thread der Bewerbung.", to: "team" },
   { key: "summary", label: "Team-Übersicht & Leitung", desc: "Morgendliche Übersicht im Teamchat und Hinweis an die Leitung.", to: "team" },
   { key: "digest", label: "Morgen-DM an Betreuer", desc: "Persönliche DM mit den eigenen offenen Punkten.", to: "team" },
+  { key: "content", label: "Content-Board", desc: "Hinweis im Content-Kanal, wenn ein neues Short bereit ist.", to: "team" },
   { key: "changelog", label: "Changelog", desc: "Neue Portal-Versionen im Changelog-Kanal.", to: "team" },
   { key: "team_message", label: "Nachrichten vom Team", desc: "Was ein Teammitglied dem Bewerber schreibt (DM).", to: "applicant" },
   { key: "status", label: "Status-Infos", desc: "Automatische Infos an Bewerber, z. B. „Rückzug bestätigt“.", to: "applicant" },

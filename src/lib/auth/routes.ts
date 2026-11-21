@@ -5,7 +5,7 @@
  */
 export type RouteKind = "team-page" | "team-api" | "user-page" | "user-api" | "public";
 
-const USER_PAGE_PREFIXES = ["/dashboard", "/bewerben", "/konto"];
+const USER_PAGE_PREFIXES = ["/dashboard", "/bewerben", "/konto", "/content"];
 const USER_API_PREFIXES = ["/api/me", "/api/uploads"];
 
 function matches(pathname: string, prefix: string) {

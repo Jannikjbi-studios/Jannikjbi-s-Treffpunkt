@@ -151,6 +151,8 @@ export const settingsSchema = z.object({
   "team.personalDigestEnabled": bool(true),
   /** Leitungs-Chat: Hinweis, wenn Bewerbungen zu lange liegen (leer = aus) */
   "discord.leadChannelId": channel(""),
+  /** Content-Board: Hinweis, wenn ein neues Short bereit ist (leer = aus) */
+  "discord.contentChannelId": channel(""),
   /** Ab wie vielen Tagen ohne Team-Aktivität eine Bewerbung als „liegengeblieben“ gilt */
   "team.staleDays": z.coerce.number().int().min(1).max(30).default(3),
   /** Junior-Team: Discord-Rollen (IDs, Komma-getrennt) – nur lesen, kommentieren, bewerten */
