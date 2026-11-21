@@ -6,7 +6,7 @@
  *
  *  - team:    Formular → Gespräch → Annahme, danach Einarbeitung/Probezeit/Pate
  *  - partner: Partner-Anfrage (Server, Creator, Marke) → Team antwortet, kein Gespräch, keine Team-Rollen
- *  - promo:   Anträge (z. B. Werbe-Antrag: Jannik soll ein Spiel, eine App oder ein Produkt vorstellen) –
+ *  - promo:   Anträge (z. B. Sponsoring-Anfrage: Jannik soll ein Spiel, eine App oder ein Produkt vorstellen) –
  *             beliebig viele, wie Stellen unter /antraege/<slug>, kein Gespräch, keine Rollen
  *
  * Weitere Arten lassen sich hier ergänzen (eigener Key, Stellen im Formularbaukasten).
@@ -87,24 +87,24 @@ Moin, dein Team von Jannikjbi's Treffpunkt`,
   },
   promo: {
     key: "promo",
-    label: "Werbung",
-    noun: "Werbe-Antrag",
+    label: "Antrag",
+    noun: "Antrag",
     interview: false,
     teamFeatures: false,
     confirmations: ["truth", "privacy"],
     acceptedHint: "Jannik ist dabei! Die Details besprechen wir per Nachricht.",
-    teaser: "Du möchtest, dass Jannik dein Spiel, deine App oder dein Produkt vorstellt? Stell einen Werbe-Antrag – Jannik schaut sich jeden an.",
+    teaser: "Du möchtest, dass Jannik dein Spiel, deine App oder dein Produkt vorstellt? Stell eine Sponsoring-Anfrage – Jannik schaut sich jede an.",
     path: "/antraege",
     applyLabel: "Antrag stellen",
     formIntro: "Dein",
     plural: "Anträge",
     confirmationTemplate: `Moin {name}! 👋
 
-dein Werbe-Antrag ist am {datum} angekommen – danke, dass du an Jannik gedacht hast.
+deine Anfrage „{position}“ ist am {datum} angekommen – danke, dass du an Jannik gedacht hast.
 
 **Antrags-ID:** {bewerbungs_id}
 
-Jannik schaut sich jeden Antrag persönlich an und meldet sich hier per DM oder im Portal – {bearbeitungszeit}. Den Stand siehst du jederzeit in deinem Dashboard.
+Jannik schaut sich jede Anfrage persönlich an und meldet sich hier per DM oder im Portal – {bearbeitungszeit}. Den Stand siehst du jederzeit in deinem Dashboard.
 
 Bis bald – Jannik & das Team vom Treffpunkt`,
   },

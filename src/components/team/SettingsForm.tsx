@@ -187,7 +187,7 @@ export function SettingsForm({ section, settings, env, channels, spend, spendMic
           {toggle("discord.logChannelEnabled", "Neue Bewerbungen im Bewerbungs-Kanal posten")}
           {toggle("discord.botLogEnabled", "Bot-Logs posten", "Statuswechsel, Claims, Team-Nachrichten, Antworten von Bewerbern und Zustellfehler.")}
           {toggle("discord.jobsAutoUpdate", "Stellenaufruf automatisch aktualisieren", "Ändert sich eine Position (Status, Texte), bearbeitet der Bot seine Posts (Gesamt- und Einzelaufrufe) – kein neuer Post.")}
-          {toggle("discord.announceOnOpen", "Neue Stelle offen → Einzelaufruf posten", "Öffnet eine Stelle (von Hand oder per Startdatum), postet der Bot automatisch einen neuen Einzelaufruf „Wir suchen …“ im Kanal Einzelaufrufe. Ein alter Aufruf derselben Stelle wird ersetzt.")}
+          {toggle("discord.announceOnOpen", "Neue Stelle oder neuer Antrag offen → Einzelaufruf posten", "Öffnet eine Stelle oder ein Antrag (von Hand oder per Startdatum), postet der Bot automatisch einen neuen Einzelaufruf im Kanal Einzelaufrufe – mit Banner. Ein alter Aufruf derselben Stelle wird ersetzt.")}
           <div className="grid grid-cols-[minmax(0,1fr)] gap-2 sm:grid-cols-[260px_1fr] items-start">
             <div>
               <label htmlFor="announce-ping" className="nv-field-label">

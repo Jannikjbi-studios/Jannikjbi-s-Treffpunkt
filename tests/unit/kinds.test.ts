@@ -84,14 +84,14 @@ describe("Partner-Anfrage", () => {
   });
 });
 
-describe("Werbe-Antrag", () => {
+describe("Anträge (Sponsoring-Anfrage)", () => {
   it("eigene Art ohne Gespräch und ohne Team-Funktionen, Anträge unter /antraege", () => {
     const k = kindOf("promo");
     expect(k.key).toBe("promo");
     expect(k.interview).toBe(false);
     expect(k.teamFeatures).toBe(false);
     expect(k.path).toBe("/antraege");
-    expect(positionHref("werbung", "promo")).toBe("/antraege/werbung");
+    expect(positionHref("sponsoring", "promo")).toBe("/antraege/sponsoring");
     expect(positionHref("cutter", "team")).toBe("/positionen/cutter");
     expect(KIND_POSITION_SLUG.promo).toBeUndefined(); // mehrere Anträge möglich, Link änderbar
     expect(confirmationsFor("promo").map((c) => c.key)).toEqual(["truth", "privacy"]);
@@ -99,7 +99,8 @@ describe("Werbe-Antrag", () => {
   it("Startinhalte: offen, nur für die Leitung sichtbar, eigene Fragen mit Slug-Präfix", () => {
     const p = KIND_SEEDS.find((k) => k.type.key === "promo")!.position;
     expect(p.status).toBe("OPEN");
-    expect(p.slug).toBe("werbung");
+    expect(p.slug).toBe("sponsoring");
+    expect(p.title).toBe("Sponsoring-Anfrage");
     expect(p.teamRoleIds?.length).toBeGreaterThan(0);
     for (const s of p.sections) for (const q of s.questions) expect(q.key.startsWith("promo.")).toBe(true);
   });

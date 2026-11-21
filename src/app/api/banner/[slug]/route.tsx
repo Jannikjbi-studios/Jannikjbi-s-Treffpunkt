@@ -94,7 +94,7 @@ const rgba = (hex: string, a: number) => {
 export async function GET(_req: Request, ctx: RouteContext<"/api/banner/[slug]">) {
   const { slug } = await ctx.params;
   if (!/^[a-z0-9-]{1,60}$/.test(slug)) return new Response("Nicht gefunden", { status: 404 });
-  const p = await db.position.findFirst({ where: { slug, status: { not: "HIDDEN" } }, select: { title: true, tagline: true, icon: true } });
+  const p = await db.position.findFirst({ where: { slug, status: { not: "HIDDEN" } }, select: { title: true, tagline: true, icon: true, type: { select: { key: true } } } });
   if (!p) return new Response("Nicht gefunden", { status: 404 });
 
   const { fonts, logo } = await assets;
@@ -145,7 +145,7 @@ export async function GET(_req: Request, ctx: RouteContext<"/api/banner/[slug]">
           <div style={{ display: "flex", flexDirection: "column", maxWidth: 1080 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 20, fontWeight: 600, letterSpacing: 7, color: accent }}>
               <div style={{ width: 38, height: 3, backgroundColor: accent }} />
-              JANNIKJBI&apos;S TREFFPUNKT · WIR SUCHEN
+              {`JANNIKJBI'S TREFFPUNKT · ${p.type.key === "team" ? "WIR SUCHEN" : "JETZT ANFRAGEN"}`}
             </div>
             <div style={{ display: "flex", fontFamily: "Barlow Condensed", fontWeight: 700, fontSize: titleSize, lineHeight: 0.95, marginTop: 16, letterSpacing: 1 }}>
               {lead && <span style={{ color: accent }}>{lead}</span>}

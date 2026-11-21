@@ -151,15 +151,15 @@ async function List() {
 
       <section className="nv-card p-5 sm:p-6 space-y-4" aria-labelledby="spot-title">
         <div>
-          <h2 id="spot-title" className="font-semibold text-lg">Einzelaufrufe pro Stelle</h2>
+          <h2 id="spot-title" className="font-semibold text-lg">Einzelaufrufe pro Stelle und Antrag</h2>
           <p className="text-sm text-muted mt-0.5">
-            „Wir suchen …!“ für eine einzelne Stelle im Kanal{" "}
+            „Wir suchen …!“ für eine einzelne Stelle – oder ein Aufruf für einen Antrag – im Kanal{" "}
             <span className="font-mono">{settings["discord.spotlightChannelId"] || "– (in den Einstellungen eintragen)"}</span>. Gepostete Aufrufe
             {settings["discord.jobsAutoUpdate"] ? " aktualisieren sich automatisch, wenn du die Position änderst." : " aktualisierst du hier von Hand."}
           </p>
         </div>
         <ul className="divide-y divide-[var(--nv-border)]">
-          {teamPositions
+          {[...teamPositions, ...requestPositions]
             .filter((p) => p.status !== "HIDDEN")
             .map((p) => {
               const post = spotlights[p.slug];

@@ -510,6 +510,20 @@ const MIGRATIONS: { id: string; run: (db: PrismaClient, opts: Options) => Promis
       return updateSpotlightsInPlace(db);
     },
   },
+  // Einmalig: Einzelaufrufe (mit Banner) für alle offenen Stellen posten – nur, wo noch keiner existiert
+  {
+    id: "2026-11-einzelaufrufe-posten",
+    run: async (db, o) => {
+      if (o.dryRun || !process.env.DISCORD_BOT_TOKEN) return 0;
+      const { postMissingSpotlights } = await import("@/lib/discord/jobs-post");
+      return postMissingSpotlights(db);
+    },
+  },
+  // „Werbe-Antrag“ heißt jetzt „Sponsoring-Anfrage“ (/antraege/sponsoring) – nur unveränderte Texte
+  {
+    id: "2026-11-sponsoring-anfrage",
+    run: async (db, o) => (o.dryRun ? 0 : renameToSponsoring(db)),
+  },
   // Anträge wie Stellen unter /antraege/<slug>: Werbe-Antrag bekommt den Link /antraege/werbung
   {
     id: "2026-11-antraege",
@@ -520,6 +534,39 @@ const MIGRATIONS: { id: string; run: (db: PrismaClient, opts: Options) => Promis
     },
   },
 ];
+
+/** Bausteine der Anträge: „Antrag“ → „Anfrage“ (Titel, alter Text, neuer Text). */
+const SPONSORING_TEMPLATE_TEXTS: [string, string, string][] = [
+  ["Antrag – Danke, ist angekommen", "Moin {name}! 👋\n\ndein Antrag ist angekommen – danke, dass du an Jannik gedacht hast.\n\nJannik schaut sich jeden Antrag persönlich an, {bearbeitungszeit}. Den Stand siehst du jederzeit hier: {dashboard_link}\n\nÄndert sich bei dir etwas (Termin, Link, Konditionen)? Schreib es einfach direkt hier dazu.\n\n{teammitglied}", "Moin {name}! 👋\n\ndeine Anfrage ist angekommen – danke, dass du an Jannik gedacht hast.\n\nJannik schaut sich jede Anfrage persönlich an, {bearbeitungszeit}. Den Stand siehst du jederzeit hier: {dashboard_link}\n\nÄndert sich bei dir etwas (Termin, Link, Konditionen)? Schreib es einfach direkt hier dazu.\n\n{teammitglied}"],
+  ["Antrag – Kurzer Zwischenstand", "Moin {name},\n\nkurzes Update zu {bewerbungs_id}: Dein Antrag liegt bei Jannik, er hat ihn auf dem Schirm. Sobald es eine Entscheidung gibt, melden wir uns – du musst nichts weiter tun.\n\n{teammitglied}", "Moin {name},\n\nkurzes Update zu {bewerbungs_id}: Deine Anfrage liegt bei Jannik, er hat sie auf dem Schirm. Sobald es eine Entscheidung gibt, melden wir uns – du musst nichts weiter tun.\n\n{teammitglied}"],
+  ["Antrag – Noch aktuell?", "Moin {name},\n\nwir hatten dir zu {bewerbungs_id} geschrieben und noch nichts gehört. Ist das Thema bei dir noch aktuell?\n\nWenn wir in den nächsten Tagen nichts hören, schließen wir den Antrag – du kannst aber jederzeit einen neuen stellen.\n\n{teammitglied}", "Moin {name},\n\nwir hatten dir zu {bewerbungs_id} geschrieben und noch nichts gehört. Ist das Thema bei dir noch aktuell?\n\nWenn wir in den nächsten Tagen nichts hören, schließen wir die Anfrage – du kannst aber jederzeit eine neue stellen.\n\n{teammitglied}"],
+  ["Antrag – Grundsätzlich ausgeschlossen", "Moin {name},\n\ndanke für deinen Antrag. Werbung für Glücksspiel, Wetten, Krypto, Trading oder NSFW macht Jannik grundsätzlich nicht – auch nicht gegen Bezahlung. Deshalb kommen wir hier leider nicht zusammen.\n\nAlles Gute für dein Projekt!\n\n{teammitglied}", "Moin {name},\n\ndanke für deine Anfrage. Werbung für Glücksspiel, Wetten, Krypto, Trading oder NSFW macht Jannik grundsätzlich nicht – auch nicht gegen Bezahlung. Deshalb kommen wir hier leider nicht zusammen.\n\nAlles Gute für dein Projekt!\n\n{teammitglied}"],
+  ["Antrag – Zeitlich nicht machbar", "Moin {name},\n\nan sich gefällt Jannik die Idee – zeitlich klappt es aber gerade nicht:\n\n{grund}\n\nWenn sich bei dir etwas verschiebt, stell gern ab dem **{sperrfrist}** einen neuen Antrag.\n\n{teammitglied}", "Moin {name},\n\nan sich gefällt Jannik die Idee – zeitlich klappt es aber gerade nicht:\n\n{grund}\n\nWenn sich bei dir etwas verschiebt, stell gern ab dem **{sperrfrist}** eine neue Anfrage.\n\n{teammitglied}"],
+  ["Antrag – Danke nach der Aktion", "Moin {name},\n\ndanke für die Zusammenarbeit! 🙌 Die Aktion ist durch – wir hoffen, sie hat sich für dich gelohnt.\n\nWenn du später wieder etwas hast, das zu Jannik passt: Stell einfach einen neuen Werbe-Antrag im Portal.\n\n{teammitglied}", "Moin {name},\n\ndanke für die Zusammenarbeit! 🙌 Die Aktion ist durch – wir hoffen, sie hat sich für dich gelohnt.\n\nWenn du später wieder etwas hast, das zu Jannik passt: Stell einfach eine neue Sponsoring-Anfrage im Portal.\n\n{teammitglied}"],
+];
+
+async function renameToSponsoring(db: PrismaClient) {
+  let n = 0;
+  const pos = await db.position.findFirst({ where: { slug: { in: ["werbung", "werbe-antrag"] }, type: { key: "promo" } } });
+  if (pos) {
+    const slugFree = !(await db.position.findUnique({ where: { slug: "sponsoring" }, select: { id: true } }));
+    await db.position.update({
+      where: { id: pos.id },
+      data: {
+        ...(slugFree ? { slug: "sponsoring" } : {}),
+        ...(pos.title === "Werbe-Antrag" ? { title: "Sponsoring-Anfrage" } : {}),
+        ...(pos.description === "Du entwickelst ein Spiel, hast eine App oder ein Produkt und möchtest, dass Jannik es im Stream, in einem Short oder auf Social Media vorstellt? Erzähl kurz, worum es geht und was du dir vorstellst. Jannik schaut sich jeden Antrag selbst an und sagt nur zu, wenn es zu ihm und der Community passt – egal ob bezahlt oder nicht. Für Discord-Server und Partnerschaften gibt es die Partner-Anfrage." ? { description: "Du entwickelst ein Spiel, hast eine App oder ein Produkt und möchtest, dass Jannik es im Stream, in einem Short oder auf Social Media vorstellt? Erzähl kurz, worum es geht und was du dir vorstellst. Jannik schaut sich jede Anfrage selbst an und sagt nur zu, wenn es zu ihm und der Community passt – egal ob bezahlt oder nicht. Für Discord-Server und Partnerschaften gibt es die Partner-Anfrage." } : {}),
+      },
+    });
+    n++;
+    n += (await db.formSection.updateMany({ where: { positionId: pos.id, key: "promo.offer", title: "Dein Antrag" }, data: { title: "Deine Anfrage" } })).count;
+  }
+  n += (await db.applicationType.updateMany({ where: { key: "promo", name: "Werbe-Antrag" }, data: { name: "Anträge", description: "Anträge an Jannik, z. B. Sponsoring-Anfragen" } })).count;
+  for (const [title, oldBody, newBody] of SPONSORING_TEMPLATE_TEXTS) {
+    n += (await db.messageTemplate.updateMany({ where: { title, body: oldBody }, data: { body: newBody } })).count;
+  }
+  return n;
+}
 
 /** Erste Werbe-Antrag-Bausteine (Titel, Text) – werden ersetzt, solange niemand sie geändert hat. */
 const OLD_PROMO_TEMPLATES: [string, string][] = [

@@ -1,6 +1,6 @@
 /**
  * Startinhalte für weitere Bewerbungsarten neben „Team“: Bewerbungsart,
- * eine „Stelle“ je Art (Partner-Anfrage startet geschlossen, Werbe-Antrag offen),
+ * eine „Stelle“ je Art (Partner-Anfrage startet geschlossen, Sponsoring-Anfrage offen),
  * Abschnitte mit Fragen und passende Nachrichtenbausteine.
  */
 import type { PositionStatus, TemplateCategory } from "@prisma/client";
@@ -128,18 +128,18 @@ export const PARTNER_SEED: KindSeed = {
 const LEAD_ROLE_IDS = ["1573541450833199276", "1573541451806285917"];
 
 /**
- * Erster Antrag (/antraege/werbung): Jannik soll ein Spiel, eine App oder ein Produkt vorstellen
+ * Sponsoring-Anfrage (/antraege/sponsoring): Jannik soll ein Spiel, eine App oder ein Produkt vorstellen
  * (Discord-Server → Partner-Anfrage). Startet offen, nur für die Leitung sichtbar. Weitere Anträge
  * legen Admins im Team-Bereich an (Positionen & Fragen → Neuer Antrag).
  */
 export const PROMO_SEED: KindSeed = {
-  type: { key: "promo", name: "Werbe-Antrag", description: "Anträge, damit Jannik ein Spiel, eine App oder ein Projekt vorstellt" },
+  type: { key: "promo", name: "Anträge", description: "Anträge an Jannik, z. B. Sponsoring-Anfragen" },
   position: {
-    slug: "werbung",
-    title: "Werbe-Antrag",
+    slug: "sponsoring",
+    title: "Sponsoring-Anfrage",
     tagline: "Spiel, App oder Produkt? Frag an, ob Jannik es vorstellt.",
     description:
-      "Du entwickelst ein Spiel, hast eine App oder ein Produkt und möchtest, dass Jannik es im Stream, in einem Short oder auf Social Media vorstellt? Erzähl kurz, worum es geht und was du dir vorstellst. Jannik schaut sich jeden Antrag selbst an und sagt nur zu, wenn es zu ihm und der Community passt – egal ob bezahlt oder nicht. Für Discord-Server und Partnerschaften gibt es die Partner-Anfrage.",
+      "Du entwickelst ein Spiel, hast eine App oder ein Produkt und möchtest, dass Jannik es im Stream, in einem Short oder auf Social Media vorstellt? Erzähl kurz, worum es geht und was du dir vorstellst. Jannik schaut sich jede Anfrage selbst an und sagt nur zu, wenn es zu ihm und der Community passt – egal ob bezahlt oder nicht. Für Discord-Server und Partnerschaften gibt es die Partner-Anfrage.",
     icon: "megaphone",
     status: "OPEN",
     cooldownDays: 14,
@@ -157,7 +157,7 @@ export const PROMO_SEED: KindSeed = {
     sections: [
       {
         key: "promo.offer",
-        title: "Dein Antrag",
+        title: "Deine Anfrage",
         description: "Nur das Wichtigste – Details klären wir per Nachricht.",
         questions: [
           { key: "promo.name", label: "Wer steckt dahinter? (Name, Studio oder Firma)", type: "SHORT_TEXT", maxLength: 100 },
@@ -185,12 +185,12 @@ export const PROMO_SEED: KindSeed = {
     {
       category: "EINGANG",
       title: "Antrag – Danke, ist angekommen",
-      body: "Moin {name}! 👋\n\ndein Antrag ist angekommen – danke, dass du an Jannik gedacht hast.\n\nJannik schaut sich jeden Antrag persönlich an, {bearbeitungszeit}. Den Stand siehst du jederzeit hier: {dashboard_link}\n\nÄndert sich bei dir etwas (Termin, Link, Konditionen)? Schreib es einfach direkt hier dazu.\n\n{teammitglied}",
+      body: "Moin {name}! 👋\n\ndeine Anfrage ist angekommen – danke, dass du an Jannik gedacht hast.\n\nJannik schaut sich jede Anfrage persönlich an, {bearbeitungszeit}. Den Stand siehst du jederzeit hier: {dashboard_link}\n\nÄndert sich bei dir etwas (Termin, Link, Konditionen)? Schreib es einfach direkt hier dazu.\n\n{teammitglied}",
     },
     {
       category: "EINGANG",
       title: "Antrag – Kurzer Zwischenstand",
-      body: "Moin {name},\n\nkurzes Update zu {bewerbungs_id}: Dein Antrag liegt bei Jannik, er hat ihn auf dem Schirm. Sobald es eine Entscheidung gibt, melden wir uns – du musst nichts weiter tun.\n\n{teammitglied}",
+      body: "Moin {name},\n\nkurzes Update zu {bewerbungs_id}: Deine Anfrage liegt bei Jannik, er hat sie auf dem Schirm. Sobald es eine Entscheidung gibt, melden wir uns – du musst nichts weiter tun.\n\n{teammitglied}",
     },
     {
       category: "RUECKFRAGE",
@@ -215,7 +215,7 @@ export const PROMO_SEED: KindSeed = {
     {
       category: "ERINNERUNG",
       title: "Antrag – Noch aktuell?",
-      body: "Moin {name},\n\nwir hatten dir zu {bewerbungs_id} geschrieben und noch nichts gehört. Ist das Thema bei dir noch aktuell?\n\nWenn wir in den nächsten Tagen nichts hören, schließen wir den Antrag – du kannst aber jederzeit einen neuen stellen.\n\n{teammitglied}",
+      body: "Moin {name},\n\nwir hatten dir zu {bewerbungs_id} geschrieben und noch nichts gehört. Ist das Thema bei dir noch aktuell?\n\nWenn wir in den nächsten Tagen nichts hören, schließen wir die Anfrage – du kannst aber jederzeit eine neue stellen.\n\n{teammitglied}",
     },
     {
       category: "ANNAHME",
@@ -235,12 +235,12 @@ export const PROMO_SEED: KindSeed = {
     {
       category: "ABLEHNUNG",
       title: "Antrag – Grundsätzlich ausgeschlossen",
-      body: "Moin {name},\n\ndanke für deinen Antrag. Werbung für Glücksspiel, Wetten, Krypto, Trading oder NSFW macht Jannik grundsätzlich nicht – auch nicht gegen Bezahlung. Deshalb kommen wir hier leider nicht zusammen.\n\nAlles Gute für dein Projekt!\n\n{teammitglied}",
+      body: "Moin {name},\n\ndanke für deine Anfrage. Werbung für Glücksspiel, Wetten, Krypto, Trading oder NSFW macht Jannik grundsätzlich nicht – auch nicht gegen Bezahlung. Deshalb kommen wir hier leider nicht zusammen.\n\nAlles Gute für dein Projekt!\n\n{teammitglied}",
     },
     {
       category: "ABLEHNUNG",
       title: "Antrag – Zeitlich nicht machbar",
-      body: "Moin {name},\n\nan sich gefällt Jannik die Idee – zeitlich klappt es aber gerade nicht:\n\n{grund}\n\nWenn sich bei dir etwas verschiebt, stell gern ab dem **{sperrfrist}** einen neuen Antrag.\n\n{teammitglied}",
+      body: "Moin {name},\n\nan sich gefällt Jannik die Idee – zeitlich klappt es aber gerade nicht:\n\n{grund}\n\nWenn sich bei dir etwas verschiebt, stell gern ab dem **{sperrfrist}** eine neue Anfrage.\n\n{teammitglied}",
     },
     {
       category: "SONSTIGES",
@@ -250,10 +250,10 @@ export const PROMO_SEED: KindSeed = {
     {
       category: "SONSTIGES",
       title: "Antrag – Danke nach der Aktion",
-      body: "Moin {name},\n\ndanke für die Zusammenarbeit! 🙌 Die Aktion ist durch – wir hoffen, sie hat sich für dich gelohnt.\n\nWenn du später wieder etwas hast, das zu Jannik passt: Stell einfach einen neuen Werbe-Antrag im Portal.\n\n{teammitglied}",
+      body: "Moin {name},\n\ndanke für die Zusammenarbeit! 🙌 Die Aktion ist durch – wir hoffen, sie hat sich für dich gelohnt.\n\nWenn du später wieder etwas hast, das zu Jannik passt: Stell einfach eine neue Sponsoring-Anfrage im Portal.\n\n{teammitglied}",
     },
   ],
 };
 
-/** Weitere Bewerbungsarten neben „Team“: Partner-Anfrage und Werbe-Antrag. */
+/** Weitere Bewerbungsarten neben „Team“: Partner-Anfrage und Anträge (Sponsoring-Anfrage). */
 export const KIND_SEEDS: KindSeed[] = [PARTNER_SEED, PROMO_SEED];

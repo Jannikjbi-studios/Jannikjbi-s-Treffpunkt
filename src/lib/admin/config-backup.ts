@@ -65,7 +65,7 @@ export const backupSchema = z.object({
       nickPrefix: z.string().max(12).nullable().optional(),
       quizDrawCount: z.number().int().nullable().optional(),
       reviewChecklist: z.array(str(120)).max(15).optional(),
-      // Art der Stelle (Team, Partner-Anfrage, Werbe-Antrag) – ältere Sicherungen: Team
+      // Art der Stelle (Team, Partner-Anfrage, Anträge) – ältere Sicherungen: Team
       kind: z.enum(KIND_KEYS as [KindKey, ...KindKey[]]).optional(),
     }),
   ).max(50),
@@ -215,7 +215,7 @@ export async function importConfig(db: PrismaClient, backup: Backup, opts: { dry
     const existing = s.key
       ? await db.formSection.findFirst({ where: { key: s.key } })
       : await db.formSection.findFirst({ where: { title: s.title, positionId } });
-    // Schritt gehört zur Art seiner Stelle (Werbe-Antrag, Partner-Anfrage …), allgemeine Schritte zu „team“
+    // Schritt gehört zur Art seiner Stelle (Sponsoring-Anfrage, Partner-Anfrage …), allgemeine Schritte zu „team“
     const typeId = (positionId && posType.get(positionId)) || type.id;
     const data = { key: s.key, title: s.title, description: s.description, sortOrder: s.sortOrder, archived: s.archived, positionId, typeId };
     let sectionId = existing?.id ?? null;

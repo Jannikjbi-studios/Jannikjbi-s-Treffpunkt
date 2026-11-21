@@ -110,14 +110,14 @@ export function withRolePing(message: RESTPostAPIChannelMessageJSONBody, roleId:
 }
 
 /**
- * Stelle wurde geöffnet → neuer Einzelaufruf im Kanal „Einzelaufrufe“ (nur Team-Stellen).
+ * Stelle oder Antrag wurde geöffnet → neuer Einzelaufruf im Kanal „Einzelaufrufe“.
  * Ein älterer Aufruf derselben Stelle wird dabei gelöscht, damit es keine doppelten gibt.
  */
 export async function announceOpenedPosition(db: PrismaClient, slug: string): Promise<Result> {
   const s = await getSettings();
   const channelId = s["discord.spotlightChannelId"];
   if (!s["discord.announceOnOpen"] || !channelId) return { ok: true, action: "none" };
-  const position = (await db.position.findFirst({ where: { slug, status: "OPEN", type: { key: "team", active: true } }, select: POSITION_SELECT })) as JobPosition | null;
+  const position = (await db.position.findFirst({ where: { slug, status: "OPEN", type: { active: true } }, select: POSITION_SELECT })) as JobPosition | null;
   if (!position) return { ok: true, action: "none" };
   const message = withRolePing(buildSpotlightMessage(position, { appUrl: publicEnv.appUrl, defaultMinAge: s["applications.minAge"] }), s["discord.announcePingRoleId"]);
   return publish(db, SPOT_PREFIX + slug, channelId, message, { mode: "new" });
@@ -146,6 +146,25 @@ export async function updateSpotlightsInPlace(db: PrismaClient) {
     }
   }
   return updated;
+}
+
+/**
+ * Für jede offene Team-Stelle ohne Einzelaufruf einen posten (Reihenfolge wie im Portal).
+ * Stellen, die schon einen haben, bleiben unberührt – kein Doppelpost. Fehler einzeln, nie abbrechen.
+ */
+export async function postMissingSpotlights(db: PrismaClient) {
+  const s = await getSettings();
+  if (!s["discord.spotlightChannelId"]) return 0;
+  const existing = await getSpotlights(db);
+  const open = await db.position.findMany({ where: { status: "OPEN", type: { key: "team", active: true } }, orderBy: { sortOrder: "asc" }, select: { slug: true } });
+  let posted = 0;
+  for (const { slug } of open) {
+    if (existing[slug]) continue;
+    const r = await publishSpotlight(db, slug, { mode: "new" }).catch((e) => ({ ok: false as const, error: String(e) }));
+    if (r.ok) posted++;
+    else console.warn(`[jobs] Einzelaufruf ${slug} nicht gepostet:`, r.error);
+  }
+  return posted;
 }
 
 /** Nach Änderungen an Positionen: vorhandene Posts still im Hintergrund aktualisieren. */

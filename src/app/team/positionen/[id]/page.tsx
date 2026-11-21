@@ -46,7 +46,7 @@ async function Editor({ params }: Pick<PageProps<"/team/positionen/[id]">, "para
         </h1>
         {antrag && (
           <p className="text-sm text-muted max-w-2xl">
-            Erscheint unter /antraege/&lt;slug&gt;. Nach dem Speichern legst du unten die Fragen an. Tipp: Schneller geht&apos;s mit „Duplizieren“ beim Werbe-Antrag – dann
+            Erscheint unter /antraege/&lt;slug&gt;. Nach dem Speichern legst du unten die Fragen an. Tipp: Schneller geht&apos;s mit „Duplizieren“ bei der Sponsoring-Anfrage – dann
             sind die Fragen schon da.
           </p>
         )}

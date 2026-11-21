@@ -135,3 +135,32 @@ describe("Banner-Titel", () => {
     expect(bannerTitle("Cutter")).toEqual({ lead: "", rest: "CUTTER" });
   });
 });
+
+describe("Einzelaufruf für einen Antrag", () => {
+  const antrag = {
+    slug: "sponsoring",
+    title: "Sponsoring-Anfrage",
+    tagline: "Spiel, App oder Produkt? Frag an, ob Jannik es vorstellt.",
+    description: "Jannik schaut sich jeden Antrag persönlich an.",
+    icon: "megaphone",
+    status: "OPEN" as const,
+    tasks: ["Kurzes Formular ausfüllen"],
+    requirements: ["Kein Glücksspiel"],
+    minAge: null,
+    acceptRoleId: null,
+    type: { key: "promo" },
+  };
+  it("kein „Wir suchen“, eigener Knopf und Link unter /antraege", () => {
+    const m = buildSpotlightMessage(antrag, opts);
+    const t = v2Text(m);
+    expect(t).toContain("## 📣 Sponsoring-Anfrage");
+    expect(t).not.toContain("Wir suchen");
+    expect(t).not.toContain("Das solltest du mitbringen");
+    expect(t).toContain("📌 **Gut zu wissen:**");
+    expect(buttons(m)[0]).toMatchObject({ label: "Antrag stellen", url: "https://portal.jannikjbi.de/antraege/sponsoring" });
+  });
+  it("Partner-Anfrage: Knopf führt zu /partner", () => {
+    const m = buildSpotlightMessage({ ...antrag, slug: "partner-anfrage", title: "Partner-Anfrage", icon: "handshake", type: { key: "partner" } }, opts);
+    expect(buttons(m)[0]).toMatchObject({ label: "Anfrage stellen", url: "https://portal.jannikjbi.de/partner" });
+  });
+});

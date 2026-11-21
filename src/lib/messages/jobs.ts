@@ -9,6 +9,10 @@
 import type { APIActionRowComponent, APIButtonComponentWithURL, APIComponentInContainer, RESTPostAPIChannelMessageJSONBody } from "discord-api-types/v10";
 import { BRAND_COLOR, separator, text, truncate, v2Message } from "@/lib/messages/embed";
 import { accentInt, bannerVersion } from "@/lib/messages/position-accent";
+import { KIND_POSITION_SLUG, kindOf, positionHref } from "@/lib/kinds";
+
+/** Öffentlicher Link: feste Stelle einer Art (Partner-Anfrage → /partner), Anträge unter /antraege, sonst /positionen. */
+const publicPath = (slug: string, kind: string) => (KIND_POSITION_SLUG[kindOf(kind).key] === slug ? kindOf(kind).path : positionHref(slug, kind));
 
 export interface JobPosition {
   slug: string;
@@ -22,7 +26,7 @@ export interface JobPosition {
   minAge: number | null;
   /** Discord-Rolle der Position – wird als Erwähnung angezeigt (ohne Ping) */
   acceptRoleId: string | null;
-  /** Bewerbungsart (für eigene Texte im Einzelaufruf, derzeit nur „team“) */
+  /** Art (team, promo = Antrag, partner) – eigene Texte, Knopf und Link im Einzelaufruf */
   type?: { key: string } | null;
 }
 
@@ -127,18 +131,26 @@ export function buildJobsMessage(positions: JobPosition[], opts: Opts): RESTPost
 /** Einzelaufruf „Wir suchen <Stelle>!“ – wie das Beispiel, ein durchgehender Block. */
 export function buildSpotlightMessage(p: JobPosition, opts: Opts): RESTPostAPIChannelMessageJSONBody {
   const open = p.status === "OPEN";
-  const kind = p.type?.key ?? "team";
-  const headline = `## Wir suchen ${roleOrTitle(p)}! ${jobEmoji(p.icon)}`;
+  const kind = kindOf(p.type?.key).key;
+  const isTeam = kind === "team";
+  // Stelle: „Wir suchen …!“ – Antrag/Partner-Anfrage: Titel als Aufruf („📣 Sponsoring-Anfrage“)
+  const headline = isTeam ? `## Wir suchen ${roleOrTitle(p)}! ${jobEmoji(p.icon)}` : `## ${jobEmoji(p.icon)} ${p.title}`;
   const parts: string[] = [headline, `${p.tagline} ${p.description}`];
-  if (p.tasks.length) parts.push("", kind === "team" ? "📋 **Deine Aufgaben:**" : "📋 **So läuft's:**", ...p.tasks.map((t) => `> ${t}`));
-  const reqs = p.requirements.length ? p.requirements : [`Mindestens ${p.minAge ?? opts.defaultMinAge} Jahre alt`];
-  parts.push("", "🔧 **Das solltest du mitbringen:**", ...reqs.map((r) => `> ${r}`));
+  if (p.tasks.length) parts.push("", isTeam ? "📋 **Deine Aufgaben:**" : "📋 **So läuft's:**", ...p.tasks.map((t) => `> ${t}`));
+  if (isTeam) {
+    const reqs = p.requirements.length ? p.requirements : [`Mindestens ${p.minAge ?? opts.defaultMinAge} Jahre alt`];
+    parts.push("", "🔧 **Das solltest du mitbringen:**", ...reqs.map((r) => `> ${r}`));
+  } else if (p.requirements.length) {
+    parts.push("", "📌 **Gut zu wissen:**", ...p.requirements.map((r) => `> ${r}`));
+  }
   parts.push(
     "",
     "📩 **Interesse?**",
     open
-      ? "Bewirb dich direkt im **Bewerbungsportal** – Login mit Discord, dauert ca. 15–25 Minuten."
-      : kind === "team"
+      ? isTeam
+        ? "Bewirb dich direkt im **Bewerbungsportal** – Login mit Discord, dauert ca. 15–25 Minuten."
+        : "Das Formular findest du direkt im **Portal** – Login mit Discord, dauert ca. 5 Minuten."
+      : isTeam
         ? "Die Stelle ist gerade geschlossen. Schau bald wieder vorbei – wir melden uns hier, sobald sie wieder offen ist."
         : "Gerade geschlossen. Wir melden uns hier, sobald es losgeht.",
     "",
@@ -149,7 +161,7 @@ export function buildSpotlightMessage(p: JobPosition, opts: Opts): RESTPostAPICh
   const children: APIComponentInContainer[] = [];
   // Banner der Stelle oben (Bild aus /api/banner/<slug>, nur mit https-Adresse – Discord lädt es von dort)
   if (isHttps(opts.appUrl)) {
-    children.push({ type: 12, items: [{ media: { url: `${opts.appUrl}/api/banner/${p.slug}?v=${bannerVersion(p)}` }, description: `Wir suchen: ${p.title}` }] });
+    children.push({ type: 12, items: [{ media: { url: `${opts.appUrl}/api/banner/${p.slug}?v=${bannerVersion(p)}` }, description: isTeam ? `Wir suchen: ${p.title}` : p.title }] });
   }
   children.push(text(truncate(parts.join(NL), 3800)));
   if (open && isHttps(opts.appUrl)) {
@@ -158,8 +170,8 @@ export function buildSpotlightMessage(p: JobPosition, opts: Opts): RESTPostAPICh
         {
           type: 2,
           style: 5,
-          label: `Jetzt als ${truncate(p.title, 60)} bewerben`,
-          url: `${opts.appUrl}/positionen/${p.slug}`,
+          label: isTeam ? `Jetzt als ${truncate(p.title, 60)} bewerben` : kindOf(kind).applyLabel,
+          url: `${opts.appUrl}${publicPath(p.slug, kind)}`,
           emoji: { name: jobEmoji(p.icon) },
         },
       ]),

@@ -448,11 +448,11 @@ try {
       `Sicherung: eingespielt, nichts doppelt (${JSON.stringify(done.questions)})`,
     );
     // Anträge: Art der Stelle wird mitgesichert, Schritte bleiben beim Antrag (nicht bei „team“)
-    const promoType = await db.applicationType.upsert({ where: { key: "promo" }, create: { key: "promo", name: "Werbe-Antrag" }, update: {} });
+    const promoType = await db.applicationType.upsert({ where: { key: "promo" }, create: { key: "promo", name: "Anträge" }, update: {} });
     const promoPos = await db.position.create({ data: { typeId: promoType.id, slug: "werbe-test", title: "Werbe-Test", tagline: "x", description: "x" } });
     await db.formSection.create({ data: { key: "werbe-test.offer", typeId: promoType.id, positionId: promoPos.id, title: "Dein Antrag" } });
     const b3 = JSON.parse(JSON.stringify(await exportConfig(db)));
-    check(b3.positions.find((x: { slug: string; kind?: string }) => x.slug === "werbe-test")?.kind === "promo", "Sicherung: Art der Stelle (Werbe-Antrag) wird mitgesichert");
+    check(b3.positions.find((x: { slug: string; kind?: string }) => x.slug === "werbe-test")?.kind === "promo", "Sicherung: Art der Stelle (Antrag) wird mitgesichert");
     await importConfig(db, b3, { dryRun: false, actorId: team.id });
     check((await db.formSection.findFirst({ where: { key: "werbe-test.offer" } }))?.typeId === promoType.id, "Sicherung: Schritte eines Antrags bleiben nach dem Einspielen beim Antrag");
   }
@@ -735,10 +735,10 @@ try {
     const ptype = await db.applicationType.upsert({ where: { key: "partner" }, create: { key: "partner", name: "Partner" }, update: {} });
     const partner = await db.position.create({ data: { typeId: ptype.id, slug: "partner-test", title: "Partner-Test", tagline: "x", description: "x", status: "OPEN" } });
     await announceOpened(db, partner.slug);
-    check(posts.length === 2, "Partner-Anfrage o. Ä. (keine Team-Stelle): kein Einzelaufruf");
+    check(posts.length === 3 && posts[2].body.includes("Partner-Test") && !posts[2].body.includes("Wir suchen"), "Antrag/Partner-Anfrage geöffnet: eigener Aufruf ohne „Wir suchen“");
     await saveSettings({ "discord.announceOnOpen": false, "discord.announcePingRoleId": "" }, team.id);
     await announceOpened(db, spot.slug);
-    check(posts.length === 2, "Abgeschaltet: kein Einzelaufruf");
+    check(posts.length === 3, "Abgeschaltet: kein Einzelaufruf");
     await saveSettings({ "discord.announceOnOpen": true }, team.id);
     // Bestehende Einzelaufrufe bekommen das Banner: nur bearbeiten, gelöschte Posts nicht neu posten
     const { updateSpotlightsInPlace } = await import("../src/lib/discord/jobs-post");
@@ -768,6 +768,15 @@ try {
     check(posts.length === postsBefore, "Dabei kein neuer Post");
     check(!(await db.setting.findUnique({ where: { key: "discord:spotlight:spot-weg" } })), "In Discord gelöschter Aufruf wird vergessen, nicht neu gepostet");
     await db.position.delete({ where: { id: other.id } });
+    // Einmalig für alle offenen Stellen posten: nur wo noch kein Aufruf existiert, zweiter Lauf postet nichts
+    const { postMissingSpotlights } = await import("../src/lib/discord/jobs-post");
+    const openWithout = await db.position.findMany({ where: { status: "OPEN", type: { key: "team" } }, select: { slug: true } });
+    const known = Object.keys(await (await import("../src/lib/discord/jobs-post")).getSpotlights(db));
+    const expected = openWithout.filter((x) => !known.includes(x.slug)).length;
+    const before = posts.length;
+    const first = await postMissingSpotlights(db);
+    check(first === expected && posts.length - before === expected, `Einzelaufrufe für alle offenen Stellen: ${first} neu, bestehende nicht doppelt`);
+    check((await postMissingSpotlights(db)) === 0, "Zweiter Lauf postet nichts mehr");
     process.env.NEXT_PUBLIC_APP_URL = prevUrl;
     delete process.env.DISCORD_SPOTLIGHT_CHANNEL_ID;
     setDiscordApiForTests(null);

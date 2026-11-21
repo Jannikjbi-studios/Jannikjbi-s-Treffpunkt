@@ -51,6 +51,8 @@ const nextConfig: NextConfig = {
       { source: "/team/einstellungen", destination: "/team/admin", permanent: false },
       // früherer Kurz-Link des Werbe-Antrags
       { source: "/antrag", destination: "/antraege", permanent: false },
+      // „Werbe-Antrag“ heißt jetzt „Sponsoring-Anfrage“
+      { source: "/antraege/werbung", destination: "/antraege/sponsoring", permanent: false },
     ];
   },
   async headers() {

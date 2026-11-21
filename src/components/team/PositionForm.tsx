@@ -101,7 +101,7 @@ export function PositionForm({
   applicationCount?: number;
   roleHint?: string;
   owner?: boolean;
-  /** Art der Stelle: Bei Werbe-Antrag/Partner-Anfrage nur die passenden Felder (keine Rollen, kein Quiz, keine Probezeit) */
+  /** Art der Stelle: Bei Anträgen (Sponsoring-Anfrage) und Partner-Anfrage nur die passenden Felder (keine Rollen, kein Quiz, keine Probezeit) */
   kind?: KindKey;
 }) {
   const k = kindOf(kind);

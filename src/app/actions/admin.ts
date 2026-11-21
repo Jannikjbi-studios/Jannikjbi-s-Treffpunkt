@@ -285,7 +285,7 @@ export async function saveSectionAction(input: z.input<typeof sectionSchema>): P
     const max = await db.formSection.aggregate({ _max: { sortOrder: true }, where: { positionId: p.data.positionId } });
     const pos = p.data.positionId ? await db.position.findUnique({ where: { id: p.data.positionId }, select: { slug: true, typeId: true } }) : null;
     if (p.data.positionId && !pos) return { ok: false, error: "Stelle nicht gefunden." };
-    // Schritt gehört zur Art seiner Stelle (z. B. Werbe-Antrag) – sonst taucht er im Formular nicht auf
+    // Schritt gehört zur Art seiner Stelle (z. B. Sponsoring-Anfrage) – sonst taucht er im Formular nicht auf
     const typeId = pos?.typeId ?? (await db.applicationType.findUniqueOrThrow({ where: { key: "team" } })).id;
     const base = normalizeLabel(p.data.title).replace(/ /g, "_").slice(0, 40) || "abschnitt";
     const key = await uniqueKey(pos ? `${pos.slug}.${base}` : base, async (k) => !!(await db.formSection.findFirst({ where: { key: k }, select: { id: true } })));

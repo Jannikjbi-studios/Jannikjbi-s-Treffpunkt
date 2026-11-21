@@ -36,7 +36,7 @@ export function listUpcomingPositions() {
   });
 }
 
-/** Anträge (z. B. Werbe-Antrag) – offene zuerst, versteckte nie. */
+/** Anträge (z. B. Sponsoring-Anfrage) – offene zuerst, versteckte nie. */
 export function listRequestPositions() {
   return db.position.findMany({
     where: { status: { not: "HIDDEN" }, type: { key: "promo", active: true } },
