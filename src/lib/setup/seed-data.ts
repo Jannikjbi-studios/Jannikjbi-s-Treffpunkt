@@ -258,6 +258,21 @@ export const TEAM_ONLY_TEMPLATE_TITLES = [
  */
 export const TEAM_EXTRA_TEMPLATES: { category: TemplateCategory; title: string; body: string }[] = [
   {
+    category: "RUECKFRAGE",
+    title: "Probeaufgabe – Cutter",
+    body: "Moin {name},\n\ndeine Bewerbung als **{position}** gefällt uns – jetzt wollen wir sehen, wie du schneidest. 🎬\n\n**Deine Probeaufgabe:**\n{grund}\n\n- Schneid daraus **ein Short** (Hochformat 9:16, höchstens 60 Sekunden)\n- mit **Untertiteln** und einem **großen Titel** oben\n- Lad es z. B. bei Google Drive oder YouTube (nicht gelistet) hoch und schick uns den Link hier im Portal\n\nDu hast dafür **5 Tage** Zeit. Fragen? Antworte einfach hier.",
+  },
+  {
+    category: "RUECKFRAGE",
+    title: "Probeaufgabe – Social-Media",
+    body: "Moin {name},\n\ndanke für deine Bewerbung als **{position}**! Eine kleine Probeaufgabe:\n\n{grund}\n\nSchreib uns dafür **Titel, Beschreibung und Hashtags** – einmal für **TikTok** und einmal für **YouTube Shorts** – und sag kurz, **wann** du es hochladen würdest und warum.\n\nAntworte einfach hier im Portal, du hast **3 Tage** Zeit.",
+  },
+  {
+    category: "RUECKFRAGE",
+    title: "Probeaufgabe – Designer",
+    body: "Moin {name},\n\ndeine Arbeiten gefallen uns – jetzt eine kleine Probeaufgabe: 🎨\n\n{grund}\n\nSchick uns das Ergebnis als Link (z. B. Google Drive) hier im Portal. Du hast **7 Tage** Zeit. Eine Skizze mit kurzer Erklärung reicht, wenn du nicht ganz fertig wirst.",
+  },
+  {
     category: "EINGANG",
     title: "Bewerbung wird geprüft",
     body: "Moin {name},\n\nkurzes Update: Deine Bewerbung als **{position}** ({bewerbungs_id}) liegt jetzt bei {teammitglied} auf dem Tisch. Wir schauen sie uns in Ruhe an und melden uns – {bearbeitungszeit}.",

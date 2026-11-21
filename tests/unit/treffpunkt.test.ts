@@ -146,3 +146,19 @@ describe("Voraussetzungen zum Bewerben", () => {
     expect(confirmationsSchemaFor("team", { age: 17 }).safeParse(all).success).toBe(true);
   });
 });
+
+import { STREAM_DAYS, coverageByDay } from "@/lib/team/stream-coverage";
+
+describe("Stream-Abdeckung", () => {
+  it("Streamtage kommen aus dem Streamplan", () => {
+    expect(STREAM_DAYS).toEqual(["Montag", "Dienstag", "Freitag", "Samstag"]);
+  });
+  it("zählt angenommene Mods und offene Bewerbungen je Tag", () => {
+    const c = coverageByDay([
+      { name: "Mia", days: ["Montag", "Freitag"], accepted: true },
+      { name: "Ben", days: ["Montag"], accepted: false },
+    ]);
+    expect(c.find((d) => d.day === "Montag")).toEqual({ day: "Montag", mods: ["Mia"], pending: 1 });
+    expect(c.find((d) => d.day === "Dienstag")).toEqual({ day: "Dienstag", mods: [], pending: 0 });
+  });
+});

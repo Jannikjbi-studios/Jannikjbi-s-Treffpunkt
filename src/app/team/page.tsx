@@ -3,6 +3,7 @@ import { LiveRefresh } from "@/components/LiveRefresh";
 import { Suspense } from "react";
 import { ArrowRight, ArrowUUpLeft, Bell, CalendarCheck, Megaphone, ChatCircleDots, DiscordLogo, HandPointing, ShieldWarning, UsersThree } from "@phosphor-icons/react/ssr";
 import { Avatar, Notice, Stat, StatusBadge, formatDay, formatDayTime, formatRelative } from "@/components/ui";
+import { StreamCoverage } from "@/components/team/StreamCoverage";
 import { publishedEntries, versionLabel } from "@/lib/changelog";
 import { DiscordMarkdown } from "@/components/DiscordMarkdown";
 import { AckWithdrawalButton } from "@/components/team/AckWithdrawalButton";
@@ -225,6 +226,7 @@ async function Overview({ searchParams }: Pick<PageProps<"/team">, "searchParams
             <AppRow key={a.id} a={a} meta={a.submittedAt ? formatRelative(a.submittedAt) : ""} status />
           ))}
         </Panel>
+        <StreamCoverage />
         <Panel title="Auslastung im Team" icon={<UsersThree size={18} aria-hidden />} href="/team/bewerbungen?status=SUBMITTED&status=IN_REVIEW&status=INTERVIEW">
           {workload.length === 0 ? (
             <p className="text-sm text-muted">Noch niemand aktiv.</p>

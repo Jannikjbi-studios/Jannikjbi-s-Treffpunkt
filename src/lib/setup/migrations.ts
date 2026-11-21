@@ -479,7 +479,39 @@ const MIGRATIONS: { id: string; run: (db: PrismaClient, opts: Options) => Promis
   // Umbau zu Jannikjbi's Treffpunkt: alte Startinhalte (Nordverkehr-Stellen, Whitelist/Beta,
   // Bausteine) durch die Treffpunkt-Stellen ersetzen – nur ohne echte Bewerbungen
   { id: "2026-11-treffpunkt-start", run: (db, o) => (o.dryRun ? Promise.resolve(0) : treffpunktStart(db, o.log)) },
+  // Stream-Mod: Streamtage statt „Streams pro Woche“ (für die Stream-Abdeckung im Team-Bereich)
+  { id: "2026-11-stream-tage", run: (db, o) => (o.dryRun ? Promise.resolve(0) : streamDaysQuestion(db)) },
+  // Bausteine „Probeaufgabe – Cutter/Social-Media/Designer“ ergänzen
+  {
+    id: "2026-11-probeaufgaben",
+    run: async (db, o) => (o.dryRun ? 0 : (await import("@/lib/setup/base-seed")).ensureTeamTemplates(db)),
+  },
 ];
+
+/** Frage „stream-mod.days“ anlegen (falls es sie nicht gibt) und „stream-mod.streams“ archivieren – Antworten bleiben. */
+async function streamDaysQuestion(db: PrismaClient) {
+  const { STREAM_DAYS_KEY } = await import("@/lib/team/stream-coverage");
+  const seed = POSITION_SECTIONS["stream-mod"]?.flatMap((s) => s.questions).find((q) => q.key === STREAM_DAYS_KEY);
+  const section = await db.formSection.findFirst({ where: { key: "stream-mod.fach" }, select: { id: true } });
+  if (!seed || !section) return 0;
+  if (await db.question.findFirst({ where: { key: STREAM_DAYS_KEY }, select: { id: true } })) return 0;
+  const old = await db.question.findFirst({ where: { key: "stream-mod.streams" }, select: { id: true, sortOrder: true } });
+  await db.question.create({
+    data: {
+      key: seed.key,
+      sectionId: section.id,
+      label: seed.label,
+      type: seed.type,
+      required: seed.required ?? true,
+      helpText: seed.helpText ?? null,
+      options: seed.options ?? [],
+      minValue: seed.minValue ?? null,
+      sortOrder: old?.sortOrder ?? 99,
+    },
+  });
+  if (old) await db.question.update({ where: { id: old.id }, data: { archived: true } });
+  return 1;
+}
 
 /** Slugs der früheren Startinhalte (Nordverkehr) */
 export const LEGACY_SEED_SLUGS = ["support", "entwickler", "media", "mapper", "eventteam", "whitelist", "beta"];

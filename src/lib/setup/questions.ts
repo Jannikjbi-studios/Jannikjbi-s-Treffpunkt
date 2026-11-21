@@ -8,6 +8,7 @@
  *   werden Duplikate entfernt und allgemeine Antworten wiederverwendet.
  */
 import type { QuestionType } from "@prisma/client";
+import { STREAM_DAYS } from "@/lib/team/stream-coverage";
 
 export interface SeedQuestion {
   key: string;
@@ -267,10 +268,12 @@ export const POSITION_SECTIONS: Record<string, SeedSection[]> = {
           minValue: 1,
         },
         {
-          key: "stream-mod.streams",
-          label: "Bei wie vielen Streams pro Woche kannst du im Chat sein?",
-          type: "SELECT",
-          options: ["1", "2", "3", "4 oder mehr"],
+          key: "stream-mod.days",
+          label: "An welchen Streamtagen kannst du meistens im Chat sein (ab 17:30 Uhr)?",
+          type: "MULTI_SELECT",
+          helpText: "Daraus sieht das Team, welcher Streamtag noch einen Mod braucht.",
+          options: STREAM_DAYS,
+          minValue: 1,
         },
         {
           key: "stream-mod.timeout_or_ban",
