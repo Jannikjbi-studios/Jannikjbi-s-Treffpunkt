@@ -7,7 +7,7 @@ export const maxDuration = 60;
 const BATCH = 100;
 
 /**
- * Datensicherung (nur Admins): alle Bewerbungen mit Antworten, Nachrichten,
+ * Datensicherung (nur Owner/Co-Owner): alle Bewerbungen mit Antworten, Nachrichten,
  * Kommentaren, Bewertungen, Abstimmung und Statusverlauf als JSON – in Paketen
  * gestreamt, damit auch große Bestände nicht den Speicher sprengen.
  * Hochgeladene Bilder sind nur als Verweis (Dateiname) enthalten.
@@ -20,6 +20,9 @@ export async function GET() {
   } catch (err) {
     return accessErrorResponse(err);
   }
+  // Alle Bewerbungen mit personenbezogenen Daten → nur Owner und Co-Owner
+  const { OWNER_ONLY, isOwner } = await import("@/lib/auth/owner");
+  if (!isOwner(ctx)) return Response.json({ error: OWNER_ONLY }, { status: 403 });
   const total = await db.application.count();
   await audit("settings.export", { actorId: ctx.user.id, meta: { kind: "data", applications: total } });
   const enc = new TextEncoder();

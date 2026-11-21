@@ -18,6 +18,7 @@ import { RESET_CONFIRM_PHRASE, countApplications } from "@/lib/team/reset";
 import { formatDayTime } from "@/components/ui";
 import { isNight, nightEndsAt } from "@/lib/night";
 import { RoleAuditPanel } from "@/components/team/RoleAuditPanel";
+import { isOwner } from "@/lib/auth/owner";
 
 export function generateStaticParams() {
   return ADMIN_SECTIONS.map((s) => ({ bereich: s.key }));
@@ -37,7 +38,8 @@ export default function AdminSectionPage({ params }: PageProps<"/team/admin/[ber
 }
 
 async function Section({ params }: Pick<PageProps<"/team/admin/[bereich]">, "params">) {
-  await requireAdmin();
+  const ctx = await requireAdmin();
+  const owner = isOwner(ctx);
   const sec = adminSection((await params).bereich);
   if (!sec) notFound();
   const props = await loadSettingsProps();
@@ -58,9 +60,12 @@ async function Section({ params }: Pick<PageProps<"/team/admin/[bereich]">, "par
       {sec.key === "discord" && <DiscordTools />}
       {sec.key === "discord" && <RoleAuditPanel />}
       {sec.key === "zustellung" && <DeliveryStatus />}
+      {sec.key === "ki" && !owner && (
+        <p className="nv-card p-4 text-sm text-muted">🔒 Die KI-Einstellungen (Budget, Modelle) können nur Owner und Co-Owner ändern – du siehst sie hier zur Info.</p>
+      )}
       {/* Neu aufbauen, wenn ein Knopf oben eine Einstellung ändert – sonst würde „Speichern“ den alten Wert zurückschreiben */}
       <SettingsForm key={String(props.settings["discord.claimButton"])} section={sec.key} {...props} />
-      {sec.key === "daten" && <DataTools />}
+      {sec.key === "daten" && <DataTools owner={owner} />}
     </div>
   );
 }
@@ -172,7 +177,7 @@ async function StoragePanel() {
   );
 }
 
-async function DataTools() {
+async function DataTools({ owner }: { owner: boolean }) {
   const [appCounts, positions, testCount] = await Promise.all([
     countApplications(db),
     db.position.findMany({ orderBy: { sortOrder: "asc" }, select: { id: true, title: true, status: true } }),
@@ -181,9 +186,13 @@ async function DataTools() {
   return (
     <>
       <StoragePanel />
-      <ConfigBackupPanel />
+      {owner && <ConfigBackupPanel />}
       <TestDataPanel positions={positions} scenarios={TEST_SCENARIOS.map(({ key, label, description }) => ({ key, label, description }))} existing={testCount} />
-      <DangerZone counts={appCounts} phrase={RESET_CONFIRM_PHRASE} />
+      {owner ? (
+        <DangerZone counts={appCounts} phrase={RESET_CONFIRM_PHRASE} />
+      ) : (
+        <p className="nv-card p-4 text-sm text-muted">🔒 Sicherung, Datenexport und „Alle Bewerbungen zurücksetzen“ sind nur für Owner und Co-Owner.</p>
+      )}
     </>
   );
 }

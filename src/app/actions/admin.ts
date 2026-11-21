@@ -26,7 +26,11 @@ const snowflake = z.string().regex(/^\d{15,25}$/, "Ungültige Rollen-ID").nullab
 // ─── Einstellungen ────────────────────────────────────────────
 
 export async function saveSettingsAction(patch: Record<string, unknown>): Promise<ActionResult> {
-  const { user } = await requireAdmin();
+  const ctx = await requireAdmin();
+  const { user } = ctx;
+  // KI (Budget, Modelle) verursacht Kosten → nur Owner und Co-Owner
+  const { OWNER_ONLY, isOwner, isOwnerSetting } = await import("@/lib/auth/owner");
+  if (Object.keys(patch).some(isOwnerSetting) && !isOwner(ctx)) return { ok: false, error: `KI-Einstellungen: ${OWNER_ONLY}` };
   const parsed = settingsSchema.partial().safeParse(patch);
   if (!parsed.success) {
     const first = parsed.error.issues[0];
@@ -522,7 +526,10 @@ const resetSchema = z.object({ confirm: z.string(), resetNumbering: z.boolean() 
 
 /** Löscht ALLE Bewerbungen (siehe lib/team/reset.ts). Nur Admins, mit Bestätigungssatz. */
 export async function resetApplicationsAction(input: z.input<typeof resetSchema>): Promise<ActionResult<{ message: string }>> {
-  const { user } = await requireAdmin();
+  const ctx = await requireAdmin();
+  const { user } = ctx;
+  const { OWNER_ONLY, isOwner } = await import("@/lib/auth/owner");
+  if (!isOwner(ctx)) return { ok: false, error: OWNER_ONLY };
   const p = resetSchema.safeParse(input);
   const { RESET_CONFIRM_PHRASE, resetAllApplications } = await import("@/lib/team/reset");
   if (!p.success || p.data.confirm.trim() !== RESET_CONFIRM_PHRASE) {
@@ -691,7 +698,10 @@ export async function deleteTestApplicationsAction(): Promise<ActionResult<{ mes
 
 /** Sicherung einlesen: erst Vorschau (dryRun), dann übernehmen. Führt zusammen, löscht nie. */
 export async function importConfigAction(json: string, dryRun: boolean): Promise<ActionResult<{ report: import("@/lib/admin/config-backup").ImportReport }>> {
-  const { user } = await requireAdmin();
+  const ctx = await requireAdmin();
+  const { user } = ctx;
+  const { OWNER_ONLY, isOwner } = await import("@/lib/auth/owner");
+  if (!isOwner(ctx)) return { ok: false, error: OWNER_ONLY };
   if (typeof json !== "string" || json.length > 3_000_000) return { ok: false, error: "Datei zu groß (max. 3 MB)." };
   let raw: unknown;
   try {

@@ -777,7 +777,10 @@ export async function liftBanAction(banId: string): Promise<ActionResult> {
 
 /** Admin: Bewerbung endgültig löschen (z. B. auf Wunsch / DSGVO). */
 export async function deleteApplicationAction(applicationId: string): Promise<ActionResult> {
-  const { user } = await requireAdmin();
+  const ctx = await requireAdmin();
+  const { user } = ctx;
+  const { OWNER_ONLY, isOwner } = await import("@/lib/auth/owner");
+  if (!isOwner(ctx)) return { ok: false, error: OWNER_ONLY };
   const app = await db.application.findUnique({ where: { id: applicationId }, select: { id: true, publicId: true } });
   if (!app) return { ok: false, error: "Nicht gefunden." };
   await db.application.delete({ where: { id: app.id } }); // inkl. Bilder (Cascade)

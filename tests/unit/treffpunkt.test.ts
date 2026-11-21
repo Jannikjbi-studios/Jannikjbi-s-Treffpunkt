@@ -76,3 +76,26 @@ describe("Stellen von Jannikjbi's Treffpunkt", () => {
     expect("a.b.c").not.toMatch(KEY_PATTERN);
   });
 });
+
+import { isOwner, isOwnerSetting, ownerRoleIds } from "@/lib/auth/owner";
+
+describe("Owner-Stufe über Admin (Owner, Co-Owner)", () => {
+  const OWNER = "444444444444444444";
+  const ctx = (isAdmin: boolean, roles: string[]) => ({ access: { isAdmin, roleIds: roles }, user: { roleIds: [] as string[] } });
+  it("nur Admins mit Owner-Rolle", () => {
+    expect(isOwner(ctx(true, [OWNER]), [OWNER])).toBe(true);
+    expect(isOwner(ctx(true, [A]), [OWNER])).toBe(false);
+    expect(isOwner(ctx(false, [OWNER]), [OWNER])).toBe(false);
+  });
+  it("ohne OWNER_ROLE_ID gilt jeder Admin als Owner", () => {
+    expect(isOwner(ctx(true, []), [])).toBe(true);
+    expect(ownerRoleIds("")).toEqual([]);
+  });
+  it("fällt auf gespeicherte Rollen zurück", () => {
+    expect(isOwner({ access: { isAdmin: true }, user: { roleIds: [OWNER] } }, [OWNER])).toBe(true);
+  });
+  it("KI-Einstellungen sind Owner-Sache", () => {
+    expect(isOwnerSetting("ai.monthlyBudget")).toBe(true);
+    expect(isOwnerSetting("applications.minAge")).toBe(false);
+  });
+});
