@@ -11,6 +11,7 @@ type Node = {
   emoji?: { name?: string };
   components?: Node[];
   accessory?: { media?: { url?: string } };
+  items?: { media?: { url?: string }; description?: string }[];
 };
 
 const hex = (n?: number) => (n === undefined ? "#ffc123" : `#${n.toString(16).padStart(6, "0")}`);
@@ -28,6 +29,17 @@ function render(n: Node, key: string): React.ReactNode {
           {n.accessory?.media?.url && (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={n.accessory.media.url} alt="" className="h-16 w-16 shrink-0 rounded-lg object-cover" />
+          )}
+        </div>
+      );
+    case 12:
+      return (
+        <div key={key} className="grid gap-1">
+          {n.items?.map((it, i) =>
+            it.media?.url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img key={i} src={it.media.url} alt={it.description ?? ""} className="w-full rounded-lg" loading="lazy" />
+            ) : null,
           )}
         </div>
       );

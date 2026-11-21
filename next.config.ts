@@ -28,6 +28,8 @@ const nextConfig: NextConfig = {
   // Liste in trace-excludes.json – scripts/trim-traces.mjs wendet sie nach dem Build auch auf
   // Middleware/Instrumentation an (die Next nicht filtert, Vercel aber in jede Funktion packt).
   outputFileTracingExcludes: { "*": traceExcludes },
+  // Banner der Einzelaufrufe: Schriften und Logo liest die Route zur Laufzeit
+  outputFileTracingIncludes: { "/api/banner/[slug]": ["./assets/fonts/*.woff", "./public/logo.png"] },
   turbopack: {
     rules: {
       "*.css": {

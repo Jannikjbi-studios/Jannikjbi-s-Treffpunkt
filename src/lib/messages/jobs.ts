@@ -8,6 +8,7 @@
  */
 import type { APIActionRowComponent, APIButtonComponentWithURL, APIComponentInContainer, RESTPostAPIChannelMessageJSONBody } from "discord-api-types/v10";
 import { BRAND_COLOR, separator, text, truncate, v2Message } from "@/lib/messages/embed";
+import { accentInt, bannerVersion } from "@/lib/messages/position-accent";
 
 export interface JobPosition {
   slug: string;
@@ -145,7 +146,12 @@ export function buildSpotlightMessage(p: JobPosition, opts: Opts): RESTPostAPICh
     "Euer Treffpunkt-Team",
   );
 
-  const children: APIComponentInContainer[] = [text(truncate(parts.join(NL), 3800))];
+  const children: APIComponentInContainer[] = [];
+  // Banner der Stelle oben (Bild aus /api/banner/<slug>, nur mit https-Adresse – Discord lädt es von dort)
+  if (isHttps(opts.appUrl)) {
+    children.push({ type: 12, items: [{ media: { url: `${opts.appUrl}/api/banner/${p.slug}?v=${bannerVersion(p)}` }, description: `Wir suchen: ${p.title}` }] });
+  }
+  children.push(text(truncate(parts.join(NL), 3800)));
   if (open && isHttps(opts.appUrl)) {
     children.push(
       ...buttonRows([
@@ -160,5 +166,6 @@ export function buildSpotlightMessage(p: JobPosition, opts: Opts): RESTPostAPICh
     );
   }
   children.push(...footer(opts));
-  return v2Message(BRAND_COLOR, children);
+  // Akzentleiste in der Farbe der Stelle (wie das Banner)
+  return v2Message(accentInt(p.icon), children);
 }
