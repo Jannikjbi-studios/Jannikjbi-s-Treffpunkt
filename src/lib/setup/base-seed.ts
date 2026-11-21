@@ -138,7 +138,7 @@ export async function seedKinds(db: PrismaClient, log: (m: string) => void = () 
       const { sections, ...p } = k.position;
       try {
         pos = await db.position.create({ data: { ...p, typeId: type.id, sortOrder: 0 } });
-        log(`✓ ${k.type.name}: Stelle „${p.title}“ (geschlossen)`);
+        log(`✓ ${k.type.name}: Stelle „${p.title}“ (${p.status === "OPEN" ? "offen" : "geschlossen"})`);
         created++;
       } catch (e) {
         if (!isUniqueViolation(e)) throw e;

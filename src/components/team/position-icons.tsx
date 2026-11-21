@@ -1,6 +1,6 @@
 "use client";
 
-import { Camera, Code, Confetti, Cube, DeviceMobile, Handshake, Headset, Microphone, Palette, Scissors, ShieldCheck, Sword, Tent, UsersThree } from "@phosphor-icons/react/ssr";
+import { Camera, Code, Confetti, Cube, DeviceMobile, Handshake, Headset, Megaphone, Microphone, Palette, Scissors, ShieldCheck, Sword, Tent, UsersThree } from "@phosphor-icons/react/ssr";
 
 const ICONS = {
   scissors: Scissors,
@@ -11,6 +11,7 @@ const ICONS = {
   palette: Palette,
   tent: Tent,
   handshake: Handshake,
+  megaphone: Megaphone,
   shield: ShieldCheck,
   code: Code,
   camera: Camera,

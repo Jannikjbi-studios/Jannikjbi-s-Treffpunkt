@@ -83,3 +83,20 @@ describe("Partner-Anfrage", () => {
     for (const s of p.sections) for (const q of s.questions) expect(q.key.startsWith("partner.")).toBe(true);
   });
 });
+
+describe("Werbe-Antrag", () => {
+  it("eigene Art ohne Gespräch und ohne Team-Funktionen, Kurz-Link /antrag", () => {
+    const k = kindOf("promo");
+    expect(k.key).toBe("promo");
+    expect(k.interview).toBe(false);
+    expect(k.teamFeatures).toBe(false);
+    expect(k.path).toBe("/antrag");
+    expect(confirmationsFor("promo").map((c) => c.key)).toEqual(["truth", "privacy"]);
+  });
+  it("Startinhalte: offen, nur für die Leitung sichtbar, eigene Fragen mit Slug-Präfix", () => {
+    const p = KIND_SEEDS.find((k) => k.type.key === "promo")!.position;
+    expect(p.status).toBe("OPEN");
+    expect(p.teamRoleIds?.length).toBeGreaterThan(0);
+    for (const s of p.sections) for (const q of s.questions) expect(q.key.startsWith("promo.")).toBe(true);
+  });
+});

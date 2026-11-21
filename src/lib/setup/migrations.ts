@@ -491,6 +491,11 @@ const MIGRATIONS: { id: string; run: (db: PrismaClient, opts: Options) => Promis
     id: "2026-11-partner-anfrage",
     run: async (db, o) => (o.dryRun ? 0 : (await import("@/lib/setup/base-seed")).seedKinds(db)),
   },
+  // Neue Art „Werbe-Antrag“ (/antrag, startet offen, nur für die Leitung sichtbar) samt Bausteinen
+  {
+    id: "2026-11-werbe-antrag",
+    run: async (db, o) => (o.dryRun ? 0 : (await import("@/lib/setup/base-seed")).seedKinds(db)),
+  },
 ];
 
 /** Frage „stream-mod.days“ anlegen (falls es sie nicht gibt) und „stream-mod.streams“ archivieren – Antworten bleiben. */

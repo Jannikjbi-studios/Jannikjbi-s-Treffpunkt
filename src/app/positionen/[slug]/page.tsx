@@ -165,7 +165,7 @@ async function ApplyCta({ position }: { position: PublicPosition }) {
           href={`/login?callbackUrl=${encodeURIComponent(`/bewerben/${position.slug}`)}`}
           className="nv-btn nv-btn-primary w-full"
         >
-          Mit Discord einloggen &amp; {kind.key === "team" ? "bewerben" : "Anfrage stellen"} <ArrowRight size={16} aria-hidden />
+          Mit Discord einloggen &amp; {kind.key === "team" ? "bewerben" : kind.applyLabel} <ArrowRight size={16} aria-hidden />
         </Link>
         <p className="text-xs text-muted text-center">Dein Entwurf wird automatisch gespeichert.</p>
       </div>

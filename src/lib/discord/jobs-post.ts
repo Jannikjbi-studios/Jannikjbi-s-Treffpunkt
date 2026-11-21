@@ -3,10 +3,13 @@
  * Positionen dieselbe Nachricht bearbeiten (keine neuen Posts, kein Spam).
  *  - Gesamtaufruf:  Setting `discord:jobsPost`          → Kanal discord.jobsChannelId
  *  - Einzelaufruf:  Setting `discord:spotlight:<slug>`  → Kanal discord.spotlightChannelId
+ *    Öffnet eine Team-Stelle, kommt automatisch ein NEUER Einzelaufruf (alter Post wird ersetzt),
+ *    damit es im Kanal auffällt – optional mit Ping-Rolle.
  */
 import type { PrismaClient } from "@prisma/client";
 import type { RESTPostAPIChannelMessageJSONBody } from "discord-api-types/v10";
 import { buildJobsMessage, buildSpotlightMessage, type JobPosition } from "@/lib/messages/jobs";
+import { text } from "@/lib/messages/embed";
 import { getSettings } from "@/lib/settings";
 import { publicEnv } from "@/lib/env";
 
@@ -92,6 +95,32 @@ export async function publishSpotlight(db: PrismaClient, slug: string, opts: { m
   if (position.status === "HIDDEN") return { ok: false, error: "Versteckte Positionen werden nicht beworben." };
   const message = buildSpotlightMessage(position, { appUrl: publicEnv.appUrl, defaultMinAge: s["applications.minAge"] });
   return publish(db, SPOT_PREFIX + slug, channelId, message, opts);
+}
+
+/** Ping-Zeile oben in den Einzelaufruf setzen – nur diese Rolle darf gepingt werden. */
+export function withRolePing(message: RESTPostAPIChannelMessageJSONBody, roleId: string): RESTPostAPIChannelMessageJSONBody {
+  if (!/^\d{15,25}$/.test(roleId)) return message;
+  const [container, ...rest] = (message.components ?? []) as { type: number; components?: unknown[] }[];
+  if (!container || container.type !== 17) return message;
+  return {
+    ...message,
+    components: [{ ...container, components: [text(`<@&${roleId}>`), ...(container.components ?? [])] }, ...rest] as RESTPostAPIChannelMessageJSONBody["components"],
+    allowed_mentions: { parse: [], roles: [roleId] },
+  };
+}
+
+/**
+ * Stelle wurde geöffnet → neuer Einzelaufruf im Kanal „Einzelaufrufe“ (nur Team-Stellen).
+ * Ein älterer Aufruf derselben Stelle wird dabei gelöscht, damit es keine doppelten gibt.
+ */
+export async function announceOpenedPosition(db: PrismaClient, slug: string): Promise<Result> {
+  const s = await getSettings();
+  const channelId = s["discord.spotlightChannelId"];
+  if (!s["discord.announceOnOpen"] || !channelId) return { ok: true, action: "none" };
+  const position = (await db.position.findFirst({ where: { slug, status: "OPEN", type: { key: "team", active: true } }, select: POSITION_SELECT })) as JobPosition | null;
+  if (!position) return { ok: true, action: "none" };
+  const message = withRolePing(buildSpotlightMessage(position, { appUrl: publicEnv.appUrl, defaultMinAge: s["applications.minAge"] }), s["discord.announcePingRoleId"]);
+  return publish(db, SPOT_PREFIX + slug, channelId, message, { mode: "new" });
 }
 
 /** Nach Änderungen an Positionen: vorhandene Posts still im Hintergrund aktualisieren. */

@@ -6,10 +6,11 @@
  *
  *  - team:    Formular → Gespräch → Annahme, danach Einarbeitung/Probezeit/Pate
  *  - partner: Partner-Anfrage (Server, Creator, Marke) → Team antwortet, kein Gespräch, keine Team-Rollen
+ *  - promo:   Werbe-Antrag (Jannik soll ein Spiel, eine App oder ein Produkt vorstellen) → wie Partner, nur für die Leitung sichtbar
  *
  * Weitere Arten lassen sich hier ergänzen (eigener Key, Stellen im Formularbaukasten).
  */
-export type KindKey = "team" | "partner";
+export type KindKey = "team" | "partner" | "promo";
 
 export type ConfirmationKey = "voice" | "rules" | "unpaid" | "truth" | "privacy" | "parents";
 
@@ -79,6 +80,28 @@ Unser Team schaut sich deine Idee in Ruhe an und meldet sich hier per DM oder im
 
 Moin, dein Team von Jannikjbi's Treffpunkt`,
   },
+  promo: {
+    key: "promo",
+    label: "Werbung",
+    noun: "Werbe-Antrag",
+    interview: false,
+    teamFeatures: false,
+    confirmations: ["truth", "privacy"],
+    acceptedHint: "Jannik ist dabei! Die Details besprechen wir per Nachricht.",
+    teaser: "Du möchtest, dass Jannik dein Spiel, deine App oder dein Produkt vorstellt? Stell einen Werbe-Antrag – Jannik schaut sich jeden an.",
+    path: "/antrag",
+    applyLabel: "Antrag stellen",
+    formIntro: "Dein",
+    confirmationTemplate: `Moin {name},
+
+danke für deinen Werbe-Antrag an Jannikjbi – er ist am {datum} bei uns eingegangen.
+
+**Antrags-ID:** {bewerbungs_id}
+
+Jannik schaut sich deinen Antrag in Ruhe an und meldet sich hier per DM oder im Portal – {bearbeitungszeit}. Den Stand siehst du jederzeit in deinem Dashboard.
+
+Moin, dein Team von Jannikjbi's Treffpunkt`,
+  },
 };
 
 export const KIND_KEYS = Object.keys(KINDS) as KindKey[];
@@ -89,4 +112,4 @@ export function kindOf(key: string | null | undefined): KindConfig {
 }
 
 /** Feste Stellen einzelner Arten (Art mit genau einer „Stelle“). */
-export const KIND_POSITION_SLUG: Partial<Record<KindKey, string>> = { partner: "partner-anfrage" };
+export const KIND_POSITION_SLUG: Partial<Record<KindKey, string>> = { partner: "partner-anfrage", promo: "werbe-antrag" };

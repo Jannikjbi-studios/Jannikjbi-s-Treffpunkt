@@ -1,7 +1,7 @@
 /**
  * Startinhalte für weitere Bewerbungsarten neben „Team“: Bewerbungsart,
- * eine „Stelle“ je Art (startet geschlossen – Admins öffnen sie, sobald Rolle
- * und Fragen passen), Abschnitte mit Fragen und passende Nachrichtenbausteine.
+ * eine „Stelle“ je Art (Partner-Anfrage startet geschlossen, Werbe-Antrag offen),
+ * Abschnitte mit Fragen und passende Nachrichtenbausteine.
  */
 import type { PositionStatus, TemplateCategory } from "@prisma/client";
 import type { SeedSection } from "@/lib/setup/questions";
@@ -20,6 +20,8 @@ export interface KindSeed {
     tasks: string[];
     requirements: string[];
     sections: SeedSection[];
+    /** Nur diese Discord-Rollen (und Admins) sehen die Anträge – leer = ganzes Team */
+    teamRoleIds?: string[];
   };
   templates: { category: TemplateCategory; title: string; body: string }[];
 }
@@ -122,5 +124,97 @@ export const PARTNER_SEED: KindSeed = {
   ],
 };
 
-/** Weitere Bewerbungsarten neben „Team“ – derzeit die Partner-Anfrage. */
-export const KIND_SEEDS: KindSeed[] = [PARTNER_SEED];
+/** ⚜️ Owner und Co-Owner – Werbe-Anträge sehen nur sie und die Admins. */
+const LEAD_ROLE_IDS = ["1573541450833199276", "1573541451806285917"];
+
+/** Werbe-Antrag: Jannik soll ein Spiel, eine App oder ein Produkt vorstellen (Discord-Server → Partner-Anfrage). Startet offen, nur für die Leitung sichtbar. */
+export const PROMO_SEED: KindSeed = {
+  type: { key: "promo", name: "Werbe-Antrag", description: "Anträge, damit Jannik ein Spiel, eine App oder ein Projekt vorstellt" },
+  position: {
+    slug: "werbe-antrag",
+    title: "Werbe-Antrag",
+    tagline: "Spiel, App oder Produkt? Frag an, ob Jannik es vorstellt.",
+    description:
+      "Du entwickelst ein Spiel, hast eine App oder ein Produkt und möchtest, dass Jannik es im Stream, in einem Short oder auf Social Media vorstellt? Erzähl kurz, worum es geht und was du dir vorstellst. Jannik schaut sich jeden Antrag selbst an und sagt nur zu, wenn es zu ihm und der Community passt – egal ob bezahlt oder nicht. Für Discord-Server und Partnerschaften gibt es die Partner-Anfrage.",
+    icon: "megaphone",
+    status: "OPEN",
+    cooldownDays: 14,
+    teamRoleIds: LEAD_ROLE_IDS,
+    tasks: [
+      "Kurzes Formular: was vorgestellt werden soll und was du dir vorstellst",
+      "Jannik prüft, ob es zu ihm und der Community passt",
+      "Antwort per DM und im Portal – bei Fragen melden wir uns",
+    ],
+    requirements: [
+      "Passt zu Jannik und der Community – kein NSFW, kein Hate, kein Glücksspiel, keine Wetten oder Krypto",
+      "Ehrliche Angaben – bezahlte oder gesponserte Inhalte werden immer als Werbung gekennzeichnet",
+      "Du bist auf dem Treffpunkt-Discord, damit wir dich erreichen",
+    ],
+    sections: [
+      {
+        key: "promo.offer",
+        title: "Dein Antrag",
+        description: "Nur das Wichtigste – Details klären wir per Nachricht.",
+        questions: [
+          { key: "promo.name", label: "Wer steckt dahinter? (Name, Studio oder Firma)", type: "SHORT_TEXT", maxLength: 100 },
+          { key: "promo.category", label: "Was soll vorgestellt werden?", type: "SELECT", options: ["Spiel", "App / Software", "Produkt", "Sonstiges"] },
+          { key: "promo.link", label: "Link (Store-Seite oder Website)", type: "URL", placeholder: "https://…" },
+          {
+            key: "promo.pitch",
+            label: "Worum geht es – und was stellst du dir vor?",
+            type: "LONG_TEXT",
+            minLength: 50,
+            maxLength: 1500,
+            placeholder: "z. B. Spiel im Stream anspielen, ein Short dazu, Keys verlosen – und wann (Release)?",
+          },
+          {
+            key: "promo.compensation",
+            label: "Was bietest du an?",
+            type: "SELECT",
+            options: ["Bezahlte Kooperation", "Kostenloser Key oder kostenloses Produkt", "Keys oder Preise für ein Giveaway", "Nichts – einfach eine Anfrage"],
+          },
+        ],
+      },
+    ],
+  },
+  templates: [
+    {
+      category: "EINGANG",
+      title: "Werbung – Antrag angekommen",
+      body: "Moin {name},\n\ndanke für deinen Werbe-Antrag ({bewerbungs_id})! Jannik schaut ihn sich in Ruhe an und meldet sich – {bearbeitungszeit}.",
+    },
+    {
+      category: "RUECKFRAGE",
+      title: "Werbung – Rückfrage",
+      body: "Moin {name},\n\nzu deinem Werbe-Antrag haben wir noch eine Frage:\n\n{grund}\n\nAntworte einfach direkt hier im Portal.",
+    },
+    {
+      category: "EINLADUNG",
+      title: "Werbung – kurzer Austausch",
+      body: "Moin {name},\n\ndein Antrag klingt spannend! Lass uns kurz auf Discord sprechen – schreib uns im Portal zwei, drei Zeiten, an denen du kannst.",
+    },
+    {
+      category: "ERINNERUNG",
+      title: "Werbung – Wir warten auf deine Antwort",
+      body: "Moin {name},\n\nwir hatten dir zu deinem Werbe-Antrag {bewerbungs_id} eine Frage gestellt und noch nichts gehört. Melde dich gern in den nächsten Tagen – sonst schließen wir den Antrag.",
+    },
+    {
+      category: "ANNAHME",
+      title: "Werbung – Zusage",
+      body: "Moin {name},\n\nJannik ist dabei! 📣 Danke für deinen Antrag.\n\n**So geht's weiter:**\n{grund}\n\nGut zu wissen: Bezahlte oder gesponserte Inhalte kennzeichnet Jannik immer als Werbung.",
+    },
+    {
+      category: "ABLEHNUNG",
+      title: "Werbung – Absage",
+      body: "Moin {name},\n\ndanke für deinen Werbe-Antrag! Diesmal passt es leider nicht:\n\n{grund}\n\nDu kannst ab dem **{sperrfrist}** gern einen neuen Antrag stellen.",
+    },
+    {
+      category: "SONSTIGES",
+      title: "Werbung – Infos zu Werbung",
+      body: "**Gut zu wissen:**\n- Jannik stellt nur vor, was zu ihm und der Community passt.\n- Bezahlte oder gesponserte Inhalte werden immer als Werbung gekennzeichnet.\n- Keine Werbung für Glücksspiel, Wetten, Krypto oder NSFW.\n- Termine und Konditionen besprechen wir per Nachricht.",
+    },
+  ],
+};
+
+/** Weitere Bewerbungsarten neben „Team“: Partner-Anfrage und Werbe-Antrag. */
+export const KIND_SEEDS: KindSeed[] = [PARTNER_SEED, PROMO_SEED];

@@ -101,6 +101,10 @@ export const settingsSchema = z.object({
   "discord.jobsAutoUpdate": bool(true),
   /** Einzelaufrufe „Wir suchen <Stelle>!“ */
   "discord.spotlightChannelId": channel(""),
+  /** Öffnet eine Stelle (von Hand oder per Startdatum): automatisch neuer Einzelaufruf */
+  "discord.announceOnOpen": bool(true),
+  /** Optional: Rolle, die beim neuen Einzelaufruf gepingt wird (z. B. „Bewerbungs-Ping“) */
+  "discord.announcePingRoleId": z.string().trim().regex(/^(\d{15,25})?$/, "Nur eine Rollen-ID (Ziffern).").default(""),
   /** Neue Changelog-Einträge des Portals posten */
   "discord.changelogEnabled": bool(true),
   "discord.changelogChannelId": channel(""),

@@ -43,6 +43,7 @@ function useAction() {
 const ACCEPT_TEXT: Record<KindKey, { hint: string; confirm: string }> = {
   team: { hint: "Ins Team aufnehmen", confirm: "Die Person wird ins Team aufgenommen." },
   partner: { hint: "Partnerschaft zusagen", confirm: "Die Partner-Anfrage wird angenommen – die Person bekommt die Zusage per Nachricht." },
+  promo: { hint: "Werbung zusagen", confirm: "Der Werbe-Antrag wird angenommen – die Person bekommt die Zusage per Nachricht." },
 };
 
 export function StatusControl({ applicationId, current, targets, kind = "team" }: { applicationId: string; current: ApplicationStatus; targets: ApplicationStatus[]; kind?: KindKey }) {

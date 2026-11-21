@@ -56,6 +56,7 @@ export function SiteFooter() {
           </nav>
           <nav aria-label="Mitmachen" className="space-y-2 text-sm">
             <p className="nv-mono mb-3">Mitmachen</p>
+            <Link className={link} href="/antrag">Werbe-Antrag</Link>
             <Link className={link} href="/partner">Partner-Anfrage</Link>
             <Link className={link} href="/ideen?art=idee">Idee einreichen</Link>
             <Link className={link} href="/ideen?art=feedback">Feedback geben</Link>

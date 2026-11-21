@@ -86,9 +86,16 @@ const positionSchema = z.object({
 });
 
 /** Stelle wurde (wieder) geöffnet → Vorgemerkte per DM informieren (nach der Antwort). */
-function notifyOpenedAfter(position: { id: string; title: string; slug: string }) {
+/**
+ * Stelle wurde geöffnet: erst neuer Einzelaufruf, dann übrige Posts aktualisieren, dann DMs an
+ * Vorgemerkte – nacheinander, damit Aktualisieren und neuer Post sich nicht in die Quere kommen.
+ */
+function openedAfter(position: { id: string; title: string; slug: string }) {
   after(async () => {
-    const { notifyPositionOpened } = await import("@/lib/positions/schedule");
+    const { announceOpened, notifyPositionOpened } = await import("@/lib/positions/schedule");
+    await announceOpened(db, position.slug);
+    const { refreshJobsPostQuietly } = await import("@/lib/discord/jobs-post");
+    await refreshJobsPostQuietly(db).catch((e) => console.error("[positions] Stellenaufruf", e));
     await notifyPositionOpened(db, position).catch((e) => console.error("[positions] Benachrichtigung", e));
   });
 }
@@ -130,8 +137,8 @@ export async function savePositionAction(input: z.input<typeof positionSchema>):
     await audit("position.create", { actorId: user.id, targetType: "position", targetId: saved.id });
   }
   refresh();
-  refreshJobsAfter();
-  if (saved.status === "OPEN" && before && before.status !== "OPEN") notifyOpenedAfter(saved);
+  if (saved.status === "OPEN" && before && before.status !== "OPEN") openedAfter(saved);
+  else refreshJobsAfter();
   return { ok: true, data: { id: saved.id } };
 }
 
@@ -143,10 +150,10 @@ export async function setPositionStatusAction(positionId: string, status: "OPEN"
   if (status === "OPEN" && before.seats === 0) return { ok: false, error: "Keine freien Plätze mehr – erst in der Stelle „Freie Plätze“ erhöhen." };
   const { clearStaleSchedule } = await import("@/lib/positions/schedule");
   const saved = await db.position.update({ where: { id: positionId }, data: { status, ...clearStaleSchedule(status, before, new Date()) } });
-  if (status === "OPEN" && before.status !== "OPEN") notifyOpenedAfter(saved);
   await audit("position.status", { actorId: user.id, targetType: "position", targetId: positionId, meta: { status } });
   refresh();
-  refreshJobsAfter();
+  if (status === "OPEN" && before.status !== "OPEN") openedAfter(saved);
+  else refreshJobsAfter();
   return { ok: true };
 }
 

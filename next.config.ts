@@ -36,9 +36,13 @@ const nextConfig: NextConfig = {
       },
     },
   },
-  // Kurz-Link für die Partner-Anfrage (URL bleibt /partner)
+  // Kurz-Links für Partner-Anfrage und Werbe-Antrag (URL bleibt /partner bzw. /antrag)
   async rewrites() {
-    return [{ source: "/partner", destination: "/positionen/partner-anfrage" }];
+    return [
+      { source: "/partner", destination: "/positionen/partner-anfrage" },
+      { source: "/antrag", destination: "/positionen/werbe-antrag" },
+      { source: "/antraege", destination: "/positionen/werbe-antrag" },
+    ];
   },
   // Alte Einstellungsseite → Admin-Bereich (Lesezeichen, Links in Hilfetexten)
   async redirects() {

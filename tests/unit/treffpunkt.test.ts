@@ -204,3 +204,23 @@ describe("Content-Board", () => {
     expect(classifyRoute("/content")).toBe("user-page");
   });
 });
+
+import { withRolePing } from "@/lib/discord/jobs-post";
+import { buildSpotlightMessage } from "@/lib/messages/jobs";
+
+describe("Einzelaufruf bei neuer Stelle", () => {
+  const msg = buildSpotlightMessage(
+    { slug: "cutter", title: "Cutter", tagline: "Shorts", description: "Schneiden", icon: "scissors", status: "OPEN", tasks: [], requirements: [], minAge: 15, acceptRoleId: null, type: { key: "team" } } as never,
+    { appUrl: "https://portal.jannikjbi.de", defaultMinAge: 16 },
+  );
+  it("ohne Ping-Rolle: niemand wird gepingt", () => {
+    expect(withRolePing(msg, "")).toBe(msg);
+    expect(msg.allowed_mentions).toEqual({ parse: [] });
+  });
+  it("mit Ping-Rolle: Erwähnung oben, nur diese Rolle darf pingen", () => {
+    const m = withRolePing(msg, A);
+    expect(m.allowed_mentions).toEqual({ parse: [], roles: [A] });
+    const first = (m.components![0] as { components: { content?: string }[] }).components[0];
+    expect(first.content).toBe(`<@&${A}>`);
+  });
+});

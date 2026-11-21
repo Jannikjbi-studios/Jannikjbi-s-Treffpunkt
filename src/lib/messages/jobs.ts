@@ -39,6 +39,7 @@ const ICON_EMOJI: Record<string, string> = {
   palette: "🎨",
   tent: "🎪",
   handshake: "🤝",
+  megaphone: "📣",
   headset: "🎧",
   shield: "🛡️",
   code: "💻",

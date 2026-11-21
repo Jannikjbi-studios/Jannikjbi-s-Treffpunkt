@@ -101,7 +101,7 @@ export default function HomePage() {
       </section>
 
       <Suspense fallback={null}>
-        <PartnerCard />
+        <RequestCards />
       </Suspense>
 
       <section id="jannikjbi" className="scroll-mt-28 pt-24">
@@ -298,32 +298,44 @@ async function UpcomingList() {
   );
 }
 
-/** Partner-Anfrage (eigene Art) – nur wenn die Stelle nicht versteckt ist. */
-async function PartnerCard() {
+/** Anfragen neben den Stellen: Werbe-Antrag und Partner-Anfrage – nur, wenn nicht versteckt. */
+const REQUEST_KINDS = [
+  { kind: "promo", slug: "werbe-antrag", href: "/antrag", icon: "megaphone", title: "Werbe-Antrag", cta: "Antrag stellen" },
+  { kind: "partner", slug: "partner-anfrage", href: "/partner", icon: "handshake", title: "Partner-Anfrage", cta: "Anfrage stellen" },
+] as const;
+
+async function RequestCards() {
   await connection();
-  const p = await db.position.findFirst({
-    where: { slug: "partner-anfrage", status: { not: "HIDDEN" }, type: { key: "partner", active: true } },
-    select: { status: true, tagline: true },
+  const rows = await db.position.findMany({
+    where: { OR: REQUEST_KINDS.map((k) => ({ slug: k.slug, type: { key: k.kind, active: true } })), status: { not: "HIDDEN" } },
+    select: { slug: true, status: true, tagline: true },
   });
-  if (!p) return null;
-  const open = p.status === "OPEN";
+  const cards = REQUEST_KINDS.flatMap((k) => {
+    const p = rows.find((r) => r.slug === k.slug);
+    return p ? [{ ...k, open: p.status === "OPEN", tagline: p.tagline }] : [];
+  });
+  if (!cards.length) return null;
   return (
-    <section id="partner" className="scroll-mt-28 pt-16">
+    <section id="anfragen" className="scroll-mt-28 pt-16">
       <Container>
-        <Link href="/partner" className="nv-card nv-card-hover group flex flex-col gap-4 p-6 sm:flex-row sm:items-center">
-          <IconTile icon="handshake" />
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <h3 className="font-display text-2xl">Partner-Anfrage</h3>
-              <span className={`nv-pill !text-[0.7rem] !py-0.5 ${open ? "nv-tone-success" : ""}`}>{open ? "Offen" : "Noch geschlossen"}</span>
-            </div>
-            <p className="mt-1 text-sm text-muted">{p.tagline}</p>
-          </div>
-          <span className="inline-flex items-center gap-1.5 text-sm font-medium text-red-text">
-            {open ? "Anfrage stellen" : "Mehr erfahren"}
-            <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" aria-hidden />
-          </span>
-        </Link>
+        <div className={`grid grid-cols-[minmax(0,1fr)] gap-4 ${cards.length > 1 ? "lg:grid-cols-2" : ""}`}>
+          {cards.map((c) => (
+            <Link key={c.slug} id={c.kind === "partner" ? "partner" : "antrag"} href={c.href} className="nv-card nv-card-hover group flex flex-col gap-4 p-6 sm:flex-row sm:items-center scroll-mt-28">
+              <IconTile icon={c.icon} />
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="font-display text-2xl">{c.title}</h3>
+                  <span className={`nv-pill !text-[0.7rem] !py-0.5 ${c.open ? "nv-tone-success" : ""}`}>{c.open ? "Offen" : "Noch geschlossen"}</span>
+                </div>
+                <p className="mt-1 text-sm text-muted">{c.tagline}</p>
+              </div>
+              <span className="inline-flex items-center gap-1.5 text-sm font-medium text-red-text">
+                {c.open ? c.cta : "Mehr erfahren"}
+                <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" aria-hidden />
+              </span>
+            </Link>
+          ))}
+        </div>
       </Container>
     </section>
   );

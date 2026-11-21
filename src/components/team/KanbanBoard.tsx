@@ -68,7 +68,7 @@ export function KanbanBoard({ items: initial }: { items: BoardItem[] }) {
             ? "Die Bewerbung wird abgelehnt, die Sperrfrist startet."
             : kind.key === "team"
               ? "Die Person wird ins Team aufgenommen."
-              : `Die ${kind.noun} wird angenommen – die Rolle der Stelle wird vergeben.`,
+              : `Die ${kind.noun} wird angenommen – die Person bekommt die Zusage per Nachricht.`,
         confirmLabel: STATUS_LABEL[to],
         tone: to === "REJECTED" ? "danger" : "default",
       }))) return;

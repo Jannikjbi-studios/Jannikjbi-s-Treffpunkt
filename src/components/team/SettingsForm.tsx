@@ -187,6 +187,16 @@ export function SettingsForm({ section, settings, env, channels, spend, spendMic
           {toggle("discord.logChannelEnabled", "Neue Bewerbungen im Bewerbungs-Kanal posten")}
           {toggle("discord.botLogEnabled", "Bot-Logs posten", "Statuswechsel, Claims, Team-Nachrichten, Antworten von Bewerbern und Zustellfehler.")}
           {toggle("discord.jobsAutoUpdate", "Stellenaufruf automatisch aktualisieren", "Ändert sich eine Position (Status, Texte), bearbeitet der Bot seine Posts (Gesamt- und Einzelaufrufe) – kein neuer Post.")}
+          {toggle("discord.announceOnOpen", "Neue Stelle offen → Einzelaufruf posten", "Öffnet eine Stelle (von Hand oder per Startdatum), postet der Bot automatisch einen neuen Einzelaufruf „Wir suchen …“ im Kanal Einzelaufrufe. Ein alter Aufruf derselben Stelle wird ersetzt.")}
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-2 sm:grid-cols-[260px_1fr] items-start">
+            <div>
+              <label htmlFor="announce-ping" className="nv-field-label">
+                Ping beim Einzelaufruf <span className="text-muted font-normal">(optional)</span>
+              </label>
+              <input id="announce-ping" className="nv-input font-mono text-sm" inputMode="numeric" placeholder="Rollen-ID, z. B. Bewerbungs-Ping" value={s["discord.announcePingRoleId"]} onChange={(e) => set("discord.announcePingRoleId", e.target.value)} />
+            </div>
+            <p className="nv-help sm:mt-7">Diese Rolle wird beim neuen Einzelaufruf gepingt. Leer = kein Ping. Rechtsklick auf die Rolle → „Rollen-ID kopieren“.</p>
+          </div>
           {toggle("discord.changelogEnabled", "Neue Changelog-Einträge posten", "Jeder Eintrag wird genau einmal gepostet, sobald er veröffentlicht ist.")}
           <div id="changelog" className="grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-[180px_1fr] items-start">
             <div>

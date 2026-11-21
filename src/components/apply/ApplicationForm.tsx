@@ -416,7 +416,7 @@ export function ApplicationForm({ position, sections, minAge, displayName, initi
                 )}
                 <ul className="grid grid-cols-[minmax(0,1fr)] gap-2 sm:grid-cols-2 text-sm text-fg-2">
                   <li className="flex gap-2">
-                    <CheckCircle size={18} className="text-red-text shrink-0" aria-hidden /> ca. 15–25 Minuten
+                    <CheckCircle size={18} className="text-red-text shrink-0" aria-hidden /> {kind.key === "team" ? "ca. 15–25 Minuten" : "ca. 5–10 Minuten"}
                   </li>
                   <li className="flex gap-2">
                     <CheckCircle size={18} className="text-red-text shrink-0" aria-hidden /> Eigene Worte statt Copy-Paste
@@ -599,7 +599,7 @@ export function ApplicationForm({ position, sections, minAge, displayName, initi
                   </>
                 ) : (
                   <>
-                    <PaperPlaneTilt size={16} weight="fill" aria-hidden /> Bewerbung absenden
+                    <PaperPlaneTilt size={16} weight="fill" aria-hidden /> {kind.key === "team" ? "Bewerbung absenden" : `${kind.noun} absenden`}
                   </>
                 )}
               </button>

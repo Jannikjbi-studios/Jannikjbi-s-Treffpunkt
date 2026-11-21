@@ -79,7 +79,10 @@ export async function applyPositionSchedule(db: PrismaClient, now = new Date()) 
     await db.auditLog.create({ data: { action: "position.auto", targetType: "position", targetId: t.id, meta: { to: t.to, reason: t.reason } } });
     const log = await botLog(t.to === "OPEN" ? `🟢 **${p.title}** ist jetzt automatisch geöffnet (Startdatum erreicht).` : `🔴 **${p.title}** wurde automatisch geschlossen (Enddatum erreicht).`);
     if (log) logIds.push(log);
-    if (t.to === "OPEN") await notifyPositionOpened(db, p);
+    if (t.to === "OPEN") {
+      await announceOpened(db, p.slug);
+      await notifyPositionOpened(db, p);
+    }
   }
   if (logIds.length) await runOutboxAll(logIds).catch(() => {});
   if (due.length) await refreshJobs(db);
@@ -122,6 +125,14 @@ export async function notifyPositionOpened(db: PrismaClient, position: { id: str
   // nächsten Zustellung raus (der Tageslauf läuft danach weiter und darf nicht ins Zeitlimit laufen)
   await runOutboxAll(ids, { deadline: Date.now() + 15_000 }).catch(() => {});
   return ids.length;
+}
+
+/** Neuer Einzelaufruf im Discord (Fehler nur loggen – die Stelle ist trotzdem offen). */
+export async function announceOpened(db: PrismaClient, slug: string) {
+  const { announceOpenedPosition } = await import("@/lib/discord/jobs-post");
+  const r = await announceOpenedPosition(db, slug).catch((e) => ({ ok: false as const, error: String(e) }));
+  if (!r.ok) console.warn("[positions] Einzelaufruf nicht gepostet:", r.error);
+  return r;
 }
 
 async function refreshJobs(db: PrismaClient) {

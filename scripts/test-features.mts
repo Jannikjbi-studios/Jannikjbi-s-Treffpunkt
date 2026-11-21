@@ -691,6 +691,51 @@ try {
     await saveSettings({ "discord.autoRoleOnAccept": false }, team.id);
   }
 
+  // ── Stelle öffnet → automatisch neuer Einzelaufruf (Kanal Einzelaufrufe, optional Ping)
+  {
+    const { saveSettings, clearSettingsCache } = await import("../src/lib/settings");
+    const { setDiscordApiForTests } = await import("../src/lib/discord/client");
+    const { applyPositionSchedule, announceOpened } = await import("../src/lib/positions/schedule");
+    const SPOT = "123456789012345671";
+    const PING = "123456789012345672";
+    process.env.DISCORD_SPOTLIGHT_CHANNEL_ID = SPOT;
+    clearSettingsCache();
+    const posts: { ch: string; body: string }[] = [];
+    const deleted: string[] = [];
+    let n = 0;
+    setDiscordApiForTests({
+      getMember: async () => null,
+      openDm: async (u: string) => `dm-${u}`,
+      postMessage: async (ch: string, m: unknown) => (ch === SPOT && posts.push({ ch, body: JSON.stringify(m) }), `post-${++n}`),
+      editMessage: async () => {},
+      deleteMessage: async (_ch: string, id: string) => void deleted.push(id),
+      addRole: async () => {},
+      removeRole: async () => {},
+      setNick: async () => {},
+      startThread: async () => "t",
+      archiveThread: async () => {},
+    });
+    const spot = await db.position.create({ data: { typeId: type.id, slug: "spot-test", title: "Spot-Test", tagline: "x", description: "x", status: "CLOSED", opensAt: new Date(Date.now() - 60_000) } });
+    await applyPositionSchedule(db);
+    check(posts.length === 1 && posts[0].ch === SPOT && posts[0].body.includes("Wir suchen"), "Stelle öffnet per Startdatum → neuer Einzelaufruf im Kanal Einzelaufrufe");
+    check(!posts[0].body.includes("<@&"), "Ohne Ping-Rolle: kein Ping");
+    await saveSettings({ "discord.announcePingRoleId": PING }, team.id);
+    await db.position.update({ where: { id: spot.id }, data: { status: "OPEN" } });
+    await announceOpened(db, spot.slug);
+    check(posts.length === 2 && posts[1].body.includes(`<@&${PING}>`) && posts[1].body.includes(`"roles":["${PING}"]`), "Mit Ping-Rolle: Rolle wird gepingt");
+    check(deleted.length === 1, "Erneut geöffnet: alter Aufruf derselben Stelle wird ersetzt (kein Doppelpost)");
+    const ptype = await db.applicationType.upsert({ where: { key: "partner" }, create: { key: "partner", name: "Partner" }, update: {} });
+    const partner = await db.position.create({ data: { typeId: ptype.id, slug: "partner-test", title: "Partner-Test", tagline: "x", description: "x", status: "OPEN" } });
+    await announceOpened(db, partner.slug);
+    check(posts.length === 2, "Partner-Anfrage o. Ä. (keine Team-Stelle): kein Einzelaufruf");
+    await saveSettings({ "discord.announceOnOpen": false, "discord.announcePingRoleId": "" }, team.id);
+    await announceOpened(db, spot.slug);
+    check(posts.length === 2, "Abgeschaltet: kein Einzelaufruf");
+    await saveSettings({ "discord.announceOnOpen": true }, team.id);
+    delete process.env.DISCORD_SPOTLIGHT_CHANNEL_ID;
+    setDiscordApiForTests(null);
+  }
+
   // ── Feedback (eins pro Bewerbung)
   await db.feedback.create({ data: { applicationId: app1.id, rating: 5 } });
   dup = false;
