@@ -13,7 +13,8 @@ RUN apk add --no-cache openssl
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN npx prisma generate && npx next build
+# NEXT_PUBLIC_* werden beim Bauen eingebaut. Auf dem Server liegen sie in build-public.env (vom Admin-Panel gepflegt).
+RUN set -a; [ -f build-public.env ] && . ./build-public.env; set +a; npx prisma generate && npx next build
 
 # ─── Web (Next.js standalone) ───
 FROM node:24-alpine AS web

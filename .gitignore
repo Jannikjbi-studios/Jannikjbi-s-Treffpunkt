@@ -50,3 +50,6 @@ next-env.d.ts
 /test-results
 /playwright-report
 /.claude
+
+# Server: NEXT_PUBLIC-Werte fuer den Docker-Build (vom Admin-Panel gepflegt)
+build-public.env
